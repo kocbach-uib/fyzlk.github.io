@@ -1,2 +1,4 @@
 text
 text
+created new directory simply by creating 
+          a NEW FILE - and making a directory - / and creating the file
