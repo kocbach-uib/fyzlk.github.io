@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html><head>
+ <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">  
+ <title>Touch Kalleidescop: JavaScript Canvas; Work: L. Kocbach</title>
+
+ <style type="text/css"><!-- #container { position: relative; } #blob { border: 1px solid #000; } --></style>
+<!-- 
+
+    Touch Kalleidescop: JavaScript Canvas;         Work: L. Kocbach
+
+    This version is made for iPhone and Android phones and tablets
+	It also works in any web browser
+	
+	Due to the instable touch events on iOS / Android 
+	the precision of the pointer is not very good
+
+
+-->	
+<!-- The mouse and canvas tricks are based on ROBO Design
+ * http://www.robodesign.ro   Programmed by Ladislav Kocbach http://web.ift.uib.no/~ladi/   
+ Copyleft: Please, do anything with this code, but keep these three lines included-->	
+
+<!--[if IE]><script src="excanvas.js"></script><![endif]-->  
+<script language="JavaScript">
+var VersionString= " This is touch tablet development version February 2012     ";
+
+  var TheCanvas;
+  var CTX;
+  var  Action='none';  var width=464;  var height=464;   var AxesNumber=7;
+  var OriginX=width/2;    var OriginY=height/2; 
+  var x=0;	 var y=0;	var phi=0;	var r=0; var phiTo=0;	var rTo=0;		  
+  var PiPart= 2 * Math.PI / AxesNumber;
+  var clock=1; var anticlock=1; var symfilter=0;
+  var LineThick=6;
+  var changing_alpha=0;
+  
+  var  Text_mirrors="";     var  Text_COLORCHOICE="";   var colorstring='#000';
+  var SYMMETRY_Text="";     var LineThickText="";
+  var theAlpha=1.0;  var storeAlpha;
+  
+     eventType = "";    //  Used in the event translation; A string 
+  
+   var clicksn=0;
+   var Drawing=false;
+   var mouseX=0; var mouseY =0;
+  var Timeint = 0.01;
+
+
+  var ColS=[];	var LinT=[];	var alph=[];	var MirrS=[];	var symF=[];	
+  var Xv=[]; var Yv=[];	var NLines=0; var ILines=-1;  var LineN=[];
+  Xv[0]=[];	Yv[0]=[];  Xv[0][0]=0;	Yv[0][0]=0;
+  var TheLine=0;    var ThePoint=0;  var ipoint=0;
+  var pointCount=0;
+  
+
+var dataURLred;  var dataURLblue;	var dataURLyellow;		 
+var  dataURLblack;   var  dataURLpink;  var  dataURLviolet;   
+var  dataURLgray;  var  dataURLgreen;  var  dataURLwhite;
+
+var thinlin_extimg_data = "";
+var fetlines_extimg_data = "";
+var symmir_extimg_data = "";
+var clockmir_extimg_data = "";
+
+var dataURLtransp;  var dataURLopaque;
+  
+  
+  
+    var DOWN = false;  
+	var DRAWN=1;
+	var Xstart=0;
+	var Ystart=0;
+	var Xdrawto=0;
+	var Ydrawto=0;
+	var i=0; var psi=0; var X=0; var Y=0; var Xe=0; var Ye=0;
+	
+
+
+
+  //   CTX.globalAlpha=0.15;
+/* The tricks are invented by ROBO Design
+ * http://www.robodesign.ro   */
+
+// Initialization sequence.
+function init () {                         //  INIT STARTS HERE
+   // Find the canvas element.
+     TheCanvas = document.getElementById("blob");
+   // Get the 2D canvas context.
+     CTX = TheCanvas.getContext('2d');
+	   CTX.lineWidth = LineThick;
+	   CTX.strokeStyle = '#000';
+	 CTX.fillStyle = '#FFFFFF'; 
+	 CTX.globalAlpha=1;   //     CTX.globalAlpha=theAlpha; 
+         CTX.fillRect(0, 0, width, height); 
+		 
+
+
+
+		 
+		 
+  // Attach the mousedown, mousemove and mouseup event listeners.
+  //  TheCanvas.addEventListener('mousedown', ev_canvas, false);
+  //  TheCanvas.addEventListener('mousemove', ev_canvas, false);
+  //  TheCanvas.addEventListener('mouseup',   ev_canvas, false);
+
+          TheCanvas.addEventListener( 'mousemove', MouseMoveCanvas, false ); 
+          TheCanvas.addEventListener( 'mousedown', MouseClickCanvas, false ); 
+		  TheCanvas.addEventListener( 'mouseup',   MouseUpCanvas, false ); 
+            TheCanvas.addEventListener( 'touchmove', TouchMoveCanvas, false ); 
+            TheCanvas.addEventListener( 'touchstart', TouchStartCanvas, false ); 
+			TheCanvas.addEventListener( 'touchend', TouchEndCanvas, false );     
+    
+     document.onkeydown = function(event) 
+    {
+      var keyCode; 
+      if(event == null){
+        keyCode = window.event.keyCode; }
+      else    {
+        keyCode = event.keyCode;  }
+      Ation='none';
+      switch(keyCode)
+      {        
+        // clean on presed 'c'
+        case 67: 
+          Action='clean';
+          break; 
+        case 66: 
+          Action='blue';
+          break; 
+        case 80: 
+          Action='pink';
+          break; 
+		
+		case 84:         //   T    transparency setting
+		   setTrans();
+		  break;
+
+		case 87:         //   W    white 
+		   white_canvas(); DOWN = false; Action='none'; 
+		  break;
+		  
+        default: 
+          break; 
+	   
+      }
+         if (Action=='clean') {  
+	  clean_canvas(); DOWN = false; Action='none'; }
+         if (Action=='blue') {   
+	  blue_canvas();DOWN = false; Action='none'; }
+         if (Action=='pink') {   
+	  pink_canvas(); DOWN = false; Action='none'; }
+	 
+    }
+	
+	
+     clockmir_def_image();
+     document.getElementById("clockmir_image_ID").src = clockmir_extimg_data;
+
+     symmir_def_image();
+     document.getElementById("symmir_image_ID").src = symmir_extimg_data;
+
+     thinlin_def_image();
+     document.getElementById("thinlin_image_ID").src = thinlin_extimg_data;
+	 
+	  fetlines_def_image();
+     document.getElementById("fetlines_image_ID").src = fetlines_extimg_data;
+	 
+     blackX_def_image();
+     blueX_def_image();
+     greenX_def_image();
+     grayX_def_image();
+     opaqueX_def_image();
+     pinkX_def_image();
+     redX_def_image();
+     transpX_def_image();
+     violetX_def_image();
+     whiteX_def_image();
+     yellowX_def_image();
+//   NEW COLOR FUNCTIONS		 
+
+
+	 document.getElementById("redImg_ID").src = dataURLred;  
+	 document.getElementById("blueImg_ID").src = dataURLblue;	
+	 document.getElementById("yellowImg_ID").src = dataURLyellow;
+	 document.getElementById("whiteImg_ID").src = dataURLwhite;
+	 document.getElementById("greenImg_ID").src = dataURLgreen;
+	 document.getElementById("pinkImg_ID").src = dataURLpink;
+	 document.getElementById("violetImg_ID").src = dataURLviolet;
+	 document.getElementById("blackImg_ID").src = dataURLblack;
+	 document.getElementById("grayImg_ID").src = dataURLgray;
+//   Transparency
+	document.getElementById("transpImg_ID").src = dataURLtransp; 	
+	document.getElementById("opaqueImg_ID").src = dataURLopaque; 	
+	
+
+
+}   //  This is the whole init function           END OF INIT
+	
+	
+     function MouseMoveCanvas(event)	 {   //   Mouse Moved    "Mmove"
+	    // event= event || window.event;
+		eventType="Mmove";
+		Pointer_Canvas( event, eventType )	 }
+     function MouseClickCanvas(event)	 {   //   Mouse down     "Mdown"
+	    // event= event || window.event;
+		eventType="Mdown";
+		Pointer_Canvas( event, eventType )	 }
+     function MouseUpCanvas(event)	 {       //   Mouse Up      "Mup"
+	    // event= event || window.event;
+		eventType="Mup";
+		Pointer_Canvas( event, eventType )	 }
+     function TouchMoveCanvas(event)	 {   //   TOUCH     "Tchmove"
+	    event.preventDefault();
+	    event= event || window.event;
+		eventType="Tchmove";            
+		Pointer_Canvas( event, eventType )	 }
+     function TouchStartCanvas(event)	 {    // TOUCH START  "Tchstart"
+	    event.preventDefault();
+	    event= event || window.event;
+		eventType="Tchstart";
+		Pointer_Canvas( event, eventType )	 }
+     function TouchEndCanvas(event)	 {        //  TOUCH  END   "Tchend"
+	    // event.preventDefault();
+	    event= event || window.event; Drawing=false;
+		eventType="Tchend";
+		Pointer_Canvas( event, eventType )	 }
+
+
+
+	 
+        function Pointer_Canvas( event, evType )
+        {           
+            
+                var moX = 0
+                var moY = 0			
+				var touch = "";
+			 if  ( event.targetTouches ) 
+			 {
+			      touch = event.targetTouches[ 0 ];
+				  moX = touch.pageX
+                  moY = touch.pageY
+			}
+           
+
+    if (    (evType=="Mup")   ||  (evType=="Tchend") )
+        {                       
+            Drawing = false;	
+			   DOWN = false;    
+		// ILines=ILines+1;
+		// NLines=ILines;
+		//   Counting
+		// pointCount=pointCount+ipoint;
+		// document.getElementById("countshow").innerHTML="Points: "+pointCount;
+					   
+        }			
+           
+            // event.preventDefault();
+           // event.stopPropagation();
+ 
+            
+						
+              var mX=event.clientX;
+              var mY=event.clientY;
+			  
+ 
+                  mouseX = mX || moX;
+                  mouseY = mY || moY;
+				  mouseX = mouseX -8;
+				  mouseY = mouseY -8;
+
+
+
+if (((evType=="Mmove" ||  evType=="Tchmove")) && Drawing )
+		      
+////   if (  Drawing  )    /////     START DRAWING  
+                
+{
+	        Xdrawto=mouseX;
+	        Ydrawto=mouseY;
+	       Xv[ILines][ipoint]=Xdrawto; Yv[ILines][ipoint]=Ydrawto; ipoint=ipoint+1; LineN[ILines]=ipoint;  	
+
+       		document.getElementById("countshow").innerHTML="Points: "+pointCount+", "+ipoint;
+
+		   		
+	//  From-point	  
+		  x=(  Xstart-OriginX)/OriginY;
+		  y=(-Ystart+OriginY)/OriginY;	
+		  r=Math.sqrt(x*x+y*y);
+		  phi=Math.atan2(y,x);
+	//   To-point
+		  x=(  Xdrawto-OriginX)/OriginY;
+		  y=(-Ydrawto+OriginY)/OriginY;	
+		  rTo=Math.sqrt(x*x+y*y);
+		  phiTo=Math.atan2(y,x);
+	//   Arrange thickness: changing pensymmetry if symfilter==1	  
+	    if ( symfilter==1 ) {  
+		  // if(Math.abs(phi-phiTo)<(0.02*Math.PI) )
+		  // {  rTo=rTo+LineThick/OriginX;   
+			//  compar=LineThick/OriginX;
+			//phiTo=phiTo+Math.atan2(compar,r);
+			
+		  // }
+		   if( ((Xstart-Xdrawto)*(Xstart-Xdrawto) + (Ystart-Ydrawto)*(Ystart-Ydrawto)) >0.64* LineThick*LineThick) 
+		   { 			DRAWN=1;
+		   }
+		}		
+        for( i=0; i<AxesNumber; i++ ) {
+		
+		if( clock==1)
+		{    psi=phi+i*PiPart;
+			  X=OriginX+OriginY*r*Math.cos(psi);
+			  Y=OriginY-OriginY*r*Math.sin(psi);			
+			//CTX.beginPath();
+			//CTX.moveTo(X, Y);
+		      psi=phiTo+i*PiPart;
+			  Xe=OriginX+OriginY*rTo*Math.cos(psi);
+			  Ye=OriginY-OriginY*rTo*Math.sin(psi);	
+			if(symfilter==0){  			
+			CTX.beginPath();
+			CTX.moveTo(X, Y);				  	  
+			CTX.lineTo(Xe, Ye);
+			CTX.stroke();
+			}
+			if(symfilter==1 && DRAWN==1){ 	
+			CTX.beginPath();
+			CTX.moveTo(X, Y);					 	  	  
+			CTX.lineTo(Xe, Ye);
+			CTX.stroke();}			
+		}
+      if( anticlock==1)
+		{	  psi=-phi+i*PiPart;
+			  X=OriginX+OriginY*r*Math.cos(psi);
+			  Y=OriginY-OriginY*r*Math.sin(psi);			
+			//CTX.beginPath();
+			//CTX.moveTo(X, Y);
+		      psi=-phiTo+i*PiPart;
+			  Xe=OriginX+OriginY*rTo*Math.cos(psi);
+			  Ye=OriginY-OriginY*rTo*Math.sin(psi);		  	  
+			if(symfilter==0){  	  	 
+			CTX.beginPath();
+			CTX.moveTo(X, Y);			  			 
+			CTX.lineTo(Xe, Ye);
+			CTX.stroke();}
+		}	
+			if(symfilter==1 && DRAWN==1){ 	
+			CTX.beginPath();
+			CTX.moveTo(X, Y);					 	  	  
+			CTX.lineTo(Xe, Ye);
+			CTX.stroke();}	
+	   }   //  ENDED I OVER all axes
+	   if(symfilter==0){ 
+	                     Xstart=Xdrawto;
+	                     Ystart=Ydrawto; }
+	   if(symfilter==1){   
+	                     if(DRAWN==1){
+	                     Xstart=Xdrawto;
+	                     Ystart=Ydrawto;  DRAWN=0;}	}		
+	    var xxx=  Xstart; var yyy=  Ystart; 
+	    if( xxx>width-1  ||  xxx<2 || yyy>height-1 || yyy<2) {  DOWN = false;}	  
+	  //   Drawing = DOWN;
+ } /////     END DRAWING    
+				
+	
+    if (    (evType=="Mdown")   ||  (evType=="Tchstart") )
+ 
+        {                       
+            Drawing = true;
+		//	CTX.beginPath();
+		//	CTX.moveTo(mouseX, mouseY );
+			Xstart=mouseX;
+            Ystart=mouseY;
+            DOWN = true;
+	  ILines=ILines+1;
+	  NLines=ILines+1;
+	  ColS[ILines]=colorstring;	
+	  LinT[ILines]=LineThick;	
+	  alph[ILines]=theAlpha;	
+	  MirrS[ILines]=anticlock;	
+	  symF[ILines]=symfilter;  
+	  pointCount=pointCount+ipoint;	   //   From the previous line 
+      Xv[ILines]=[];	Yv[ILines]=[];   // NLines=0; // ILines=0;
+  //  LineThick, symfilter, colorstring, theAlpha, anticlock
+	Xv[ILines][0]=Xstart; Yv[ILines][0]=Ystart; ipoint=1; LineN[ILines]=ipoint;
+	
+	document.getElementById("countshow").innerHTML="Points: "+pointCount+", "+ipoint;
+			// ILines=ILines+1;
+		// NLines=ILines;
+		//   Counting
+		// pointCount=pointCount+ipoint;
+		// document.getElementById("countshow").innerHTML="Points: "+pointCount;
+					
+        }
+  
+		
+	} 
+
+
+//   Redrawing lines
+
+/////////////////////////////////////////////////////////////////////////////
+// DrawLines
+
+	
+
+function plot_step(il,ip )	
+	  {
+	   if (ip==0){
+	    Xstart=Xv[il][0];
+	    Ystart=Yv[il][0];}
+
+		Xdrawto=Xv[il][ip+1]; Ydrawto=Yv[il][ip+1]; 
+		// LineN[il]=ip;  
+        
+	//  From-point	  
+		  x=(Xstart-OriginX)/OriginY;
+		  y=(-Ystart+OriginY)/OriginY;	
+		  r=Math.sqrt(x*x+y*y);
+		  phi=Math.atan2(y,x);
+	//   To-point
+		  x=(Xdrawto-OriginX)/OriginY;
+		  y=(-Ydrawto+OriginY)/OriginY;	
+		  rTo=Math.sqrt(x*x+y*y);
+		  phiTo=Math.atan2(y,x);
+	//   Arrange thickness: changing pensymmetry if symfilter==1	  
+	    if ( symfilter==1 ) {  
+		  // if(Math.abs(phi-phiTo)<(0.02*Math.PI) )
+		  // {  rTo=rTo+LineThick/OriginX;   
+			//  compar=LineThick/OriginX;
+			//phiTo=phiTo+Math.atan2(compar,r);
+			
+		  // }
+		   if( ((Xstart-Xdrawto)*(Xstart-Xdrawto) + (Ystart-Ydrawto)*(Ystart-Ydrawto)) >0.64* LineThick*LineThick) 
+		   { 			DRAWN=1;
+		   }
+		}		
+        for( i=0; i<AxesNumber; i++ ) {
+		
+		if( clock==1)
+		{    psi=phi+i*PiPart;
+			  X=OriginX+OriginY*r*Math.cos(psi);
+			  Y=OriginY-OriginY*r*Math.sin(psi);			
+			//CTX.beginPath();
+			//CTX.moveTo(X, Y);
+		      psi=phiTo+i*PiPart;
+			  Xe=OriginX+OriginY*rTo*Math.cos(psi);
+			  Ye=OriginY-OriginY*rTo*Math.sin(psi);	
+			if(symfilter==0){  			
+			CTX.beginPath();
+			CTX.moveTo(X, Y);				  	  
+			CTX.lineTo(Xe, Ye);
+			CTX.stroke();
+			}
+			if(symfilter==1 && DRAWN==1){ 	
+			CTX.beginPath();
+			CTX.moveTo(X, Y);					 	  	  
+			CTX.lineTo(Xe, Ye);
+			CTX.stroke();}			
+		}
+      if( anticlock==1)
+		{	  psi=-phi+i*PiPart;
+			  X=OriginX+OriginY*r*Math.cos(psi);
+			  Y=OriginY-OriginY*r*Math.sin(psi);			
+			//CTX.beginPath();
+			//CTX.moveTo(X, Y);
+		      psi=-phiTo+i*PiPart;
+			  Xe=OriginX+OriginY*rTo*Math.cos(psi);
+			  Ye=OriginY-OriginY*rTo*Math.sin(psi);		  	  
+			if(symfilter==0){  	  	 
+			CTX.beginPath();
+			CTX.moveTo(X, Y);			  			 
+			CTX.lineTo(Xe, Ye);
+			CTX.stroke();}
+		}	
+			if(symfilter==1 && DRAWN==1){ 	
+			CTX.beginPath();
+			CTX.moveTo(X, Y);					 	  	  
+			CTX.lineTo(Xe, Ye);
+			CTX.stroke();}	
+	   }   //  ENDED I OVER all axes
+	   if(symfilter==0){ 
+	                     Xstart=Xdrawto;
+	                     Ystart=Ydrawto; }
+	   if(symfilter==1){   
+	                     if(DRAWN==1){
+	                     Xstart=Xdrawto;
+	                     Ystart=Ydrawto;  DRAWN=0;}	}					 
+		ThePoint=ip+1;
+        if (ip< LineN[il]-2 )	{setTimeout('plot_step(TheLine,ThePoint)',Timeint); }
+		else { if (il < NLines-1 ) {DrawLines(TheLine+1); } } 
+      }
+
+
+  
+  
+  
+//
+function DrawLines(il)
+   {
+ 	  colorstring=ColS[il];	
+	  LineThick=LinT[il];	
+	  theAlpha=alph[il];	CTX.globalAlpha=theAlpha;
+	  anticlock=MirrS[il];	
+	  symfilter=symF[il];	
+	  CTX.lineWidth = LineThick;
+	  CTX.strokeStyle = colorstring;
+	  TheLine=il;
+	   //  nrep=LineN[il]; 
+	   setTimeout('plot_step(TheLine,0)',Timeint);
+	   
+   //   Xv[ILines]=[];	Yv[ILines]=[];// NLines=0; // ILines=0;
+  //    LineThick, symfilter, colorstring, theAlpha, anticlock
+  //	Xv[ILines][0]=Xstart; Yv[ILines][0]=Ystart; ip=1; LineN[ILines]=ip;    
+   }
+
+
+
+
+
+
+//   NEW  GUI  
+
+ 
+function blackX_def_image(){
+ dataURLblack = "data:image/png;base64,"+
+"iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAC7mlDQ1BJQ0MgUHJvZmlsZQAA"+
+"eAGFVM9rE0EU/jZuqdAiCFprDrJ4kCJJWatoRdQ2/RFiawzbH7ZFkGQzSdZuNuvuJrWliOTi"+
+"0SreRe2hB/+AHnrwZC9KhVpFKN6rKGKhFy3xzW5MtqXqwM5+8943731vdt8ADXLSNPWABOQN"+
+"x1KiEWlsfEJq/IgAjqIJQTQlVdvsTiQGQYNz+Xvn2HoPgVtWw3v7d7J3rZrStpoHhP1A4Eea"+
+"2Sqw7xdxClkSAog836Epx3QI3+PY8uyPOU55eMG1Dys9xFkifEA1Lc5/TbhTzSXTQINIOJT1"+
+"cVI+nNeLlNcdB2luZsbIEL1PkKa7zO6rYqGcTvYOkL2d9H5Os94+wiHCCxmtP0a4jZ71jNU/"+
+"4mHhpObEhj0cGDX0+GAVtxqp+DXCFF8QTSeiVHHZLg3xmK79VvJKgnCQOMpkYYBzWkhP10xu"+
+"+LqHBX0m1xOv4ndWUeF5jxNn3tTd70XaAq8wDh0MGgyaDUhQEEUEYZiwUECGPBoxNLJyPyOr"+
+"BhuTezJ1JGq7dGJEsUF7Ntw9t1Gk3Tz+KCJxlEO1CJL8Qf4qr8lP5Xn5y1yw2Fb3lK2bmrry"+
+"4DvF5Zm5Gh7X08jjc01efJXUdpNXR5aseXq8muwaP+xXlzHmgjWPxHOw+/EtX5XMlymMFMXj"+
+"VfPqS4R1WjE3359sfzs94i7PLrXWc62JizdWm5dn/WpI++6qvJPmVflPXvXx/GfNxGPiKTEm"+
+"dornIYmXxS7xkthLqwviYG3HCJ2VhinSbZH6JNVgYJq89S9dP1t4vUZ/DPVRlBnM0lSJ93/C"+
+"KmQ0nbkOb/qP28f8F+T3iuefKAIvbODImbptU3HvEKFlpW5zrgIXv9F98LZua6N+OPwEWDyr"+
+"Fq1SNZ8gvAEcdod6HugpmNOWls05Uocsn5O66cpiUsxQ20NSUtcl12VLFrOZVWLpdtiZ0x1u"+
+"HKE5QvfEp0plk/qv8RGw/bBS+fmsUtl+ThrWgZf6b8C8/UXAeIuJAAAAYElEQVRYCe3SsQ2A"+
+"QAwEQfP99wwE38EmDgbpw5Ws4Z6Zef+39jtrL7uHObD+IYIEq0DtbZBgFai9DRKsArW3QYJV"+
+"oPY2SLAK1N4GCVaB2tsgwSpQexskWAVqb4MEq0DtPxP3AU9rhblDAAAAAElFTkSuQmCC"+
+"      ";
+ }
+
+function blueX_def_image(){
+ dataURLblue = "data:image/png;base64,"+
+"iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAC7mlDQ1BJQ0MgUHJvZmlsZQAA"+
+"eAGFVM9rE0EU/jZuqdAiCFprDrJ4kCJJWatoRdQ2/RFiawzbH7ZFkGQzSdZuNuvuJrWliOTi"+
+"0SreRe2hB/+AHnrwZC9KhVpFKN6rKGKhFy3xzW5MtqXqwM5+8943731vdt8ADXLSNPWABOQN"+
+"x1KiEWlsfEJq/IgAjqIJQTQlVdvsTiQGQYNz+Xvn2HoPgVtWw3v7d7J3rZrStpoHhP1A4Eea"+
+"2Sqw7xdxClkSAog836Epx3QI3+PY8uyPOU55eMG1Dys9xFkifEA1Lc5/TbhTzSXTQINIOJT1"+
+"cVI+nNeLlNcdB2luZsbIEL1PkKa7zO6rYqGcTvYOkL2d9H5Os94+wiHCCxmtP0a4jZ71jNU/"+
+"4mHhpObEhj0cGDX0+GAVtxqp+DXCFF8QTSeiVHHZLg3xmK79VvJKgnCQOMpkYYBzWkhP10xu"+
+"+LqHBX0m1xOv4ndWUeF5jxNn3tTd70XaAq8wDh0MGgyaDUhQEEUEYZiwUECGPBoxNLJyPyOr"+
+"BhuTezJ1JGq7dGJEsUF7Ntw9t1Gk3Tz+KCJxlEO1CJL8Qf4qr8lP5Xn5y1yw2Fb3lK2bmrry"+
+"4DvF5Zm5Gh7X08jjc01efJXUdpNXR5aseXq8muwaP+xXlzHmgjWPxHOw+/EtX5XMlymMFMXj"+
+"VfPqS4R1WjE3359sfzs94i7PLrXWc62JizdWm5dn/WpI++6qvJPmVflPXvXx/GfNxGPiKTEm"+
+"dornIYmXxS7xkthLqwviYG3HCJ2VhinSbZH6JNVgYJq89S9dP1t4vUZ/DPVRlBnM0lSJ93/C"+
+"KmQ0nbkOb/qP28f8F+T3iuefKAIvbODImbptU3HvEKFlpW5zrgIXv9F98LZua6N+OPwEWDyr"+
+"Fq1SNZ8gvAEcdod6HugpmNOWls05Uocsn5O66cpiUsxQ20NSUtcl12VLFrOZVWLpdtiZ0x1u"+
+"HKE5QvfEp0plk/qv8RGw/bBS+fmsUtl+ThrWgZf6b8C8/UXAeIuJAAAAY0lEQVRYCe3SQQ3A"+
+"IBQFQYoUJNS/gpoqCRbmwmG5b/IzvGe93z8ufvPi285pHag/lGCCKqB9G0xQBbRvgwmqgPZt"+
+"MEEV0L4NJqgC2rfBBFVA+zaYoApo3wYTVAHt22CCKqD9Bi1nAm19NLBqAAAAAElFTkSuQmCC"+
+"      ";
+ }
+
+function greenX_def_image(){
+ dataURLgreen = "data:image/png;base64,"+
+"iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAC7mlDQ1BJQ0MgUHJvZmlsZQAA"+
+"eAGFVM9rE0EU/jZuqdAiCFprDrJ4kCJJWatoRdQ2/RFiawzbH7ZFkGQzSdZuNuvuJrWliOTi"+
+"0SreRe2hB/+AHnrwZC9KhVpFKN6rKGKhFy3xzW5MtqXqwM5+8943731vdt8ADXLSNPWABOQN"+
+"x1KiEWlsfEJq/IgAjqIJQTQlVdvsTiQGQYNz+Xvn2HoPgVtWw3v7d7J3rZrStpoHhP1A4Eea"+
+"2Sqw7xdxClkSAog836Epx3QI3+PY8uyPOU55eMG1Dys9xFkifEA1Lc5/TbhTzSXTQINIOJT1"+
+"cVI+nNeLlNcdB2luZsbIEL1PkKa7zO6rYqGcTvYOkL2d9H5Os94+wiHCCxmtP0a4jZ71jNU/"+
+"4mHhpObEhj0cGDX0+GAVtxqp+DXCFF8QTSeiVHHZLg3xmK79VvJKgnCQOMpkYYBzWkhP10xu"+
+"+LqHBX0m1xOv4ndWUeF5jxNn3tTd70XaAq8wDh0MGgyaDUhQEEUEYZiwUECGPBoxNLJyPyOr"+
+"BhuTezJ1JGq7dGJEsUF7Ntw9t1Gk3Tz+KCJxlEO1CJL8Qf4qr8lP5Xn5y1yw2Fb3lK2bmrry"+
+"4DvF5Zm5Gh7X08jjc01efJXUdpNXR5aseXq8muwaP+xXlzHmgjWPxHOw+/EtX5XMlymMFMXj"+
+"VfPqS4R1WjE3359sfzs94i7PLrXWc62JizdWm5dn/WpI++6qvJPmVflPXvXx/GfNxGPiKTEm"+
+"dornIYmXxS7xkthLqwviYG3HCJ2VhinSbZH6JNVgYJq89S9dP1t4vUZ/DPVRlBnM0lSJ93/C"+
+"KmQ0nbkOb/qP28f8F+T3iuefKAIvbODImbptU3HvEKFlpW5zrgIXv9F98LZua6N+OPwEWDyr"+
+"Fq1SNZ8gvAEcdod6HugpmNOWls05Uocsn5O66cpiUsxQ20NSUtcl12VLFrOZVWLpdtiZ0x1u"+
+"HKE5QvfEp0plk/qv8RGw/bBS+fmsUtl+ThrWgZf6b8C8/UXAeIuJAAAAYklEQVRYCe3SsQ3A"+
+"IBAEQUxJFOSS3ZKRaGESgiVf6TXc837rHxe/efFt57QO1B9KMEEV0L4NJqgC2rfBBFVA+zaY"+
+"oApo3wYTVAHt22CCKqB9G0xQBbRvgwmqgPZtMEEV0H4DeBUCrX23vGwAAAAASUVORK5CYII="+
+"      ";
+ }
+ 
+function grayX_def_image(){
+ dataURLgray = "data:image/png;base64,"+
+"iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAC7mlDQ1BJQ0MgUHJvZmlsZQAA"+
+"eAGFVM9rE0EU/jZuqdAiCFprDrJ4kCJJWatoRdQ2/RFiawzbH7ZFkGQzSdZuNuvuJrWliOTi"+
+"0SreRe2hB/+AHnrwZC9KhVpFKN6rKGKhFy3xzW5MtqXqwM5+8943731vdt8ADXLSNPWABOQN"+
+"x1KiEWlsfEJq/IgAjqIJQTQlVdvsTiQGQYNz+Xvn2HoPgVtWw3v7d7J3rZrStpoHhP1A4Eea"+
+"2Sqw7xdxClkSAog836Epx3QI3+PY8uyPOU55eMG1Dys9xFkifEA1Lc5/TbhTzSXTQINIOJT1"+
+"cVI+nNeLlNcdB2luZsbIEL1PkKa7zO6rYqGcTvYOkL2d9H5Os94+wiHCCxmtP0a4jZ71jNU/"+
+"4mHhpObEhj0cGDX0+GAVtxqp+DXCFF8QTSeiVHHZLg3xmK79VvJKgnCQOMpkYYBzWkhP10xu"+
+"+LqHBX0m1xOv4ndWUeF5jxNn3tTd70XaAq8wDh0MGgyaDUhQEEUEYZiwUECGPBoxNLJyPyOr"+
+"BhuTezJ1JGq7dGJEsUF7Ntw9t1Gk3Tz+KCJxlEO1CJL8Qf4qr8lP5Xn5y1yw2Fb3lK2bmrry"+
+"4DvF5Zm5Gh7X08jjc01efJXUdpNXR5aseXq8muwaP+xXlzHmgjWPxHOw+/EtX5XMlymMFMXj"+
+"VfPqS4R1WjE3359sfzs94i7PLrXWc62JizdWm5dn/WpI++6qvJPmVflPXvXx/GfNxGPiKTEm"+
+"dornIYmXxS7xkthLqwviYG3HCJ2VhinSbZH6JNVgYJq89S9dP1t4vUZ/DPVRlBnM0lSJ93/C"+
+"KmQ0nbkOb/qP28f8F+T3iuefKAIvbODImbptU3HvEKFlpW5zrgIXv9F98LZua6N+OPwEWDyr"+
+"Fq1SNZ8gvAEcdod6HugpmNOWls05Uocsn5O66cpiUsxQ20NSUtcl12VLFrOZVWLpdtiZ0x1u"+
+"HKE5QvfEp0plk/qv8RGw/bBS+fmsUtl+ThrWgZf6b8C8/UXAeIuJAAAAXklEQVRYCe3SsQ3A"+
+"MAwEMcfLa+wEyApsVJz7AwT6n5l5z+J3F9/2n9aB+kMJJqgC2rfBBFVA+zaYoApo3wYTVAHt"+
+"22CCKqB9G0xQBbRvgwmqgPZtMEEV0L4NJqgC2n/fXgLkzfWATAAAAABJRU5ErkJggg=="+
+"      ";
+ }
+
+function opaqueX_def_image(){
+ dataURLopaque = "data:image/png;base64,"+
+"iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAC7mlDQ1BJQ0MgUHJvZmlsZQAA"+
+"eAGFVM9rE0EU/jZuqdAiCFprDrJ4kCJJWatoRdQ2/RFiawzbH7ZFkGQzSdZuNuvuJrWliOTi"+
+"0SreRe2hB/+AHnrwZC9KhVpFKN6rKGKhFy3xzW5MtqXqwM5+8943731vdt8ADXLSNPWABOQN"+
+"x1KiEWlsfEJq/IgAjqIJQTQlVdvsTiQGQYNz+Xvn2HoPgVtWw3v7d7J3rZrStpoHhP1A4Eea"+
+"2Sqw7xdxClkSAog836Epx3QI3+PY8uyPOU55eMG1Dys9xFkifEA1Lc5/TbhTzSXTQINIOJT1"+
+"cVI+nNeLlNcdB2luZsbIEL1PkKa7zO6rYqGcTvYOkL2d9H5Os94+wiHCCxmtP0a4jZ71jNU/"+
+"4mHhpObEhj0cGDX0+GAVtxqp+DXCFF8QTSeiVHHZLg3xmK79VvJKgnCQOMpkYYBzWkhP10xu"+
+"+LqHBX0m1xOv4ndWUeF5jxNn3tTd70XaAq8wDh0MGgyaDUhQEEUEYZiwUECGPBoxNLJyPyOr"+
+"BhuTezJ1JGq7dGJEsUF7Ntw9t1Gk3Tz+KCJxlEO1CJL8Qf4qr8lP5Xn5y1yw2Fb3lK2bmrry"+
+"4DvF5Zm5Gh7X08jjc01efJXUdpNXR5aseXq8muwaP+xXlzHmgjWPxHOw+/EtX5XMlymMFMXj"+
+"VfPqS4R1WjE3359sfzs94i7PLrXWc62JizdWm5dn/WpI++6qvJPmVflPXvXx/GfNxGPiKTEm"+
+"dornIYmXxS7xkthLqwviYG3HCJ2VhinSbZH6JNVgYJq89S9dP1t4vUZ/DPVRlBnM0lSJ93/C"+
+"KmQ0nbkOb/qP28f8F+T3iuefKAIvbODImbptU3HvEKFlpW5zrgIXv9F98LZua6N+OPwEWDyr"+
+"Fq1SNZ8gvAEcdod6HugpmNOWls05Uocsn5O66cpiUsxQ20NSUtcl12VLFrOZVWLpdtiZ0x1u"+
+"HKE5QvfEp0plk/qv8RGw/bBS+fmsUtl+ThrWgZf6b8C8/UXAeIuJAAAB60lEQVRYCe2YsU7D"+
+"MBCGz4lKBepCF94AJDY2BEuRysrE1I0NCQmJnadAQoIHgIkJxiLRpYjX4AWKhBCoRGnwkaZC"+
+"iXN3DnEm31LFd7G//vbZ56jXjc0E8haG0L28gE6vl/c4eX58+ob94ylAXOw+KDbpljiGyckp"+
+"fIxGRnedjRQcjmMGRE8DkBwcDegYUgLHAzqClMKlgDohWKtxum3gQKOprbO1YhazxM0FlCdJ"+
+"cwzkSB6QlEfg9AoKRCJDvIKkPAKnSrRRcVgwYOGAZzNn4+kqDFr3ALMWFwq4CQ+v2tDfWyJj"+
+"2SnGkgtLL2BOnPHXCgzUTa1wSM4CYhAH+QsX3uneuhhOm1C5rBMRIAaXQbqEw3HFgCZI13A4"+
+"JpskGJQ3TJyHo/N0zUmmNYhgeN1hEyI/Dj5bKZh18JLspNkqgZtN4DY6gG31nL1u9WsNuKjn"+
+"JFsJwsWHsNt+q3zHsQJcwPFbot5u5nDLn6liFYteMeC/4LJJrQApAqwFriIkm8VWcDpbMSFw"+
+"zbEm/DigkqhPnsXsQI4DRFPsmIHs3gOS8gicXkGBSGSIV5CUR+BUsP6emL5sFt61rIQL788b"+
+"bO44eM0ImoRDxrLK3PiH9NnNr8GalPsLYANJAzqAy0ClkOWADuFsIM2ADcBJIX8AFAf1Z93o"+
+"tNIAAAAASUVORK5CYII="+
+"      ";
+ }
+ 
+function pinkX_def_image(){
+ dataURLpink = "data:image/png;base64,"+
+"iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAC7mlDQ1BJQ0MgUHJvZmlsZQAA"+
+"eAGFVM9rE0EU/jZuqdAiCFprDrJ4kCJJWatoRdQ2/RFiawzbH7ZFkGQzSdZuNuvuJrWliOTi"+
+"0SreRe2hB/+AHnrwZC9KhVpFKN6rKGKhFy3xzW5MtqXqwM5+8943731vdt8ADXLSNPWABOQN"+
+"x1KiEWlsfEJq/IgAjqIJQTQlVdvsTiQGQYNz+Xvn2HoPgVtWw3v7d7J3rZrStpoHhP1A4Eea"+
+"2Sqw7xdxClkSAog836Epx3QI3+PY8uyPOU55eMG1Dys9xFkifEA1Lc5/TbhTzSXTQINIOJT1"+
+"cVI+nNeLlNcdB2luZsbIEL1PkKa7zO6rYqGcTvYOkL2d9H5Os94+wiHCCxmtP0a4jZ71jNU/"+
+"4mHhpObEhj0cGDX0+GAVtxqp+DXCFF8QTSeiVHHZLg3xmK79VvJKgnCQOMpkYYBzWkhP10xu"+
+"+LqHBX0m1xOv4ndWUeF5jxNn3tTd70XaAq8wDh0MGgyaDUhQEEUEYZiwUECGPBoxNLJyPyOr"+
+"BhuTezJ1JGq7dGJEsUF7Ntw9t1Gk3Tz+KCJxlEO1CJL8Qf4qr8lP5Xn5y1yw2Fb3lK2bmrry"+
+"4DvF5Zm5Gh7X08jjc01efJXUdpNXR5aseXq8muwaP+xXlzHmgjWPxHOw+/EtX5XMlymMFMXj"+
+"VfPqS4R1WjE3359sfzs94i7PLrXWc62JizdWm5dn/WpI++6qvJPmVflPXvXx/GfNxGPiKTEm"+
+"dornIYmXxS7xkthLqwviYG3HCJ2VhinSbZH6JNVgYJq89S9dP1t4vUZ/DPVRlBnM0lSJ93/C"+
+"KmQ0nbkOb/qP28f8F+T3iuefKAIvbODImbptU3HvEKFlpW5zrgIXv9F98LZua6N+OPwEWDyr"+
+"Fq1SNZ8gvAEcdod6HugpmNOWls05Uocsn5O66cpiUsxQ20NSUtcl12VLFrOZVWLpdtiZ0x1u"+
+"HKE5QvfEp0plk/qv8RGw/bBS+fmsUtl+ThrWgZf6b8C8/UXAeIuJAAAAYUlEQVRYCe3SsQ3A"+
+"IBAEQUz/XX1JLsCWaGESgiVf6TXc88586+K3L77tnNaB+kMJJqgC2rfBBFVA+zaYoApo3wYT"+
+"VAHt22CCKqB9G0xQBbRvgwmqgPZtMEEV0L4NJqgC2v9GvwPInw22FwAAAABJRU5ErkJggg=="+
+"      ";
+ }
+
+function redX_def_image(){
+ dataURLred = "data:image/png;base64,"+
+"iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAC7mlDQ1BJQ0MgUHJvZmlsZQAA"+
+"eAGFVM9rE0EU/jZuqdAiCFprDrJ4kCJJWatoRdQ2/RFiawzbH7ZFkGQzSdZuNuvuJrWliOTi"+
+"0SreRe2hB/+AHnrwZC9KhVpFKN6rKGKhFy3xzW5MtqXqwM5+8943731vdt8ADXLSNPWABOQN"+
+"x1KiEWlsfEJq/IgAjqIJQTQlVdvsTiQGQYNz+Xvn2HoPgVtWw3v7d7J3rZrStpoHhP1A4Eea"+
+"2Sqw7xdxClkSAog836Epx3QI3+PY8uyPOU55eMG1Dys9xFkifEA1Lc5/TbhTzSXTQINIOJT1"+
+"cVI+nNeLlNcdB2luZsbIEL1PkKa7zO6rYqGcTvYOkL2d9H5Os94+wiHCCxmtP0a4jZ71jNU/"+
+"4mHhpObEhj0cGDX0+GAVtxqp+DXCFF8QTSeiVHHZLg3xmK79VvJKgnCQOMpkYYBzWkhP10xu"+
+"+LqHBX0m1xOv4ndWUeF5jxNn3tTd70XaAq8wDh0MGgyaDUhQEEUEYZiwUECGPBoxNLJyPyOr"+
+"BhuTezJ1JGq7dGJEsUF7Ntw9t1Gk3Tz+KCJxlEO1CJL8Qf4qr8lP5Xn5y1yw2Fb3lK2bmrry"+
+"4DvF5Zm5Gh7X08jjc01efJXUdpNXR5aseXq8muwaP+xXlzHmgjWPxHOw+/EtX5XMlymMFMXj"+
+"VfPqS4R1WjE3359sfzs94i7PLrXWc62JizdWm5dn/WpI++6qvJPmVflPXvXx/GfNxGPiKTEm"+
+"dornIYmXxS7xkthLqwviYG3HCJ2VhinSbZH6JNVgYJq89S9dP1t4vUZ/DPVRlBnM0lSJ93/C"+
+"KmQ0nbkOb/qP28f8F+T3iuefKAIvbODImbptU3HvEKFlpW5zrgIXv9F98LZua6N+OPwEWDyr"+
+"Fq1SNZ8gvAEcdod6HugpmNOWls05Uocsn5O66cpiUsxQ20NSUtcl12VLFrOZVWLpdtiZ0x1u"+
+"HKE5QvfEp0plk/qv8RGw/bBS+fmsUtl+ThrWgZf6b8C8/UXAeIuJAAAAYklEQVRYCe3SwQnA"+
+"IBQFQWMnkv47SG8RbGEuHtb7wmd8z7fef1z85sW3ndM6UH8owQRVQPs2mKAKaN8GE1QB7dtg"+
+"giqgfRtMUAW0b4MJqoD2bTBBFdC+DSaoAtq3wQRVQPsNPAcCT6jbKo4AAAAASUVORK5CYII="+
+"      ";
+ }
+
+function transpX_def_image(){
+ dataURLtransp = "data:image/png;base64,"+
+"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"+
+"kSXgc+BskP8BUBcunEwJF+0AAAAASUVORK5CYII="+
+"      ";
+ }
+ 
+function violetX_def_image(){
+ dataURLviolet = "data:image/png;base64,"+
+"iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAC7mlDQ1BJQ0MgUHJvZmlsZQAA"+
+"eAGFVM9rE0EU/jZuqdAiCFprDrJ4kCJJWatoRdQ2/RFiawzbH7ZFkGQzSdZuNuvuJrWliOTi"+
+"0SreRe2hB/+AHnrwZC9KhVpFKN6rKGKhFy3xzW5MtqXqwM5+8943731vdt8ADXLSNPWABOQN"+
+"x1KiEWlsfEJq/IgAjqIJQTQlVdvsTiQGQYNz+Xvn2HoPgVtWw3v7d7J3rZrStpoHhP1A4Eea"+
+"2Sqw7xdxClkSAog836Epx3QI3+PY8uyPOU55eMG1Dys9xFkifEA1Lc5/TbhTzSXTQINIOJT1"+
+"cVI+nNeLlNcdB2luZsbIEL1PkKa7zO6rYqGcTvYOkL2d9H5Os94+wiHCCxmtP0a4jZ71jNU/"+
+"4mHhpObEhj0cGDX0+GAVtxqp+DXCFF8QTSeiVHHZLg3xmK79VvJKgnCQOMpkYYBzWkhP10xu"+
+"+LqHBX0m1xOv4ndWUeF5jxNn3tTd70XaAq8wDh0MGgyaDUhQEEUEYZiwUECGPBoxNLJyPyOr"+
+"BhuTezJ1JGq7dGJEsUF7Ntw9t1Gk3Tz+KCJxlEO1CJL8Qf4qr8lP5Xn5y1yw2Fb3lK2bmrry"+
+"4DvF5Zm5Gh7X08jjc01efJXUdpNXR5aseXq8muwaP+xXlzHmgjWPxHOw+/EtX5XMlymMFMXj"+
+"VfPqS4R1WjE3359sfzs94i7PLrXWc62JizdWm5dn/WpI++6qvJPmVflPXvXx/GfNxGPiKTEm"+
+"dornIYmXxS7xkthLqwviYG3HCJ2VhinSbZH6JNVgYJq89S9dP1t4vUZ/DPVRlBnM0lSJ93/C"+
+"KmQ0nbkOb/qP28f8F+T3iuefKAIvbODImbptU3HvEKFlpW5zrgIXv9F98LZua6N+OPwEWDyr"+
+"Fq1SNZ8gvAEcdod6HugpmNOWls05Uocsn5O66cpiUsxQ20NSUtcl12VLFrOZVWLpdtiZ0x1u"+
+"HKE5QvfEp0plk/qv8RGw/bBS+fmsUtl+ThrWgZf6b8C8/UXAeIuJAAAAYklEQVRYCe3SsQ3A"+
+"IBAEQUz/CW26BCdGooVJCJZ8pddwz7u+f1z85sW3ndM6UH8owQRVQPs2mKAKaN8GE1QB7dtg"+
+"giqgfRtMUAW0b4MJqoD2bTBBFdC+DSaoAtq3wQRVQPsN4dgDxO3YUiwAAAAASUVORK5CYII="+
+"      ";
+ }
+
+function whiteX_def_image(){
+ dataURLwhite = "data:image/png;base64,"+
+"iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAC7mlDQ1BJQ0MgUHJvZmlsZQAA"+
+"eAGFVM9rE0EU/jZuqdAiCFprDrJ4kCJJWatoRdQ2/RFiawzbH7ZFkGQzSdZuNuvuJrWliOTi"+
+"0SreRe2hB/+AHnrwZC9KhVpFKN6rKGKhFy3xzW5MtqXqwM5+8943731vdt8ADXLSNPWABOQN"+
+"x1KiEWlsfEJq/IgAjqIJQTQlVdvsTiQGQYNz+Xvn2HoPgVtWw3v7d7J3rZrStpoHhP1A4Eea"+
+"2Sqw7xdxClkSAog836Epx3QI3+PY8uyPOU55eMG1Dys9xFkifEA1Lc5/TbhTzSXTQINIOJT1"+
+"cVI+nNeLlNcdB2luZsbIEL1PkKa7zO6rYqGcTvYOkL2d9H5Os94+wiHCCxmtP0a4jZ71jNU/"+
+"4mHhpObEhj0cGDX0+GAVtxqp+DXCFF8QTSeiVHHZLg3xmK79VvJKgnCQOMpkYYBzWkhP10xu"+
+"+LqHBX0m1xOv4ndWUeF5jxNn3tTd70XaAq8wDh0MGgyaDUhQEEUEYZiwUECGPBoxNLJyPyOr"+
+"BhuTezJ1JGq7dGJEsUF7Ntw9t1Gk3Tz+KCJxlEO1CJL8Qf4qr8lP5Xn5y1yw2Fb3lK2bmrry"+
+"4DvF5Zm5Gh7X08jjc01efJXUdpNXR5aseXq8muwaP+xXlzHmgjWPxHOw+/EtX5XMlymMFMXj"+
+"VfPqS4R1WjE3359sfzs94i7PLrXWc62JizdWm5dn/WpI++6qvJPmVflPXvXx/GfNxGPiKTEm"+
+"dornIYmXxS7xkthLqwviYG3HCJ2VhinSbZH6JNVgYJq89S9dP1t4vUZ/DPVRlBnM0lSJ93/C"+
+"KmQ0nbkOb/qP28f8F+T3iuefKAIvbODImbptU3HvEKFlpW5zrgIXv9F98LZua6N+OPwEWDyr"+
+"Fq1SNZ8gvAEcdod6HugpmNOWls05Uocsn5O66cpiUsxQ20NSUtcl12VLFrOZVWLpdtiZ0x1u"+
+"HKE5QvfEp0plk/qv8RGw/bBS+fmsUtl+ThrWgZf6b8C8/UXAeIuJAAAAXElEQVRYCe3SwQ0A"+
+"EBQFQfTfM6KFuTis+yY/48193/j4rY9ve6d1oP5QggmqgPZtMEEV0L4NJqgC2rfBBFVA+zaY"+
+"oApo3wYTVAHt22CCKqB9G0xQBbRvgwmqgPYHPuoETA4WTIoAAAAASUVORK5CYII="+
+"      ";
+ }
+ 
+function yellowX_def_image(){
+ dataURLyellow = "data:image/png;base64,"+
+"iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAC7mlDQ1BJQ0MgUHJvZmlsZQAA"+
+"eAGFVM9rE0EU/jZuqdAiCFprDrJ4kCJJWatoRdQ2/RFiawzbH7ZFkGQzSdZuNuvuJrWliOTi"+
+"0SreRe2hB/+AHnrwZC9KhVpFKN6rKGKhFy3xzW5MtqXqwM5+8943731vdt8ADXLSNPWABOQN"+
+"x1KiEWlsfEJq/IgAjqIJQTQlVdvsTiQGQYNz+Xvn2HoPgVtWw3v7d7J3rZrStpoHhP1A4Eea"+
+"2Sqw7xdxClkSAog836Epx3QI3+PY8uyPOU55eMG1Dys9xFkifEA1Lc5/TbhTzSXTQINIOJT1"+
+"cVI+nNeLlNcdB2luZsbIEL1PkKa7zO6rYqGcTvYOkL2d9H5Os94+wiHCCxmtP0a4jZ71jNU/"+
+"4mHhpObEhj0cGDX0+GAVtxqp+DXCFF8QTSeiVHHZLg3xmK79VvJKgnCQOMpkYYBzWkhP10xu"+
+"+LqHBX0m1xOv4ndWUeF5jxNn3tTd70XaAq8wDh0MGgyaDUhQEEUEYZiwUECGPBoxNLJyPyOr"+
+"BhuTezJ1JGq7dGJEsUF7Ntw9t1Gk3Tz+KCJxlEO1CJL8Qf4qr8lP5Xn5y1yw2Fb3lK2bmrry"+
+"4DvF5Zm5Gh7X08jjc01efJXUdpNXR5aseXq8muwaP+xXlzHmgjWPxHOw+/EtX5XMlymMFMXj"+
+"VfPqS4R1WjE3359sfzs94i7PLrXWc62JizdWm5dn/WpI++6qvJPmVflPXvXx/GfNxGPiKTEm"+
+"dornIYmXxS7xkthLqwviYG3HCJ2VhinSbZH6JNVgYJq89S9dP1t4vUZ/DPVRlBnM0lSJ93/C"+
+"KmQ0nbkOb/qP28f8F+T3iuefKAIvbODImbptU3HvEKFlpW5zrgIXv9F98LZua6N+OPwEWDyr"+
+"Fq1SNZ8gvAEcdod6HugpmNOWls05Uocsn5O66cpiUsxQ20NSUtcl12VLFrOZVWLpdtiZ0x1u"+
+"HKE5QvfEp0plk/qv8RGw/bBS+fmsUtl+ThrWgZf6b8C8/UXAeIuJAAAAYUlEQVRYCe3SsQ3A"+
+"IBAEQUxx7r8fB1iihUk+WPKVXsM953vPGvz24NvuaR2oP5RggiqgfRtMUAW0b4MJqoD2bTBB"+
+"FdC+DSaoAtq3wQRVQPs2mKAKaN8GE1QB7dtggiqg/Q+teAOPXAFZHgAAAABJRU5ErkJggg=="+
+"      ";
+ }
+
+
+
+
+
+
+function thinlin_def_image(){
+ thinlin_extimg_data = "data:image/png;base64,"+
+"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"+
+"AAAAAElFTkSuQmCC"+
+"      ";
+ }
+ 
+function fetlines_def_image(){
+ fetlines_extimg_data = "data:image/png;base64,"+
+"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"+
+"      ";
+ }
+
+ 
+function symmir_def_image(){
+ symmir_extimg_data = "data:image/png;base64,"+
+"iVBORw0KGgoAAAANSUhEUgAAADcAAAA0CAYAAAAuT6DoAAAC7mlDQ1BJQ0MgUHJvZmlsZQAA"+
+"eAGFVM9rE0EU/jZuqdAiCFprDrJ4kCJJWatoRdQ2/RFiawzbH7ZFkGQzSdZuNuvuJrWliOTi"+
+"0SreRe2hB/+AHnrwZC9KhVpFKN6rKGKhFy3xzW5MtqXqwM5+8943731vdt8ADXLSNPWABOQN"+
+"x1KiEWlsfEJq/IgAjqIJQTQlVdvsTiQGQYNz+Xvn2HoPgVtWw3v7d7J3rZrStpoHhP1A4Eea"+
+"2Sqw7xdxClkSAog836Epx3QI3+PY8uyPOU55eMG1Dys9xFkifEA1Lc5/TbhTzSXTQINIOJT1"+
+"cVI+nNeLlNcdB2luZsbIEL1PkKa7zO6rYqGcTvYOkL2d9H5Os94+wiHCCxmtP0a4jZ71jNU/"+
+"4mHhpObEhj0cGDX0+GAVtxqp+DXCFF8QTSeiVHHZLg3xmK79VvJKgnCQOMpkYYBzWkhP10xu"+
+"+LqHBX0m1xOv4ndWUeF5jxNn3tTd70XaAq8wDh0MGgyaDUhQEEUEYZiwUECGPBoxNLJyPyOr"+
+"BhuTezJ1JGq7dGJEsUF7Ntw9t1Gk3Tz+KCJxlEO1CJL8Qf4qr8lP5Xn5y1yw2Fb3lK2bmrry"+
+"4DvF5Zm5Gh7X08jjc01efJXUdpNXR5aseXq8muwaP+xXlzHmgjWPxHOw+/EtX5XMlymMFMXj"+
+"VfPqS4R1WjE3359sfzs94i7PLrXWc62JizdWm5dn/WpI++6qvJPmVflPXvXx/GfNxGPiKTEm"+
+"dornIYmXxS7xkthLqwviYG3HCJ2VhinSbZH6JNVgYJq89S9dP1t4vUZ/DPVRlBnM0lSJ93/C"+
+"KmQ0nbkOb/qP28f8F+T3iuefKAIvbODImbptU3HvEKFlpW5zrgIXv9F98LZua6N+OPwEWDyr"+
+"Fq1SNZ8gvAEcdod6HugpmNOWls05Uocsn5O66cpiUsxQ20NSUtcl12VLFrOZVWLpdtiZ0x1u"+
+"HKE5QvfEp0plk/qv8RGw/bBS+fmsUtl+ThrWgZf6b8C8/UXAeIuJAAAFVUlEQVRoBd1auy99"+
+"TxA/94d4RxARolChERESBRJKag2FUkSIWumR0GmIxuMfUPgPhGiIKBQqColEId6vCMn5zhxm"+
+"v7N7ds/Zvedev3zvJNfOzs58Zmaf5+yR8oG8HKX/fiOvoaEhr7Gx0WtpafkNd3994Mhlm8Ab"+
+"zo7gd3BwILl7fX0N5J2dnZI8E5UUgvxNNTtcKpWSgLnLqDbJKI1Kfho2iU3UhBIDGgDSWnO/"+
+"FRzGnMSXU3IPDw/C2eHhoaG/osUdHR2RCpgMJTQwMBDoUj3SUNPotOZUJ3ztaLCFSLUTDY6M"+
+"rT+CdRo5FTxTQU9NTVE8xlL1bVRkDU4jV1VV5d3f3zPzb9bWsW1nFBcXe+/v78KPLb4w+GEi"+
+"R25iYsK7vb0NVDEwXWLYeHp6+gOXmYInlggRekVLT09P4uAFBz4esljqfufn51oMnbCgoECL"+
+"ocNFWRIyWpucqfLe3l4r/8vLy9ZJUQdMTk5aYZuUtGsOp0VJSQnkEab8/Hzv6+tLagBwqa6r"+
+"RK03SMb7/PwMzGywdPg6mXbN4YLe2NjQ6YcSQ6XHx0etrq0wG4kFvk1DivLCwkJpKsGoSXUA"+
+"COqLi4tCbsKbnp4WOmSnlicnJybztOTWa66vry82OAo2KpKKigojTpRdOm1ScmNjYz6sN//j"+
+"48MYACUQVUYFwu22t7f96urqwBe++qRL8EinNZU2FN2ix43l7e0NYrIj8KJV1GGbdLUATFhe"+
+"Xu69vLwwieeVlpaGZNoNhVu5JMbtdMnwduRnZ2dVUWS9pqYmeKhWE0MjGPmwLR9PaLWajmjj"+
+"ohulX19fz0OI5KN87uzshGylNUet8/PzoeCxDTcV3NFGR0dD7SbHhMnLuro6Yc/lUfzNzY1f"+
+"VFQk7FZXVwVvstMmx5XhcsdfWlriIn9wcFAAY1JIa2trkgyfMtIl3lG1tbU+PbFwOed7enq0"+
+"rmKT01r9CPHc48QdcnkUv7KyIjqF9DiODX91dUWmUpkoOY4EbwwiSJy2tsSDJxsuc+FhoyGI"+
+"oMxYcoQ6PDxMrFV5dnYmOsUlEZMudyqdc2Dwv5DNsWEbGCQnVGPPOaFpyYyMjFhqfqvByDnp"+
+"OynzYUzC4wsrOA5+R0dH1lBlZWXCbnx8PLAjHNeyra1N8ptozf3zu2VOnnPqlODj3d3dLaaS"+
+"qqfWuR3xl5eXwp5kunJ9fV2IGxoahA36uL6+FnV4/hV6nJGmpRqYqY4ApjZVTs5UOdWz+Wwp"+
+"HQWZ2JLxfiUvLy94ev/uA0gDyITNdb41zX9NGGShYsUeBaaLIgJUS0wMSXWk6tnqcDvExB/s"+
+"sFwc8Pg+p1IoOZjbXnt7u9BzfZ/TOUEwCkwAA4MXS7B2vEb46upCz8/PAm9ubi4w1b3joZKW"+
+"wEJaV//8HQrPEq7b/JmZGSlBNWGq81syjqHy/MAmW17CZzHVJFHdOHKbm5tWiWFwML1ig+BJ"+
+"mPhYEEcFabcEpwHl/I0zJaqW6lU6XBmoKtp6ZWWlVo5CunFGHrf7ra2toNRe+qCSLZlG2uUr"+
+"z8XFhQkmJI+7MoC4peUQAnAQhI4C6hS8G0RqamoKtt3j42NqCpW7u7shmU6Ao8JHSaejyuIO"+
+"blWf17VrjitwPqe+rPLEkL+7u1NF+stQRaurq8v4+IWqzc3NkoX6ZTXd0XMaOdUJTH8pKFNF"+
+"tTPpxclt/RGOcc2RAi9x/RG1trYSm5Wyv79fwoX/GZPqNhWnkSNAHAmXXnQZORXX1RfFiKXT"+
+"yJGhGgDJs1Em8ZVWckmTWFhY8OBs9Pb29pJCRdtDz2SdIAJxMO/v70v+cur/LfGf4+DTcXSP"+
+"Z6j1DzjTqn+AXnhaAAAAAElFTkSuQmCC"+
+"      ";
+ }
+ 
+  
+function clockmir_def_image(){
+ clockmir_extimg_data = "data:image/png;base64,"+
+"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"+
+"      ";
+ }
+
+
+
+
+
+
+function setMirrors(number)
+    {  AxesNumber=number;
+       if ( AxesNumber < 3 ) { AxesNumber = 3; }
+        clean_canvas();
+		PiPart= 2 * Math.PI / AxesNumber;  
+        //  MIRRORS_NUM
+		document.getElementById("MIRRORS_NUM").innerHTML="<big><b><span style=\"background-color: rgb(255, 255, 100);\">&nbsp;" 
+		+ AxesNumber +" &nbsp;</span></b></big>";
+		
+
+		}
+  
+//  function setclocks( a, b, c)        {   clock=a; anticlock=b; symfilter=c; }
+function setclocks( a, b)        {   clock=a; anticlock=b; }
+
+
+
+function setPenThick( a )	{ if (a<1) {a=1;}  CTX.lineWidth = a; LineThick=a; 
+document.getElementById("LINETHICK").innerHTML= "<big><b><span style=\"background-color: rgb(100, 100, 255);\">&nbsp;" 
+		+ a +" &nbsp;</span></b></big>";    }
+
+function setTrans()
+           {		   
+		   if (theAlpha > 0.5) {theAlpha = 0.15;}
+		   else  {theAlpha = 1;}
+		   CTX.globalAlpha=theAlpha;
+		   changing_alpha=1;
+         }
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+//
+//    It does the help and info functions                                HELP   
+//
+//    A variable part of the page is added -     look for  div id= helpPar
+//    The helpPar changes on clicks
+//
+var  Help_String=
+   "<small><b>Kalleidescop: JavaScript Canvas pencil functions; Work: " + 
+   " <a href=\"http://web.ift.uib.no/%7Eladi/\">L. Kocbach</a></b> <br>" + 
+   VersionString+
+   "<br>Basic pencil tricks from <a href=\"http://www.robodesign.ro/\">http://www.robodesign.ro/</a> "+
+    "via Opera development. <br>"+
+ 
+          "<br>What can you do here? <br>"
+          
+         +"Just try to draw in the white area. <br> "   +  
+     "<br>Draw by mouse-button pressed in the drawing pad;&nbsp; &nbsp; &nbsp; <br>"+
+  
+          "<br>Saving the pictures? <br>"+
+          "In Firefox and related browsers - just right-click and save the image.<br>"+
+          "Or take a screen-shot. Easy on Linux and Apple Mac<br>"+
+          "Normal saving: Next version - needs extarnal library.<br>"+
+          
+         
+   "<br> <br>  You can modify the program - the program is in the page - A good start to learn JavaScript<br>"+
+         "I have chosen to use the links instead of buttons,  "
+         +"the links are much simpler.<br><br>"
+         +"<b>This help text can be closed   "  + "</b> <br> </small>";
+
+var Help_Link="<small><a href=\"javascript:help_fun()\">Help and Information</a></small></b>"+
+              "&nbsp; &nbsp; <small><a href=\"http://web.ift.uib.no/AMOS/kalleid/\">Gallery</a></small>";
+
+var To_Output=" ";
+function help_fun()
+{
+To_Output="<br><hr><small><a href=\"javascript:close_help_area()\">Close this view</a></small></b>"
+                      +  "<br><br>"+Help_String;
+To_Output=To_Output+"<br><a href=\"javascript:close_help_area()\">Close this view</a></small><b><hr><b></b>";
+         
+document.getElementById("helpPar").innerHTML= To_Output;                  
+}
+
+
+function close_help_area()
+{
+document.getElementById("helpPar").innerHTML= Help_Link;  
+}
+
+
+function clean_canvas()
+        {   
+		 storeAlpha= theAlpha;
+		 CTX.globalAlpha=1.0;
+	     CTX.fillStyle = '#FFFFFF'; 
+         CTX.fillRect(0, 0, width, height); DOWN = false; Action='none'; 
+		 CTX.globalAlpha=theAlpha;
+		 }
+function blue_canvas()
+        { CTX.globalAlpha=0.3;  
+	     CTX.fillStyle = '#AAAAFF';  
+         CTX.fillRect(0, 0, width, height); DOWN = false; Action='none'; 
+		 CTX.globalAlpha=theAlpha;
+		 }
+function pink_canvas()
+        {  CTX.globalAlpha=0.3;  
+	     CTX.fillStyle = '#FFAAAA';
+         CTX.fillRect(0, 0, width, height); DOWN = false; Action='none'; 
+		 CTX.globalAlpha=theAlpha;
+		 }
+function white_canvas()
+        {   CTX.globalAlpha=0.3; 
+	     CTX.fillStyle = '#FFFFFF';  
+         CTX.fillRect(0, 0, width, height); DOWN = false; Action='none'; 
+		 CTX.globalAlpha=theAlpha;
+		 }
+
+
+
+
+
+</script>
+</head>
+
+<body bgcolor="#dddddd">
+<div id="container" style="position: relative;">   <!--    DRAWING AREA    -->
+
+<canvas id="blob" style="position: relative; left: 0px; top: 0px;" width="464" height="464"></canvas>
+</div>
+<table>
+<tr><td>
+ <div id="MIRRORS_NUM" style="font-family: Helvetica,Arial,sans-serif;">
+     <!--  This is the area for the Number of mirrors   -->
+ </div>
+</td>
+<td>
+<big>
+<a href="javascript:setMirrors(3);"> 3 </a>&nbsp;
+<a href="javascript:setMirrors(4);"> 4 </a>&nbsp;
+<a href="javascript:setMirrors(5);"> 5 </a>&nbsp;
+<a href="javascript:setMirrors(6);"> 6 </a>&nbsp;
+<a href="javascript:setMirrors(7);"> 7 </a>&nbsp;
+<a href="javascript:setMirrors(AxesNumber+1);"> + </a> &nbsp; 
+<a href="javascript:setMirrors(AxesNumber-1);"> - </a> &nbsp;
+<a href="javascript:setMirrors(AxesNumber+3);"> +3 </a> &nbsp; 
+<a href="javascript:setMirrors(AxesNumber-3);"> -3 </a> &nbsp;
+</big>
+</td>
+<td>
+ <div id="LINETHICK" style="font-family: Helvetica,Arial,sans-serif;">
+     <!--  This is the area for the Number of mirrors   -->
+ </div>
+ </td>
+ <td>
+<big> 
+        &nbsp; <a href="javascript:setPenThick( 6 );">6</a> &nbsp; 
+         <a href="javascript:setPenThick( 18 );">18</a> &nbsp; 
+         <a href="javascript:setPenThick( LineThick*2 );">2 x</a> &nbsp;  
+          <a href="javascript:setPenThick( Math.floor(LineThick/2 ));">1/2</a> &nbsp; 
+          <a href="javascript:setPenThick(  LineThick+1  );">+</a>&nbsp; 
+          <a href="javascript:setPenThick( LineThick-1 );">-</a> 	</big>															 
+</td>
+</tr>
+</table>
+
+       <a href="javascript:colorstring='#000';clean_colors();blackcolor();" title="black"><img id="blackImg_ID" alt="black color"></a>  
+           <a href="javascript:colorstring='#d00';clean_colors();redcolor();" title="red"><img id="redImg_ID" alt="red color"></a>  	
+           <a href="javascript:colorstring='#33d';clean_colors();bluecolor();" title=" blue "><img id="blueImg_ID" alt=" blue  color"></a>  
+           <a href="javascript:colorstring='#fcc';clean_colors();pinkcolor();" title="pink"><img id="pinkImg_ID" alt="pink color"></a>  
+           <a href="javascript:colorstring='#f9f';clean_colors();violetcolor();" title="violet"><img id="violetImg_ID" alt="violet color"></a>  
+           <a href="javascript:colorstring='#ff1';clean_colors();yellowcolor();" title="yellow"><img id="yellowImg_ID" alt="yellow color"></a>  
+           <a href="javascript:colorstring='#999';clean_colors();graycolor();" title="gray"><img id="grayImg_ID" alt="gray color"></a>  	
+		   <a href="javascript:colorstring='#fff';clean_colors();whitecolor();" title="white"><img id="whiteImg_ID" alt="white color"></a> 
+           <a href="javascript:colorstring='#2d2';clean_colors();greencolor();" title="green"><img id="greenImg_ID" alt="green color"></a>  	
+            
+
+
+<a href="javascript:opaqueDraw();" title="opaque">
+<img id="opaqueImg_ID" alt="opaque draw"></a>  	
+
+<a href="javascript:transpDraw();" title="transp">
+<img id="transpImg_ID" alt="transp draw"></a>  	
+
+
+<br>
+
+<table>
+<tr>
+<td>
+<a href="javascript:clean_mirr();clocksym();" title="clock mirror">
+<img id="clockmir_image_ID"></a>	
+
+
+<a href="javascript:clean_mirr();symsym();" title="symmetry mirror">
+<img id="symmir_image_ID"></a>
+
+<a href="javascript:clean_linetyp();thinlines();" title="thin pen mirror">
+<img id="thinlin_image_ID"></a>
+
+<a href="javascript:clean_linetyp();fetlines();" title="fet pen">
+<img id="fetlines_image_ID"></a>
+</td>
+<td style="vertical-align:top"> 
+
+
+<span style="background-color: rgb(255, 255, 255);">
+<b>C: </b>  &nbsp;<a href="javascript:clean_canvas()">CLEAN</a>
+</span> 
+&nbsp;  <br> 
+<span style="background-color: rgb(51, 204, 255);">
+	<b>B:</b>&nbsp;<a href="javascript:blue_canvas()">BLUE</a>
+</span>	&nbsp;
+
+
+<span style="background-color: rgb(255, 190, 190);">
+                                 <b>P:</b>&nbsp;
+								 <a href="javascript:pink_canvas()">PINK</a>
+</span>	&nbsp; 
+<span style="background-color: rgb(255, 255, 255);">
+<b>W:</b>&nbsp;<a href="javascript:white_canvas()">WHITE</a>
+</span> 
+</td>
+</tr>
+<tr>
+<td>
+<big><big>
+<b>
+<div id="countshow" style="font-family: Helvetica,Arial,sans-serif;">
+Points: 0
+</div>
+</b>
+</td>
+<td>
+<big><big>
+<span style="color: rgb(100, 160, 0); background-color: rgb(128, 128, 255);">
+<b><a href="javascript:Replay_Drawing();">--&gt;</a></span>
+&nbsp;&nbsp;&nbsp;&nbsp;
+<span style="color: rgb(100, 160, 0); background-color: rgb(200, 90,
+100);">
+<a href="javascript:Clear_Drawing_Memory();">-&gt;&gt; 0 &lt;&lt;-</a>
+</span>
+</td>
+</tr>
+</table>
+
+
+
+
+ 
+	         
+
+<div id="helpPar" style="font-family: Helvetica,Arial,sans-serif;"> 
+
+       <!--    HELP TEXT   SPACE   --> 
+
+<small><a href="javascript:help_fun()">Help and Information</a></small>; &nbsp; 
+<small><a href="http://web.ift.uib.no/AMOS/kalleid/">Gallery</a></small>
+</div> 		
+<canvas id="DrawCanvas" width="40" height="40" style="display:none;">    	
+<script language="JavaScript">
+init();
+
+</script>
+<script>
+
+function opaqueDraw()
+{  theAlpha = 1;  CTX.globalAlpha=theAlpha;
+document.getElementById("opaqueImg_ID").border = 3;document.getElementById("transpImg_ID").border = 0;}
+function transpDraw()
+{   theAlpha = 0.20;  CTX.globalAlpha=theAlpha;
+document.getElementById("opaqueImg_ID").border = 0;document.getElementById("transpImg_ID").border = 3;}
+
+
+
+function clean_colors(){	
+     document.getElementById("redImg_ID").border = 0;
+	 document.getElementById("blueImg_ID").border = 0;
+     document.getElementById("yellowImg_ID").border = 0; 
+	 document.getElementById("whiteImg_ID").border =  0;
+	 document.getElementById("greenImg_ID").border =  0;
+	 document.getElementById("pinkImg_ID").border =  0;
+	 document.getElementById("violetImg_ID").border =  0;
+	 document.getElementById("blackImg_ID").border =  0;
+	 document.getElementById("grayImg_ID").border =  0;   }	 
+
+function redcolor(){CTX.strokeStyle = colorstring;	document.getElementById("redImg_ID").border = 3;}
+function bluecolor(){CTX.strokeStyle = colorstring;	document.getElementById("blueImg_ID").border = 3;}
+function yellowcolor(){CTX.strokeStyle = colorstring;	document.getElementById("yellowImg_ID").border = 3;}
+function whitecolor(){CTX.strokeStyle = colorstring;	document.getElementById("whiteImg_ID").border = 3;}
+function greencolor(){CTX.strokeStyle = colorstring;	document.getElementById("greenImg_ID").border = 3;}
+function graycolor(){CTX.strokeStyle = colorstring;	document.getElementById("grayImg_ID").border = 3;}
+function pinkcolor(){CTX.strokeStyle = colorstring;	document.getElementById("pinkImg_ID").border = 3;}
+function violetcolor(){CTX.strokeStyle = colorstring;	document.getElementById("violetImg_ID").border = 3;}
+function blackcolor(){CTX.strokeStyle = colorstring;	document.getElementById("blackImg_ID").border = 3;}
+
+
+function clocksym(){setclocks(1,0); document.getElementById("clockmir_image_ID").border = 3;}
+function symsym(){setclocks(1,1); document.getElementById("symmir_image_ID").border = 3;}
+
+function thinlines(){symfilter=0; document.getElementById("thinlin_image_ID").border = 3;}
+function fetlines(){symfilter=1; document.getElementById("fetlines_image_ID").border = 3;}
+
+
+function clean_mirr(){
+     document.getElementById("clockmir_image_ID").border = 0;
+	document.getElementById("symmir_image_ID").border = 0; }
+function clean_linetyp(){	
+     document.getElementById("thinlin_image_ID").border = 0;
+     document.getElementById("fetlines_image_ID").border = 0; }
+function Replay_Drawing()
+   { 
+     if (NLines>0)
+    { clean_canvas();
+       DOWN=false;
+	   DrawLines(0);}
+   }
+function Clear_Drawing_Memory()
+{
+    ColS=[];	  LinT=[];	  alph=[];	  MirrS=[];	  symF=[];	
+  for (var kk=0;kk<NLines;kk=kk+1)
+    {
+	   Xv[kk]=[];	Yv[kk]=[];   //  cleaning individual lines
+	}
+    TheLine=0;      ThePoint=0;  pointCount=0;
+	Xv=[];   Yv=[];	  //  cleaning all lines
+	NLines=0;   ILines=(-1);    LineN=[];
+	Xv[0]=[];	Yv[0]=[];  Xv[0][0]=0;	Yv[0][0]=0;  // resetting first point
+	clean_canvas(); setPenThick( 6 ); thinlines();
+	document.getElementById("countshow").innerHTML="Points: "+pointCount+", "+ipoint;
+}
+
+
+	 
+blackcolor();	symsym(); thinlines(); opaqueDraw(); setMirrors(7); setPenThick( 6 );
+</script>
+
+
+				 
+
+</body></html>

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+<title>second test Wavepacket Javascript </title>
+</head>
+<body bgcolor = "#FFBBCC">
+<!--
+
+    second_graph_Wave_test.html
+    This is next step after 
+           testing_Wave_math.html    and    first_graph_Wave_test.html
+-->
+<div id="container"   style="position: relative;">
+<!--   -------------------------     THE CANVAS             ------------------  -->
+        
+<canvas id="DRAW_AREA" style="position: absolute; left: 0px; top: 0px;" width="800" height="200" border: 1px solid #000"></canvas>
+</div>
+<div id="EventView" style="font-family: Helvetica,Arial,sans-serif;  position: absolute; left: 0px; top: 220px;">     
+<!--  EventView    -->
+This is on start
+</div>
+<div id="Controls" style="font-family: Helvetica,Arial,sans-serif;  position: absolute; left: 0px; top: 260px;">     
+<!--  Controls    -->
+<a href="javascript: running=1; Animate();">Start moving </a>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<a href="javascript: running=0;"> Stop </a>
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<a href="javascript: Restart();">  Initial frame </a>
+&nbsp; &nbsp; &nbsp; &nbsp; 
+<small>
+<b>Wavepacket:</b> by L. Kocbach (2015), based on applet by J. L. Richardson (1991)</small>
+
+
+
+<br>
+Barrier / Well: &nbsp; &nbsp;
+<a href="javascript: running=0;energyScale=2; Restart();running=1;delay=3;Animate();">V = 2 E</a>
+ &nbsp; &nbsp;
+<a href="javascript: running=0;energyScale=1; Restart();running=1;delay=3;Animate();">V = E</a>
+ &nbsp; &nbsp;
+<a href="javascript: running=0;energyScale=0.5; Restart();running=1;delay=3;Animate();">V = 0.5 E</a>
+ &nbsp; &nbsp;
+<a href="javascript: running=0;energyScale=0; Restart();running=1;delay=3;Animate();">V = 0</a>
+ &nbsp; &nbsp;
+<a href="javascript: running=0;energyScale=(-0.5); Restart();running=1;delay=3;Animate();">V = -0.5 E</a>
+ &nbsp; &nbsp;
+<a href="javascript: running=0;energyScale=(-1); Restart();running=1;delay=3;Animate();">V = - E</a>
+ &nbsp; &nbsp;
+<a href="javascript: running=0;energyScale=(-2); Restart();running=1;delay=3;Animate();">V = - 2 E</a>
+</div>
+<br>
+<div id="Display" style="font-family: Helvetica,Arial,sans-serif;  position: absolute; left: 0px; top: 350px;">     
+<!--  Display results    -->
+<form name="myInputWindow">
+<textarea style=""  name="theInsertedText" cols="140" rows="500" style="color: red; background-color: yellow;">
+Text area
+</textarea>
+</form>
+<br>
+
+<br>
+<!--
+
+	"Barrier V = E"  =       energyScale = 1;
+	"Barrier V = E/2"  =     energyScale = 0.5;
+	"Barrier V = 2*E"  =     energyScale = 2;
+	"Well V = -2*E"  =       energyScale = -2;
+	"Well V = -E"  =         energyScale = -1;
+	"Well V = -E/2"  =       energyScale = -0.5;
+	"No Barrier"  =          energyScale = 0;
+
+-->
+
+<!--   Javascript code  -->
+<script type="text/javascript">
+///////////////////////////////////////////////////
+//
+//        Complex Functions     calculations
+//
+///////////////////////////////////////////////////
+function Complex(re, im) {
+	this.re = re;
+	this.im = im;
+}
+ 
+Complex.add = function (a, b) {
+    return new Complex(a.re + b.re, a.im + b.im);
+}
+ 
+Complex.multiply = function(a, b) {
+    return new Complex(a.re * b.re - a.im * b.im,
+                       a.re * b.im + a.im * b.re);
+}
+
+ 
+Complex.negate = function (z) {
+	return new Complex(-1*z.re, -1*z.im);
+}
+ 
+Complex.invert = function(z) {
+	var denom = Math.pow(z.re,2) + Math.pow(z.im,2);
+	return new Complex(z.re/denom, -1*z.im/denom);
+}
+ 
+Complex.conjugate = function(z) {
+	return new Complex(z.re, -1*z.im);
+}  
+
+// -----------------------------------------------------------------------
+  var TheCanvas;                             // *** GENERAL CANVAS PART
+  var ctx;        
+  var wx=800;         var wy=200;  var wy0=200;                  
+// -----------------------------------------------------------------------
+
+/////////////////////////////////////////////////////////
+//
+//     Global variables for calculations and graphics
+//
+/////////////////////////////////////////////////////////
+   var delay=3;    var time=0;    var running=0;
+   var yoff,nx, kx; 
+   nx = Math.floor(wx / 2); //nx = wx;
+   var xpts = [];   var ypts = [];   var Psi = [];      var EtoV = [];
+   var ttt;
+   var x0 = -2;
+   var  xmin = -3;  
+   var  xmax = 3;
+   var  dx = (xmax-xmin)/(nx-1);
+   var   xscale = (wx-0.5)/(xmax-xmin);
+   var   ymin = -1.5;
+   var   ymax = 1.5;
+   var   dy;
+   var   yscale;
+   var    tmin = 0;
+   var    t = 0;
+   var    hbar = 1;
+   var    mass = 100;
+   var    width = 0.50;
+   var    vwidth = 0.25;
+   var    vx = 0.25;
+   var    dt;
+   dt = 0.8 * mass * dx * dx / hbar;      //  dt=0.5*dt;
+   var    epsilon = hbar * dt /( mass * dx * dx );
+   var  alpha = new Complex(0.5 * (1.0+Math.cos(epsilon/2)), -0.5 * Math.sin(epsilon/2));
+   var  beta=new Complex((Math.sin(epsilon/4))*Math.sin(epsilon/4),0.5 * Math.sin(epsilon/2));
+   var    energy = 0.5 * mass * vx * vx ;
+   var    energyScale=(1.0);  // This is the barier height
+
+	var fx = new Complex(0,0);
+    var fy = new Complex(0,0);   //    USED IN STEP
+    var fw = new Complex(0,0);
+    var fz = new Complex(0,0);
+	
+   var rrr,xval;	
+    
+   var x; var i;   var ttemp;
+
+   dy = (ymax-ymin)/(wy-1);
+   yscale = (wy-0.5)/(ymax-ymin);
+
+
+
+// ----------     Find the canvas element.
+//
+     TheCanvas = document.getElementById('DRAW_AREA');
+//
+//          Get the 2D canvas context.
+//
+	   ctx = TheCanvas.getContext('2d');
+
+
+
+	   ctx.fillStyle = '#FFFFFF';   
+	   ctx.fillRect(0, 0, wx, wy); 
+
+    yoff = 50;
+    wy = wy - yoff;
+
+    initPhysics();	
+    MakeGraph();
+
+//Animate();
+
+var To_Output="<span style=\"background-color: rgb(255, 255, 55);\">";   
+To_Output=To_Output+"<small>Finished "+ ypts[5]  + "</small><br></span>";
+
+document.getElementById("EventView").innerHTML= To_Output;  
+
+///////////////////////////////////////////////////
+//
+//         initPhysics()        Numerical 
+//
+///////////////////////////////////////////////////
+function Restart() {
+	ctx.fillRect(0, 0, wx, wy0); 
+    running=0; time=0; delay=20;
+		clearTimeout(ttt);
+		ctx.fillRect(0, 0, wx, wy0); 
+    initPhysics();	
+    MakeGraph();
+}
+function initPhysics() {
+   alpha = new Complex(0.5 * (1.0+Math.cos(epsilon/2)), -0.5 * Math.sin(epsilon/2));
+   beta=new Complex(Math.sin(epsilon/4)*Math.sin(epsilon/4),0.5 * Math.sin(epsilon/2));
+
+    for( kx=0;kx<nx;kx++){
+		xval = xmin + dx*kx;
+		xpts[kx] = Math.floor(xscale*(xval - xmin));
+		rrr = Math.exp(-((xval-x0)/width)*((xval-x0)/width));
+		Psi[kx] = new Complex(rrr*Math.cos(mass*vx*xval/hbar),
+							 rrr*Math.sin(mass*vx*xval/hbar) );
+		rrr = v(xval)*dt/hbar;
+		EtoV[kx] = new Complex( Math.cos(rrr), -Math.sin(rrr) );
+       }		
+		myInputWindow.theInsertedText.value="complex values code\n\n" +
+         " alpha = " + alpha.re + "  +  " + alpha.im + " i    \n" +
+         " beta = " + beta.re + "  +  " + beta.im + " i    " + "    " + "\n";
+
+  for( kx=0;kx<nx;kx++){
+        myInputWindow.theInsertedText.value=  
+		myInputWindow.theInsertedText.value  +
+      " kx= "+ kx + " EtoV[kx] " +  EtoV[kx].re + " + " + EtoV[kx].im + 
+	  "i        Psi[kx] " +  Psi[kx].re + " + " + Psi[kx].im + " i\n";
+        }
+}		
+function v( varg ) {
+    return   (Math.abs(varg) < vwidth) ? ( energy* energyScale ) : 0 ;
+  }
+
+  function step(){
+
+    /*
+     * The time stepping algorithm used here is described in:
+     *
+     * Richardson, John L.,
+     * Visualizing quantum scattering on the CM-2 supercomputer,
+     * Computer Physics Communications 63 (1991) pp 84-94 
+     * 
+     *    The code is translated from JAVA to JavaScript 
+     *    by Ladislav Kocbach, 2015
+     */
+	 //    fx   fy   fw   fz     are global complex variables
+    for( i=0;i<nx-1;i=i+2){
+      fx  =  new Complex(Psi[i].re,Psi[i].im);
+      fy  =  new Complex(Psi[i+1].re,Psi[i+1].im);
+      fw  =  Complex.multiply(alpha,fx);
+      fz  =  Complex.multiply(beta,fy);
+      Psi[i]  =  Complex.add(fw,fz);
+      fw  =  Complex.multiply(alpha,fy);
+      fz  =  Complex.multiply(beta,fx);
+      Psi[i+1]  =  Complex.add(fw,fz);
+    }
+
+    for( i=1;i<nx-1;i=i+2){
+      fx  =  new Complex(Psi[i].re,Psi[i].im);
+      fy  =  new Complex(Psi[i+1].re,Psi[i+1].im);	  
+      fw  =  Complex.multiply(alpha,fx);
+      fz  =  Complex.multiply(beta,fy);
+      Psi[i]  =  Complex.add(fw,fz);
+      fw  =  Complex.multiply(alpha,fy);
+      fz  =  Complex.multiply(beta,fx);
+      Psi[i+1]  =  Complex.add(fw,fz);
+    }
+
+      fx  =  new Complex(Psi[nx-1].re,Psi[nx-1].im);
+      fy  =  new Complex(Psi[0].re,Psi[0].im);	
+    fw  =  Complex.multiply(alpha,fx);
+    fz  =  Complex.multiply(beta,fy);
+    Psi[nx-1]  =  Complex.add(fw,fz);
+    fw  =  Complex.multiply(alpha,fy);
+    fz  =  Complex.multiply(beta,fx);
+    Psi[0]  =  Complex.add(fw,fz);
+
+    for(i=0;i<nx;i++){
+      fx  =  new Complex(Psi[i].re,Psi[i].im);
+	  fz  =  EtoV[i];
+      Psi[i]  =  Complex.multiply(fx,fz);
+    }
+
+	fx  =  new Complex(Psi[nx-1].re,Psi[nx-1].im);
+	fy  =  new Complex(Psi[0].re,Psi[0].im);	
+    fw  =  Complex.multiply(alpha,fx);
+    fz  =  Complex.multiply(beta,fy);
+    Psi[nx-1]  =  Complex.add(fw,fz);
+    fw  =  Complex.multiply(alpha,fy);
+    fz  =  Complex.multiply(beta,fx);
+    Psi[0   ]  =  Complex.add(fw,fz);
+
+    for(i=1;i<nx-1;i=i+2){
+      fx  =  new Complex(Psi[i].re,Psi[i].im);
+      fy  =  new Complex(Psi[i+1].re,Psi[i+1].im);	
+      fw  =  Complex.multiply(alpha,fx);
+      fz  =  Complex.multiply(beta,fy);
+      Psi[i]  =  Complex.add(fw,fz);
+      fw  =  Complex.multiply(alpha,fy);
+      fz  =  Complex.multiply(beta,fx);
+      Psi[i+1]  =  Complex.add(fw,fz);
+    }
+
+    for(var i=0;i<nx-1;i=i+2){
+      fx  =  new Complex(Psi[i].re,Psi[i].im);
+      fy  =  new Complex(Psi[i+1].re,Psi[i+1].im);	
+      fw  =  Complex.multiply(alpha,fx);
+      fz  =  Complex.multiply(beta,fy);
+      Psi[i]  =  Complex.add(fw,fz);
+      fw  =  Complex.multiply(alpha,fy);
+      fz  =  Complex.multiply(beta,fx);
+      Psi[i+1]  =  Complex.add(fw,fz);
+    }
+  }
+  function printout() {
+ 		myInputWindow.theInsertedText.value="complex values code\n\n" +
+         " alpha = " + alpha.re + "  +  " + alpha.im + " i    \n" +
+         " beta = " + beta.re + "  +  " + beta.im + " i    " + "    " + "\n";
+        for( kx=0;kx<nx;kx++){
+             myInputWindow.theInsertedText.value=  
+		     myInputWindow.theInsertedText.value  +
+            " kx= "+ kx + " Psi[kx] " +  Psi[kx].re + " + " + Psi[kx].im + " i\n";
+          } 
+  }
+////////////////////////////////////////////////////////////////////
+//
+//	      GRAPHICS
+//	
+////////////////////////////////////////////////////////////////////
+	
+   function  MakeGraph() {
+
+    var ix,iy;
+    var jx,jy;
+
+ 
+    ix = Math.floor(xscale*0.5*(xmax-xmin-2*vwidth));
+    jx = Math.floor(xscale*0.5*(xmax-xmin+2*vwidth));
+    iy = Math.floor(wy-1 - yscale*(0.5*ymax*energyScale - ymin));
+    jy = Math.floor(wy-1 - yscale*(0  - ymin));
+//
+//  Barrier drawing
+//
+	ctx.lineWidth = 1;          
+	ctx.strokeStyle='#333333';
+	
+	ctx.beginPath();	
+	   ctx.moveTo( ix, yoff+iy );
+	   ctx.lineTo( ix, yoff+jy );	ctx.stroke();   
+	ctx.beginPath();	
+	   ctx.moveTo( jx,yoff+iy );
+	   ctx.lineTo( jx,yoff+jy  );	ctx.stroke(); 	  
+	ctx.beginPath();	
+	   ctx.moveTo( ix,yoff+iy  );
+	   ctx.lineTo( jx,yoff+iy  );	ctx.stroke(); 	
+//
+//  Base Line drawing
+//
+	ctx.lineWidth = 5;          
+	ctx.strokeStyle='#8800FF';
+	ctx.beginPath();	
+	   ctx.moveTo( xpts[0], yoff+jy );
+	   ctx.lineTo( xpts[nx-1], yoff+jy  );	ctx.stroke();      	
+//
+//  Real part drawing
+//	   
+    for(kx=0;kx<nx;kx++) 
+	     ypts[kx] =  yoff + Math.floor( wy-1 - yscale* (Psi[kx].re-ymin ) );
+	ctx.lineWidth = 2;
+	ctx.strokeStyle='#FFFF88';    // '#8888FF';
+	ctx.beginPath();		   ctx.moveTo( xpts[0], ypts[0]  );
+	   for (kx = 1 ; kx < nx ; kx++ ) {ctx.lineTo(xpts[kx], ypts[kx]); }
+	ctx.stroke();
+//
+//  Imaginary part drawing
+//	
+    for(kx=0;kx<nx;kx++) 
+      ypts[kx] = yoff + Math.floor( wy-1 - yscale* (Psi[kx].im - ymin ));
+	ctx.lineWidth = 1;
+	ctx.strokeStyle='#FF8888';    
+	ctx.beginPath();		   ctx.moveTo( xpts[0], ypts[0]  );
+	   for ( kx = 1 ; kx < nx ; kx++ ) {ctx.lineTo(xpts[kx], ypts[kx]); }
+	ctx.stroke();
+//
+//  Imaginary part drawing
+//   
+    for( kx=0;kx<nx;kx++) {
+	  ttemp= Math.floor( wy-1-yscale* (Psi[kx].re*Psi[kx].re+Psi[kx].im*Psi[kx].im-ymin ) );
+      ypts[kx] =  yoff + ttemp;
+	}
+	ctx.lineWidth = 3;
+	ctx.strokeStyle='#555555';
+	ctx.beginPath();		   ctx.moveTo( xpts[0], ypts[0]  );
+	   for ( kx = 1 ; kx < nx ; kx++ ) {ctx.lineTo(xpts[kx], ypts[kx]); }
+	ctx.stroke();
+}  
+//    End of Graphics step
+//
+//
+//   Main code continues
+//
+////////////////////////////////////////////
+function Animate( )
+{
+
+   //  if( running>0)  {Btime += 0.05*pi;}
+
+	step();
+	ctx.fillRect(0, 0, wx, wy0); 
+    MakeGraph();
+	time=time+1;
+	if (time > 800) {time=0; initPhysics();}
+
+var To_Output="<span style=\"background-color: rgb(255, 255, 55);\">";   
+To_Output=To_Output+"<small>Done  "+ time  + " steps</small><br></span>";
+
+document.getElementById("EventView").innerHTML= To_Output;  
+
+   
+   if( running==1){
+   ttt=setTimeout("Animate()",delay); }
+
+}
+
+</script>
+</body>
+</html>
+

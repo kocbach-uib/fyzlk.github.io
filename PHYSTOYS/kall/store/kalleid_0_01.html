@@ -1,0 +1,140 @@
+<html>
+<head>
+<!--[if IE]><script type="text/javascript" src="../excanvas.js"></script><![endif]-->
+  <title>JavaScript: Canvas Basic pencil functions; based on tricks from http://www.robodesign.ro/ Work: L. Kocbach</title>
+ <style type="text/css"><!--
+      #container { position: relative; }
+      #blob { border: 1px solid #000; }
+    --></style>
+<!-- The tricks are invented by ROBO Design
+ * http://www.robodesign.ro   -->	
+  
+<script language="JavaScript">
+  var TheCanvas;
+  var ctx;
+  var  Ation='none';  var width=600;  var height=400;
+  
+/* The tricks are invented by ROBO Design
+ * http://www.robodesign.ro   */
+
+// Initialization sequence.
+function init () {
+   // Find the canvas element.
+     TheCanvas = document.getElementById("blob");
+   // Get the 2D canvas context.
+     ctx = TheCanvas.getContext('2d');
+	   ctx.lineWidth = 2;
+	 ctx.fillStyle = '#FFFFFF'; 
+         ctx.fillRect(0, 0, width, height); 
+  // Attach the mousedown, mousemove and mouseup event listeners.
+    TheCanvas.addEventListener('mousedown', ev_canvas, false);
+    TheCanvas.addEventListener('mousemove', ev_canvas, false);
+    TheCanvas.addEventListener('mouseup',   ev_canvas, false);
+    
+    
+     document.onkeydown = function(event) 
+    {
+      var keyCode; 
+      if(event == null){
+        keyCode = window.event.keyCode; }
+      else    {
+        keyCode = event.keyCode;  }
+      Ation='none';
+      switch(keyCode)
+      {        
+        // clean on presed 'c'
+        case 67: 
+          Action='clean';
+          break; 
+        case 66: 
+          Action='blue';
+          break; 
+        default: 
+          break; 
+	   
+      }
+         if (Action=='clean') {   
+	 ctx.fillStyle = '#FFFFFF'; 
+         ctx.fillRect(0, 0, width, height); Action='none'; }
+         if (Action=='blue') {   
+	 ctx.fillStyle = '#AAAAFF'; 
+         ctx.fillRect(0, 0, width, height); Action='none'; }
+	 
+    }
+
+      // The general-purpose event handler. This function just determines the mouse 
+  // position relative to the canvas element.
+  function ev_canvas (ev) {
+  if (ev.layerX || ev.layerX == 0) { // Firefox
+      ev._x = ev.layerX;
+      ev._y = ev.layerY;
+    } else if (ev.offsetX || ev.offsetX == 0) { // Opera
+      ev._x = ev.offsetX;
+      ev._y = ev.offsetY;
+    }   
+
+    // Call the event handler of the tool.
+    var func = ThePencil[ev.type];
+    if (func) {
+      func(ev);
+    }
+ 
+ }
+ 
+   var ThePencil = new tool_pencil();
+
+
+}   //  This is the whole init function
+
+  // This painting tool works like a drawing pencil which tracks the mouse 
+  // movements.
+  function tool_pencil () {     //  Pencil start
+    var thistool = this;
+    thistool.started = false;
+
+    //   MOUSEDOWN   = PEN_DOWN
+    thistool.mousedown = function (ev) {
+        ctx.beginPath();
+        ctx.moveTo(ev._x, ev._y);
+        thistool.started = true;
+    };
+    //   MOUSEMOVE   = MOVE_TO
+    thistool.mousemove = function (ev) {
+      if (thistool.started) {
+        ctx.lineTo(ev._x, ev._y);
+        ctx.stroke();
+      }
+    };
+    //   MOUSEUP   =  PEN_UP
+    thistool.mouseup = function (ev) {
+      if (thistool.started) {
+        thistool.mousemove(ev);
+        thistool.started = false;
+      }
+    };
+ 
+  }
+//
+
+</script>
+</head>
+<body bgcolor = "#FFBBCC">
+<h3>This is a drawing tool test: Relative coordinate style trick applied </h3>
+Tricks from <a href="http://www.robodesign.ro/">http://www.robodesign.ro/</a> via Opera development<br>
+Mouse drawing, Mouse button down/up;&nbsp; &nbsp; &nbsp;  <b>Keys:&nbsp; </b> &nbsp; <b>c: </b>  &nbsp; Clean canvas;   &nbsp;  &nbsp; 
+<b>b: </b>  &nbsp; Make canvas blue;
+<div id="container"   style="position: relative;">
+<canvas id="blob" style="position: absolute; left: 170px; top: 10px;" width="600" height="400 border: 3px solid #000"></canvas>
+</div>
+
+<script language="JavaScript">
+init();
+
+document.write( "<br>");
+phi=0.44;
+document.write( Math.ceil(15.0*Math.cos(phi))," &nbsp; &nbsp;", Math.ceil(15*Math.sin(phi)),"<br>");
+
+
+</script>
+</body>
+</html>

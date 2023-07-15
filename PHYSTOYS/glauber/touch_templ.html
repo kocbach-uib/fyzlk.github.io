@@ -1,0 +1,509 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+    <title>Touch template</title>
+ <style type="text/css"><!--
+      #container { position: relative; }
+      #DRAW_AREA { border: 1px solid #000; }
+    --></style>
+
+<script language="JavaScript"> 
+//             The whole javascript is now collected
+//             behind the HTML - part    
+</script>
+</head>
+<!--  
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+          Here starts the HTML -arrangement of the actual Toy
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+-->
+<body bgcolor = "#FFBBCC">
+<div id="container"   style="position: relative;">
+<!--   -------------------------     THE CANVAS             ------------------  -->
+        
+<canvas id="DRAW_AREA" style="position: relative" width="480" height="480 border: 1px solid #000"></canvas>
+</div>
+<div id="ParameterView" style="font-family: Helvetica,Arial,sans-serif;">   <!--  ParameterView    -->
+
+       <!--    ENERGY VIEW POSITION  --> 
+	   
+</div> 
+<div id="EventView" style="font-family: Helvetica,Arial,sans-serif;">   <!--  EventView    -->
+</div>
+
+
+<!--  
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+          Here starts the actual Javascript program 
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+-->
+
+<script language="JavaScript"> 
+// -------------------------------------------------------------------------------------
+  var TheCanvas;                                     // *** GENERAL CANVAS PART
+  var ctx;
+  var width=480;   var height=480;                   
+// -------------------------------------------------------------------------------------
+
+   var Drawing=false;
+   var mouseX=0; var mouseY =0;
+   
+var  Keyboard_func= true;   var  Adjusting=0;  var En=0; var Ebase=0;
+
+
+var mSTARTED=false;
+//////////////////////////////////////////////////////////////////////////////////
+
+
+// *********************************************************** 
+  //  
+  // 
+  //    GEOMETRY of DRAW_AREA
+  //
+// *********************************************************** 
+  var OriginX=width/2;
+  var OriginY=height/2;  
+  var x_canv; var y_canv;
+  var Xmax=3;   var Ymax=2.5;
+  var Xmin=-3; var Ymin=-2.5;
+
+  var Xscale = (Xmax-Xmin)/width; var Yscale =  (Ymax-Ymin)/height;
+  var Xrescale=1.0;
+
+  var XmouseDOWN=0; var YmouseDOWN=0; var XmouseMOVED=0; var YmouseMOVED=0; 
+  var XmouseUP=0; var YmouseUP=0; var BUTTONdown=0;
+  var TheKeyboard=0;
+  //   math coordinate system counterparts of 
+  //  XmouseDOWN   YmouseDOWN ; XmouseMOVED  YmouseMOVED ;  XmouseUP  YmouseUP ;
+  // 
+  var Xdown=0; var Ydown=0; var Xmoved=0;   var Ymoved=0; var Xup=0; var Yup=0;
+  
+  XmouseDOWN=0; YmouseDOWN=0;XmouseMOVED=0; YmouseMOVED=0; 
+  XmouseUP=0;YmouseUP=0;BUTTONdown=0;  
+
+  //  
+  //     x_canv  positions on canvas  
+  //     X_math  positions in Mathematical space
+  //
+  //	 X_math=( x_canv - OriginX ) * Xscale;
+  //	 Y_math=( -y_canv + OriginY ) * Yscale;
+  //
+  //	 X_math / Xscale +  OriginX =  x_canv ;
+  //	 Y_math / Yscale -  OriginY = -y_canv ;  
+  //
+  //	 x_canv =   X_math / Xscale +  OriginX ;
+  //	 y_canv = - Y_math / Yscale +  OriginY  ;
+
+
+
+
+function init () {                         //  Function init:   Initialization sequence.
+   // Find the canvas element.
+     TheCanvas = document.getElementById('DRAW_AREA');
+   // Get the 2D canvas context.
+     ctx = TheCanvas.getContext('2d');
+	   ctx.lineWidth = 1;
+	 ctx.fillStyle = '#FFFFFF';   ctx.fillRect(0, 0, width, height); 
+	 
+	 ctx.fillStyle = '#888888';   ctx.fillRect(width, height, -width/2, -height/2); 
+	 
+	 
+	     // Attach the mousedown, mousemove and mouseup event listeners.
+
+          TheCanvas.addEventListener( 'mousemove', MouseMoveCanvas, false ); 
+          TheCanvas.addEventListener( 'mousedown', MouseClickCanvas, false ); 
+		  TheCanvas.addEventListener( 'mouseup',   MouseUpCanvas, false ); 
+            TheCanvas.addEventListener( 'touchmove', TouchMoveCanvas, false ); 
+            TheCanvas.addEventListener( 'touchstart', TouchStartCanvas, false ); 
+			TheCanvas.addEventListener( 'touchend', TouchEndCanvas, false );     
+    
+    
+   // ******************************************************************** 
+   document.onkeydown = function(event)           //   init:  KEYBOARD EVENTS  KEYBOARD 
+    {
+      var keyCode; 
+      if(event == null){
+        keyCode = window.event.keyCode; }
+      else    {
+        keyCode = event.keyCode;  }
+		Handle_keyboard(keyCode)
+    }
+
+// ***********************************************************   
+// 
+//   CANVAS MOUSE   
+
+
+//   IMPORTED FROM TOUCH KALEIDESCOPE
+
+	
+	
+     function MouseMoveCanvas(event)	 {   //   Mouse Moved    "Mmove"
+	    // event= event || window.event;
+		eventType="Mmove";
+		Pointer_Canvas( event, eventType )	 }
+     function MouseClickCanvas(event)	 {   //   Mouse down     "Mdown"
+	    // event= event || window.event;
+		eventType="Mdown";
+		Pointer_Canvas( event, eventType )	 }
+     function MouseUpCanvas(event)	 {       //   Mouse Up      "Mup"
+	    // event= event || window.event;
+		eventType="Mup";
+		Pointer_Canvas( event, eventType )	 }
+     function TouchMoveCanvas(event)	 {   //   TOUCH     "Tchmove"  
+	    event.preventDefault();
+	    event= event || window.event;
+		eventType="Tchmove";            
+		Pointer_Canvas( event, eventType )	 }
+
+     function TouchStartCanvas(event)	 {    // TOUCH START  "Tchstart"
+	    event.preventDefault();
+	    event= event || window.event;
+		eventType="Tchstart";
+		Pointer_Canvas( event, eventType )	 }
+
+     function TouchEndCanvas(event)	 {        //  TOUCH  END   "Tchend"
+	    // event.preventDefault();
+	    event= event || window.event; Drawing=false;
+		eventType="Tchend";
+		Pointer_Canvas( event, eventType )	 }
+
+
+
+	 
+        function Pointer_Canvas( event, evType )
+        {           
+            
+                var moX = 0
+                var moY = 0			
+				var touch = "";
+			 if  ( event.targetTouches ) 
+			 {
+			      touch = event.targetTouches[ 0 ];
+				  moX = touch.pageX
+                  moY = touch.pageY
+			}
+
+            						
+              var mX=event.clientX;
+              var mY=event.clientY;
+			  
+ 
+                  mouseX = mX || moX;
+                  mouseY = mY || moY;
+				  mouseX = mouseX -8;
+				  mouseY = mouseY -8;
+
+			if (evType=="Mdown" || evType=="Tchstart")  { fun_mousedown(evType) ;}
+			if (evType=="Mmove" || evType=="Tchmove")  { fun_mousemove(evType); }
+
+            if ( (evType=="Mup") ||(evType=="Tchend") ) { fun_mouseup(evType);}			
+           
+            // event.preventDefault();
+           // event.stopPropagation();
+ 
+				  
+
+//   END OF IMPORTED FROM TOUCH KALEIDESCOPE
+
+//     fun_mousedown(ev)     //   These are from the original schroed.html
+//     fun_mousemove(ev)
+//     fun_mousemove(ev)
+//
+//     position relative to the canvas element.
+
+}     //  Ending    Pointer_Canvas
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ //   These are from the original schroed.html
+
+
+function fun_mousedown(ev) 
+ {                                                 //   MOUSEDOWN   = PEN_DOWN
+	       // ctx.beginPath();    // disabled raw pencil function
+        ctx.moveTo(mouseX, mouseY);
+		XmouseDOWN=mouseX; YmouseDOWN=mouseY;
+        mSTARTED = true; BUTTONdown=1;
+           Handle_Mouseclick(); //  This is the mouse steering
+		   respond_mouse();		//  This is only diagnostics	
+ }
+
+
+function fun_mousemove(ev) 
+  {                                                  //   MOUSEMOVE   = MOVE_TO
+	if (mSTARTED) {
+       // ctx.lineTo(mouseX, mouseY);                      // disabled raw pencil function
+       // ctx.stroke();                                  // disabled raw pencil function
+		XmouseMOVED=mouseX; YmouseMOVED=mouseY; 
+		Handle_Mouseclick();    //  This is the mouse steering
+		   respond_mouse(); 	//  This is only diagnostics
+      }
+
+ }	   
+
+function fun_mouseup(ev) 
+{                                                   //   MOUSEUP   =  PEN_UP
+      if (mSTARTED) {
+       // thistool.mousemove(ev);
+		XmouseUP=mouseX; YmouseUP=mouseY; BUTTONdown=0;
+        mSTARTED = false;
+		   Handle_Mouseclick(); //  This is the mouse steering
+		   respond_mouse();   	//  This is only diagnostics
+      }
+ }
+
+	//    These event variables are treated by   Handle_Mouseclick();
+	//    XmouseMOVED  YmouseMOVED ;  XmouseDOWN   YmouseDOWN ; XmouseUP  YmouseUP ;  BUTTONdown   
+
+
+}   //  This is the whole init function               END OF  INIT  FUNCTION          
+  
+/* The tricks are invented by ROBO Design
+ * http://www.robodesign.ro   */
+
+
+
+//////////////////////////////////////////////////////////////////////////////////
+
+init();     //    AND HERE WE JUST CALL THE init()   function ; after defining geometry etc .....
+
+  plotSquare(0.5, 0.2,  0.5, 0.6);
+//
+//
+//
+////////////////////////////////////////////////////////////////////////////
+//
+//    This defines the help and info functions                                HELP   
+//
+//    A variable part of the page is added -     look for  div id= helpPar
+//    The helpPar changes on clicks
+//
+
+
+//   Activate the Present Energy view   "ParameterView"
+//
+var To_Output="<span style=\"background-color: rgb(255, 255, 55);\">";   
+To_Output=To_Output+"<small>E= "+  12345 + "</small><br></span>";
+
+document.getElementById("ParameterView").innerHTML= To_Output;  
+
+
+
+
+
+  
+function Mline( xs, ys, xe, ye)      //   Line drawing in the Math coordinate system
+    {  var xs_canv; var xe_canv;
+	   var ys_canv; var ye_canv; 
+  	   xs_canv = Math.ceil(   xs / Xscale +  OriginX );
+  	   ys_canv = Math.ceil( - ys / Yscale +  OriginY ); 
+  	   xe_canv = Math.ceil(   xe / Xscale +  OriginX );
+  	   ye_canv = Math.ceil( - ye / Yscale +  OriginY ); 
+       // document.write( "<br>");
+       // document.write( xs_canv," &nbsp; &nbsp;", 
+       // ys_canv, " &nbsp; &nbsp;", xe_canv," &nbsp; &nbsp;", ye_canv);
+
+	   ctx.beginPath();	
+	   ctx.moveTo( xs_canv, ys_canv );
+	   ctx.lineTo( xe_canv, ye_canv );
+	   ctx.stroke();	        	   	   
+     }
+
+
+//////////////////////////////////////////////////////////////////////////////////
+
+//            The key-press responses - key_f()  key_h()  keyh_e()     etc .....
+
+//////////////////////////////////////////////////////////////////////////////////
+
+
+
+	function key_e()
+	{   
+	        ctx.fillStyle = '#FFFFFF'; 
+            ctx.fillRect(0, 0, width, height); 
+			workspace();
+	}			
+	function key_l()
+	{     
+	        ctx.fillStyle = '#DDDDFF'; 
+            ctx.fillRect(0, 0, width, height);  
+			workspace();
+	}
+
+	function key_h()
+	{     
+          do_fading(0.7, true);
+	}
+
+ 	  
+// -----------------------------------------------------------------------
+// -------------         BEGIN   KEYBOARD RESPONSE FUNCTION   ------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+//
+function Handle_keyboard(keyCode)
+   {
+      Action='none';
+	  running=0;
+      var TESTING=0;
+	  if ( TESTING ){
+	  Event_Output=Event_Output + " Last pressed key code is " + keyCode +  "<br>";
+	  document.getElementById("EventView").innerHTML= Event_Output+ "</small><br>";  	}  
+
+    if(Keyboard_func)
+	{  		
+      switch(keyCode)
+      {        
+	  //    KEYBOARD handlings
+	  //
+        case 69:            //  e for  erase 
+		  key_e();
+          break; 
+
+			  	  
+        case 76:          //    L  for light blue
+          key_l();
+          break; 
+
+		  
+        default: 		
+          break;  
+      }
+	}    //    if(  Keyboard_func )
+		   
+    }
+// -----------------------------------------------------------------------
+// -------------            END  KEYBOARD RESPONSE FUNCTION   ------------
+// -----------------------------------------------------------------------
+
+// -------------            BEGIN  MOUSE  RESPONSE FUNCTION   ------------
+// -----------------------------------------------------------------------
+    function Handle_Mouseclick()
+	  {  
+	    running=0;
+		if ( (XmouseDOWN < width) && Adjusting==0  )
+		  {
+		  //	 Y_math=( -y_canv + OriginY ) * Yscale;
+		  Ycalc= ( -YmouseDOWN + OriginY ) * Yscale;
+		  //  Ycalc= Ebase+En
+		  En=Ycalc-Ebase;
+
+		  }
+/*
+		if ( (XmouseDOWN > width) && Adjusting==0 && BUTTONdown )
+		  {
+		   if ( (Math.abs(XmouseDOWN-XmouseMOVED)>0) || (Math.abs(YmouseDOWN-YmouseMOVED)>0) )
+		    {
+		     Efact=0.1*Math.exp( -(XmouseDOWN - width)/5 );
+		     Mufact=2*( (height -YmouseDOWN)-height/2 )/height;
+		     En=En+Mufact*Efact; deltaE=Mufact*Efact;
+		     solveSchroed();
+		    }
+		  }	 */
+	   if (  Adjusting==1 )
+	      {
+		      //  These 2 functions are collected with their 'Adjusting' front-functions
+		  }
+
+	   if (  Adjusting==2 )
+	      {
+		   
+			 //  These 2 functions are collected with their 'Adjusting' front-functions 
+		  }
+		// Vpert=0;  PertPos=Edge; PertWidth=1; 
+        // PertLeft=PertPos-PertWidth/2;  PertRight=PertPos+PertWidth/2; PertPI=Math.PI/PertWidth;		
+	   if (  Adjusting==0 )
+	      {
+		   // display_Energy();
+		  }		
+	    
+	}
+// -----------------------------------------------------------------------
+// -------------            END  MOUSE RESPONSE FUNCTION   ------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+
+function  plotSquare( xxx, yyy, xboxedge, yboxedge)
+    {    
+
+	     Mline(xxx-xboxedge,yyy-yboxedge,xxx+xboxedge,yyy-yboxedge);
+	     Mline(xxx+xboxedge,yyy-yboxedge,xxx+xboxedge,yyy+yboxedge);
+	     Mline(xxx+xboxedge,yyy+yboxedge,xxx-xboxedge,yyy+yboxedge);
+	     Mline(xxx-xboxedge,yyy+yboxedge,xxx-xboxedge,yyy-yboxedge);		 		 	
+	}
+	
+function Canvas_Following()
+    {   
+		  // Event_Output= Adjusting_Edge +" " + Adjusting_Steep +" " +Adjusting +" " + Edge + Xdown  + Ydown;
+          //  document.getElementById("ExtraView").innerHTML= Event_Output + "<br>"; 
+		  
+		  
+		  Xdown= ( XmouseDOWN - OriginX ) * Xscale; 
+		  Ydown=( -YmouseDOWN + OriginY ) * Yscale; 
+		  Xmoved=( XmouseMOVED - OriginX ) * Xscale;    
+		  Ymoved=( -YmouseMOVED + OriginY ) * Yscale;
+		  Xup=( XmouseUP - OriginX ) * Xscale; 
+		  Yup= ( -YmouseUP + OriginY ) * Yscale;
+ 
+         var TESTING=1;
+         var Message_Output="<small>  Xdown"+ Xdown.toPrecision(4) +" Ydown "  + 
+                              Ydown.toPrecision(4) + " Xmoved "
+                            + Xmoved.toPrecision(4) + " Ymoved "+ Ymoved.toPrecision(4) + " ---- ";
+	  if ( TESTING )
+	  { document.getElementById("ParameterView").innerHTML= Message_Output + "</small><br>"; }
+	}	
+	
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+function respond_mouse()
+{
+
+Event_Output="<small> mouseDOWN "+ XmouseDOWN+" "+YmouseDOWN + 
+"  mouseUP "+ XmouseUP +" " + YmouseUP + "  mouseMOVED "+ XmouseMOVED +" " + YmouseMOVED + " BUTTON "+BUTTONdown +
+     "</small><br>";
+   var TESTING=1;
+	  if ( TESTING )
+	  { document.getElementById("EventView").innerHTML= Event_Output + "</small><br>"; }
+
+    Canvas_Following();
+}
+
+
+function do_fading(alpha, always)
+    {
+	 ctx.fillStyle = '#FFFFFF'; 
+	 ctx.globalAlpha=alpha;
+         ctx.fillRect(0, 0, width, height); 
+	 ctx.globalAlpha=1.0; 
+    }
+
+
+ 
+
+</script>
+</body>
+</html>
+
+
+

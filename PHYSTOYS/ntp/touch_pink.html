@@ -1,0 +1,662 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+ <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">  <title>Kalleidescop: JavaScript Canvas pencil functions; Work: L. Kocbach</title>
+
+ <style type="text/css"><!-- #container { position: relative; } #blob { border: 1px solid #000; } --></style>
+	
+<!-- The mouse and canvas tricks are based on ROBO Design
+ * http://www.robodesign.ro   Programmed by Ladislav Kocbach http://web.ift.uib.no/~ladi/   
+ Copyleft: Please, do anything with this code, but keep these three lines included-->	
+
+<!--[if IE]><script src="excanvas.js"></script><![endif]-->  
+<script language="JavaScript">
+var VersionString= " This is version 2.1, November 8th, 2009      ";
+
+  var TheCanvas;
+  var CTX;
+  var  Action='none';  var width=464;  var height=464;   var AxesNumber=7;
+  var OriginX=width/2;    var OriginY=height/2; 
+  var x=0;	 var y=0;	var phi=0;	var r=0; var phiTo=0;	var rTo=0;		  
+  var PiPart= 2 * Math.PI / AxesNumber;
+  var clock=1; var anticlock=1; var symfilter=0;
+  var LineThick=6;
+  var changing_alpha=0;
+  
+  var  Text_mirrors="";     var  Text_COLORCHOICE="";   var colorstring='#000';
+  var SYMMETRY_Text="";     var LineThickText="";
+  var theAlpha=1.0;
+  
+     eventType = "";    //  Used in the event translation; A string 
+  
+   var clicksn=0;
+   var Drawing=false;
+   var mouseX=0; var mouseY =0;
+
+
+  
+  
+  
+    var DOWN = false;
+	var Xstart=0;
+	var Ystart=0;
+	var Xdrawto=0;
+	var Ydrawto=0;
+	var i=0; var psi=0; var X=0; var Y=0; var Xe=0; var Ye=0;
+	
+
+
+
+  //   CTX.globalAlpha=0.15;
+/* The tricks are invented by ROBO Design
+ * http://www.robodesign.ro   */
+
+// Initialization sequence.
+function init () {                         //  INIT STARTS HERE
+   // Find the canvas element.
+     TheCanvas = document.getElementById("blob");
+   // Get the 2D canvas context.
+     CTX = TheCanvas.getContext('2d');
+	   CTX.lineWidth = LineThick;
+	   CTX.strokeStyle = '#000';
+	 CTX.fillStyle = '#FFFFFF'; 
+	 CTX.globalAlpha=1;   //     CTX.globalAlpha=theAlpha; 
+         CTX.fillRect(0, 0, width, height); 
+		 
+		 
+		 
+		 
+  // Attach the mousedown, mousemove and mouseup event listeners.
+  //  TheCanvas.addEventListener('mousedown', ev_canvas, false);
+  //  TheCanvas.addEventListener('mousemove', ev_canvas, false);
+  //  TheCanvas.addEventListener('mouseup',   ev_canvas, false);
+
+          TheCanvas.addEventListener( 'mousemove', MouseMoveCanvas, false ); 
+          TheCanvas.addEventListener( 'mousedown', MouseClickCanvas, false ); 
+		  TheCanvas.addEventListener( 'mouseup',   MouseUpCanvas, false ); 
+            TheCanvas.addEventListener( 'touchmove', TouchMoveCanvas, false ); 
+            TheCanvas.addEventListener( 'touchstart', TouchStartCanvas, false ); 
+			TheCanvas.addEventListener( 'touchend', TouchEndCanvas, false );     
+    
+     document.onkeydown = function(event) 
+    {
+      var keyCode; 
+      if(event == null){
+        keyCode = window.event.keyCode; }
+      else    {
+        keyCode = event.keyCode;  }
+      Ation='none';
+      switch(keyCode)
+      {        
+        // clean on presed 'c'
+        case 67: 
+          Action='clean';
+          break; 
+        case 66: 
+          Action='blue';
+          break; 
+        case 80: 
+          Action='pink';
+          break; 
+		
+		case 84:         //   T    transparency setting
+		   setTrans();
+		  break;
+		  
+        default: 
+          break; 
+	   
+      }
+         if (Action=='clean') {   
+	  clean_canvas(); DOWN = false; Action='none'; }
+         if (Action=='blue') {   
+	  blue_canvas();DOWN = false; Action='none'; }
+         if (Action=='pink') {   
+	  pink_canvas(); DOWN = false; Action='none'; }
+	 
+    }
+	
+	
+
+    Write_Mirror_Choices();      // Initial text
+    Write_PenColor_Choices();    // Initial text
+    Write_Symmetry();   // Initial text
+
+}   //  This is the whole init function           END OF INIT
+	
+	
+     function MouseMoveCanvas(event)	 {   //   Mouse Moved    "Mmove"
+	    // event= event || window.event;
+		eventType="Mmove";
+		Pointer_Canvas( event, eventType )	 }
+     function MouseClickCanvas(event)	 {   //   Mouse down     "Mdown"
+	    // event= event || window.event;
+		eventType="Mdown";
+		Pointer_Canvas( event, eventType )	 }
+     function MouseUpCanvas(event)	 {       //   Mouse Up      "Mup"
+	    // event= event || window.event;
+		eventType="Mup";
+		Pointer_Canvas( event, eventType )	 }
+     function TouchMoveCanvas(event)	 {   //   TOUCH     "Tchmove"
+	    event.preventDefault();
+	    event= event || window.event;
+		eventType="Tchmove";
+		Pointer_Canvas( event, eventType )	 }
+     function TouchStartCanvas(event)	 {    // TOUCH START  "Tchstart"
+	    event.preventDefault();
+	    event= event || window.event;
+		eventType="Tchstart";
+		Pointer_Canvas( event, eventType )	 }
+     function TouchEndCanvas(event)	 {        //  TOUCH  END   "Tchend"
+	    // event.preventDefault();
+	    event= event || window.event; Drawing=false;
+		eventType="Tchend";
+		Pointer_Canvas( event, eventType )	 }
+
+
+
+	 
+        function Pointer_Canvas( event, evType )
+        {           
+            
+                var moX = 0
+                var moY = 0			
+				var touch = "";
+			 if  ( event.targetTouches ) {
+			touch = event.targetTouches[ 0 ];
+					    moX = touch.pageX
+                moY = touch.pageY
+			}
+           
+
+    if (    (evType=="Mup")   ||  (evType=="Tchend") )
+        {                       
+            Drawing = false;	
+			   DOWN = false;    
+        }			
+           
+            // event.preventDefault();
+           // event.stopPropagation();
+ 
+            
+						
+              var mX=event.clientX;
+              var mY=event.clientY;
+			  
+ 
+                  mouseX = mX || moX;
+                  mouseY = mY || moY;
+
+
+
+
+		      
+if (  Drawing  )    /////     START DRAWING  
+                
+{
+	        Xdrawto=mouseX;
+	        Ydrawto=mouseY;
+	//  From-point	  
+		  x=(  Xstart-OriginX)/OriginY;
+		  y=(-Ystart+OriginY)/OriginY;	
+		  r=Math.sqrt(x*x+y*y);
+		  phi=Math.atan2(y,x);
+	//   To-point
+		  x=(  Xdrawto-OriginX)/OriginY;
+		  y=(-Ydrawto+OriginY)/OriginY;	
+		  rTo=Math.sqrt(x*x+y*y);
+		  phiTo=Math.atan2(y,x);
+	//   Arrange thickness: changing pensymmetry if symfilter==1	  
+	    if ( symfilter==1 ) {  
+		   if(Math.abs(phi-phiTo)<(0.02*Math.PI) )
+		   {  rTo=rTo+LineThick/OriginX;   
+			  compar=LineThick/OriginX;
+			phiTo=phiTo+Math.atan2(compar,r);
+		   }
+		}		
+        for( i=0; i<AxesNumber; i++ ) {
+		
+		if( clock==1)
+		{    psi=phi+i*PiPart;
+			  X=OriginX+OriginY*r*Math.cos(psi);
+			  Y=OriginY-OriginY*r*Math.sin(psi);
+			CTX.beginPath();
+			CTX.moveTo(X, Y);
+		      psi=phiTo+i*PiPart;
+			  Xe=OriginX+OriginY*rTo*Math.cos(psi);
+			  Ye=OriginY-OriginY*rTo*Math.sin(psi);		  	  
+			CTX.lineTo(Xe, Ye);
+			CTX.stroke();
+		}
+      if( anticlock==1)
+		{	  psi=-phi+i*PiPart;
+			  X=OriginX+OriginY*r*Math.cos(psi);
+			  Y=OriginY-OriginY*r*Math.sin(psi);
+			CTX.beginPath();
+			CTX.moveTo(X, Y);
+		      psi=-phiTo+i*PiPart;
+			  Xe=OriginX+OriginY*rTo*Math.cos(psi);
+			  Ye=OriginY-OriginY*rTo*Math.sin(psi);		  	  
+			CTX.lineTo(Xe, Ye);
+			CTX.stroke();
+		}	
+
+	   }
+	      Xstart=Xdrawto;
+	      Ystart=  Ydrawto;
+	    var xxx=  Xstart; var yyy=  Ystart; 
+	    if( xxx>width-1  ||  xxx<2 || yyy>height-1 || yyy<2) {  DOWN = false;}	  
+	    Drawing = DOWN;
+ } /////     END DRAWING    
+				
+	
+    if (    (evType=="Mdown")   ||  (evType=="Tchstart") )
+ 
+        {                       
+            Drawing = true;
+		//	CTX.beginPath();
+		//	CTX.moveTo(mouseX, mouseY );
+			Xstart=mouseX;
+            Ystart=mouseY;
+            DOWN = true;
+	
+					
+        }
+  
+		
+	} 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+  
+
+
+  // This painting tool works like a drawing pencil which tracks the mouse 
+  // movements.
+  
+
+  
+//
+function setMirrors(number)
+    {  AxesNumber=number;
+       if ( AxesNumber < 3 ) { AxesNumber = 3; }
+        CTX.fillStyle = '#FFFFFF'; 
+        CTX.fillRect(0, 0, width, height); PiPart= 2 * Math.PI / AxesNumber;  
+        Write_Mirror_Choices()}
+  
+function setclocks( a, b, c)        {   clock=a; anticlock=b; symfilter=c; Write_Symmetry()}
+
+function setPenColor( stringr )  {     CTX.strokeStyle = stringr;
+           colorstring=stringr;    Write_PenColor_Choices(); }
+
+function setPenThick( a )	{ if (a<1) {a=1;}  CTX.lineWidth = a; LineThick=a; Write_Symmetry();}
+
+function setTrans()
+           {		   
+		   if (theAlpha > 0.5) {theAlpha = 0.15;}
+		   else  {theAlpha = 1;}
+		   CTX.globalAlpha=theAlpha;
+		   changing_alpha=1;
+		   Write_PenColor_Choices();
+         }
+
+function Write_Mirror_Choices()
+{    
+  Text_mirrors="";
+  Text_mirrors=Text_mirrors +  "<table border=0><tr><td><small><b>Mirrors: " + 
+  "<span style=\"background-color: rgb(255, 255, 30);\"> &nbsp;"+
+  AxesNumber +"&nbsp;</span>"  
+            + " Change number: </b> <small></td>" ;
+     if (  AxesNumber == 3 )
+        {Text_mirrors=Text_mirrors +  "  <td style=\"background-color: rgb(100, 100, 100);\">"; }
+     else
+        {Text_mirrors=Text_mirrors + "<td>";}
+     Text_mirrors=Text_mirrors + "<small><a href=\"javascript:setMirrors(3);\"> 3 </a><small>   </td>"
+     if (  AxesNumber == 4 )
+        {Text_mirrors=Text_mirrors +  "  <td style=\"background-color: rgb(100, 100, 100);\">"; }
+     else
+        {Text_mirrors=Text_mirrors + "<td>";}     
+     Text_mirrors=Text_mirrors + "<small><a href=\"javascript:setMirrors(4);\"> 4 </a><small>   </td>"
+      if (  AxesNumber == 5 )
+        {Text_mirrors=Text_mirrors +  "  <td style=\"background-color: rgb(100, 100, 100);\">"; }
+     else
+        {Text_mirrors=Text_mirrors + "<td>";}    
+     Text_mirrors=Text_mirrors + "<small><a href=\"javascript:setMirrors(5);\"> 5 </a><small>   </td>"
+     if (  AxesNumber == 6 )
+        {Text_mirrors=Text_mirrors +  "  <td style=\"background-color: rgb(100, 100, 100);\">"; }
+     else
+        {Text_mirrors=Text_mirrors + "<td>";}     
+     Text_mirrors=Text_mirrors + "<small><a href=\"javascript:setMirrors(6);\"> 6 </a><small>   </td>" 
+     if (  AxesNumber == 7 )
+        {Text_mirrors=Text_mirrors +  "  <td style=\"background-color: rgb(100, 100, 100);\">"; }
+     else
+        {Text_mirrors=Text_mirrors + "<td>";}     
+     Text_mirrors=Text_mirrors + "<small><a href=\"javascript:setMirrors(7);\"> 7 </a><small>   </td>" 
+     if (  AxesNumber == 16 )
+        {Text_mirrors=Text_mirrors +  "  <td style=\"background-color: rgb(100, 100, 100);\">"; }
+     else
+        {Text_mirrors=Text_mirrors + "<td>";}     
+     Text_mirrors=Text_mirrors + "<small><a href=\"javascript:setMirrors(16);\"> 16 </a></small>  </td>"
+                
+      Text_mirrors=Text_mirrors           
+		 +  "<td>   <small><a href=\"javascript:setMirrors(AxesNumber+1);\"> + 1 </a><small> &nbsp; </td>"
+		 +  "<td>   <small><a href=\"javascript:setMirrors(AxesNumber-1);\"> - 1 </a><small> &nbsp; </td>"					      
+		 +  "<td>   <small><a href=\"javascript:setMirrors(AxesNumber+2);\"> + 2 </a><small> &nbsp; </td>"
+		 +  "<td>   <small><a href=\"javascript:setMirrors(AxesNumber-2);\"> - 2 </a><small> &nbsp; </td>"	   
+		 +  "<td>   <small><a href=\"javascript:setMirrors(AxesNumber+5);\"> + 5 </a><small> &nbsp; </td>"
+		 +  "<td>   <small><a href=\"javascript:setMirrors(AxesNumber-5);\"> - 5 </a><small> &nbsp; </td>"	   
+  +  "<td> <small>	(This also cleans the 'paper') </small> </td></tr></table> ";
+  
+  document.getElementById("Numb_MirrorsDiv").innerHTML=Text_mirrors;
+
+}      //    END  NUMBER OF MIRRORS
+
+function Write_PenColor_Choices()
+{
+  Text_COLORCHOICE="";
+  Text_COLORCHOICE=Text_COLORCHOICE +  "<table border=0  cellpadding=\"4\"cellspacing=\"0\">"
+                   + "<tr><td><small><b>Pen Color:</b> </small></td>" ;
+     if (  colorstring == '#000')
+        {Text_COLORCHOICE=Text_COLORCHOICE +  "  <td style=\"background-color: rgb(0, 0, 255);\">"; }
+     else
+        {Text_COLORCHOICE=Text_COLORCHOICE + "<td>";}
+     Text_COLORCHOICE=Text_COLORCHOICE +    
+      "<small><span style=\"background-color: rgb(30, 30, 30);\">"+
+           "<a href=\"javascript:setPenColor( '#000');\"> black </a> &nbsp;  &nbsp;</span></small></td>" ;
+
+     if (  colorstring == '#d00')
+        {Text_COLORCHOICE=Text_COLORCHOICE +  "  <td style=\"background-color: rgb(0, 0, 255);\">"; }
+     else
+        {Text_COLORCHOICE=Text_COLORCHOICE + "<td>";}          
+     Text_COLORCHOICE=Text_COLORCHOICE +  
+      "<small><span style=\"background-color: rgb(255, 70, 75);\">"+	
+           "<a href=\"javascript:setPenColor( '#d00');\"> red </a> &nbsp;  &nbsp;</span></small></td>" ;	
+
+     if (  colorstring == '#33d')
+        {Text_COLORCHOICE=Text_COLORCHOICE +  "  <td style=\"background-color: rgb(100, 100, 100);\">"; }
+     else
+        {Text_COLORCHOICE=Text_COLORCHOICE + "<td>";}    
+     Text_COLORCHOICE=Text_COLORCHOICE +  
+      "<small><span style=\"background-color: rgb(70, 75, 255);\">"+
+           "<a href=\"javascript:setPenColor( '#33d');\"> blue </a> &nbsp;  &nbsp;</span></small></td>" ;
+
+     if (  colorstring == '#fcc')
+        {Text_COLORCHOICE=Text_COLORCHOICE +  "  <td style=\"background-color: rgb(100, 100, 100);\">"; }
+     else
+        {Text_COLORCHOICE=Text_COLORCHOICE + "<td>";} 
+
+     Text_COLORCHOICE=Text_COLORCHOICE +  
+      "<small><span style=\"background-color: rgb(255, 190, 190);\">"+
+           "<a href=\"javascript:setPenColor( '#fcc');\"> pink </a> &nbsp;  &nbsp;</span></small></td>" ;
+
+
+     if (  colorstring == '#f9f')
+        {Text_COLORCHOICE=Text_COLORCHOICE +  "  <td style=\"background-color: rgb(100, 100, 100);\">"; }
+     else
+        {Text_COLORCHOICE=Text_COLORCHOICE + "<td>";}   
+     Text_COLORCHOICE=Text_COLORCHOICE +  
+      "<small><span style=\"background-color: rgb(255, 150, 255);\">"+
+           "<a href=\"javascript:setPenColor( '#f9f');\"> violet </a> &nbsp;  &nbsp;</span></small></td>" ;
+ 
+	     if (  colorstring == '#ff1')
+        {Text_COLORCHOICE=Text_COLORCHOICE +  "  <td style=\"background-color: rgb(100, 100, 100);\">"; }
+     else
+        {Text_COLORCHOICE=Text_COLORCHOICE + "<td>";}   
+       Text_COLORCHOICE=Text_COLORCHOICE +  
+      "<small><span style=\"background-color: rgb(255, 255, 30);\">"+	
+           "<a href=\"javascript:setPenColor( '#ff1');\"> yellow </a> &nbsp;  &nbsp;</span></small></td>" ;
+
+     if (  colorstring == '#999')
+        {Text_COLORCHOICE=Text_COLORCHOICE +  "  <td style=\"background-color: rgb(100, 100, 100);\">"; }
+     else
+        {Text_COLORCHOICE=Text_COLORCHOICE + "<td>";}    
+     Text_COLORCHOICE=Text_COLORCHOICE +  
+      "<small><span style=\"background-color: rgb(150, 150, 150);\">"+	
+           "<a href=\"javascript:setPenColor( '#999');\"> gray </a> &nbsp;  &nbsp;</span></small></td>" ;	
+
+     if (  colorstring == '#2d2')
+        {Text_COLORCHOICE=Text_COLORCHOICE +  "  <td style=\"background-color: rgb(100, 100, 100);\">"; }
+     else
+        {Text_COLORCHOICE=Text_COLORCHOICE + "<td>";}
+     Text_COLORCHOICE=Text_COLORCHOICE +  
+      "<small><span style=\"background-color: rgb(20, 180, 20);\">"+
+           "<a href=\"javascript:setPenColor( '#2d2');\"> green </a> &nbsp;  &nbsp;</span></small></td>" ;	
+     if (  colorstring == '#fff')
+        {Text_COLORCHOICE=Text_COLORCHOICE +  "  <td style=\"background-color: rgb(100, 100, 100);\">"; }
+     else
+        {Text_COLORCHOICE=Text_COLORCHOICE + "<td>";}  
+     Text_COLORCHOICE=Text_COLORCHOICE +  
+      "<small><span style=\"background-color: rgb(255, 255, 255);\">"+
+           "<a href=\"javascript:setPenColor( '#fff');\"> white </a> &nbsp;  &nbsp;</span></small></td>" ;
+    
+
+    if (  changing_alpha == 1) { changing_alpha=0; }
+	
+	// <a href="javascript:setTrans();">Transparent</a>
+	if (theAlpha < 0.5) 
+        {Text_COLORCHOICE=Text_COLORCHOICE +  "  <td style=\"background-color: rgb(100, 100, 100);\">"; }
+     else
+        {Text_COLORCHOICE=Text_COLORCHOICE + "<td>";}  
+     Text_COLORCHOICE=Text_COLORCHOICE +  
+      "<small><span style=\"background-color: rgb(255, 255, 255);\">"+
+           "<a href=\"javascript:setTrans();\"> Transparent </a> &nbsp;  &nbsp;</span></small></td>" ;
+    
+	
+	
+	Text_COLORCHOICE=Text_COLORCHOICE + "</tr></table>";
+	
+	
+
+  document.getElementById("PENCOLORS").innerHTML=Text_COLORCHOICE;
+
+}     //    END  CHOICE OF COLOR
+
+
+function Write_Symmetry()
+{
+  SYMMETRY_Text="";
+  SYMMETRY_Text=SYMMETRY_Text +  "<table border=0  cellpadding=\"4\"cellspacing=\"0\">"
+                   + "<tr><td><small><b>Mirroring:</b> </small></td>" ;
+     if ( clock==1 && anticlock==1 )
+        {SYMMETRY_Text=SYMMETRY_Text +  "  <td style=\"background-color: rgb(128,128,128);\">"; }
+     else
+        {SYMMETRY_Text=SYMMETRY_Text + "<td>";}
+        SYMMETRY_Text=SYMMETRY_Text +
+         "<span style=\"background-color: rgb(210,210,210);\">"+
+         "<small><a href=\"javascript:setclocks(1,1, symfilter);\"> symmetrical </a> </small></span></td>";
+     if ( clock==1 && anticlock==0 )
+        {SYMMETRY_Text=SYMMETRY_Text +  "  <td style=\"background-color: rgb(128,128,128);\">"; }
+     else
+        {SYMMETRY_Text=SYMMETRY_Text + "<td>";}
+        SYMMETRY_Text=SYMMETRY_Text +    
+                 "<span style=\"background-color: rgb(210,210,210);\">"+   
+         "<small><a href=\"javascript:setclocks(1,0, symfilter);\"> clock </a> </small></span></td>";
+     if (symfilter==0)
+       { SYMMETRY_Text=SYMMETRY_Text + 
+         "<td><small>"+"<span style=\"background-color: rgb(170,170,255);\">"+
+		 "<a href=\"javascript:setclocks(clock,anticlock,Math.abs(symfilter-1));\">" +
+         "change pen mirror </a></span> </small></td>";}
+	 else
+	   { SYMMETRY_Text=SYMMETRY_Text + 
+         "<td style=\"background-color: rgb(230,150,150);\"><small>"+"<span style=\"background-color: rgb(230,150,150);\">"+
+		 "<a href=\"javascript:setclocks(clock,anticlock,Math.abs(symfilter-1));\">" +
+         "change pen mirror </a></span> </small></td>";}
+
+
+
+ //    END  NUMBER OF MIRRORS
+ 
+       SYMMETRY_Text=SYMMETRY_Text + 
+        "<td><small> <b> &nbsp;  &nbsp;  &nbsp; Line Thickness is   &nbsp; " +
+             "<span style=\"background-color: rgb(255, 255, 30);\">&nbsp;"
+         + LineThick +  "&nbsp;</span>" +  "    &nbsp; </b> Change: " +
+         "<a href=\"javascript:setPenThick( 6 );\"> 6 </a> &nbsp;  &nbsp;  " + 
+         "<a href=\"javascript:setPenThick( 18 );\"> 18 </a> &nbsp;  &nbsp; " + 
+         "<a href=\"javascript:setPenThick( LineThick*2 );\"> double </a> &nbsp;  &nbsp; " + 
+          "<a href=\"javascript:setPenThick( Math.floor(LineThick/2 ));\"> half </a> &nbsp;  &nbsp;  " +  
+          "<a href=\"javascript:setPenThick(  LineThick+1  );\"> + 1 </a> &nbsp;  &nbsp;  " + 
+          "<a href=\"javascript:setPenThick( LineThick-1 );\"> - 1 </a> &nbsp;  &nbsp; </small></td>"+"</tr></table>";  																
+
+  document.getElementById("SYMMETRIESLINES").innerHTML=SYMMETRY_Text;
+
+}   //    END  OF WRITE SYMMETRIES AND LINE THICK
+ 
+
+
+
+
+
+
+
+
+//
+//    It does the help and info functions                                HELP   
+//
+//    A variable part of the page is added -     look for  div id= helpPar
+//    The helpPar changes on clicks
+//
+var  Help_String=
+   "<small><b>Kalleidescop: JavaScript Canvas pencil functions; Work: " + 
+   " <a href=\"http://web.ift.uib.no/%7Eladi/\">L. Kocbach</a></b> <br>" + 
+   VersionString+
+   "<br>Basic pencil tricks from <a href=\"http://www.robodesign.ro/\">http://www.robodesign.ro/</a> "+
+    "via Opera development. <br>"+
+ 
+          "<br>What can you do here? <br>"
+          
+         +"Just try to draw in the white area. <br> "   +  
+     "<br>Draw by mouse-button pressed in the drawing pad;&nbsp; &nbsp; &nbsp; <br>"+
+  
+          "<br>Saving the pictures? <br>"+
+          "In Firefox and related browsers - just right-click and save the image.<br>"+
+          "Or take a screen-shot. Easy on Linux and Apple Mac<br>"+
+          "Normal saving: Next version - needs extarnal library.<br>"+
+          
+         
+   "<br> <br>  You can modify the program - the program is in the page - A good start to learn JavaScript<br>"+
+         "I have chosen to use the links instead of buttons,  "
+         +"the links are much simpler.<br><br>"
+         +"<b>This help text can be closed   "  + "</b> <br> </small>";
+
+var Help_Link="<small><a href=\"javascript:help_fun()\">Help and Information</a></small></b>"+
+              "&nbsp; &nbsp; <small><a href=\"http://web.ift.uib.no/AMOS/kalleid/\">Gallery</a></small>";
+
+var To_Output=" ";
+function help_fun()
+{
+To_Output="<br><hr><small><a href=\"javascript:close_help_area()\">Close this view</a></small></b>"
+                      +  "<br><br>"+Help_String;
+To_Output=To_Output+"<br><a href=\"javascript:close_help_area()\">Close this view</a></small><b><hr><b></b>";
+         
+document.getElementById("helpPar").innerHTML= To_Output;                  
+}
+
+
+function close_help_area()
+{
+document.getElementById("helpPar").innerHTML= Help_Link;  
+}
+
+
+function clean_canvas()
+        {   
+	     CTX.fillStyle = '#FFFFFF'; 
+         CTX.fillRect(0, 0, width, height); DOWN = false; Action='none'; 
+		 }
+function blue_canvas()
+        {   
+	     CTX.fillStyle = '#AAAAFF';  
+         CTX.fillRect(0, 0, width, height); DOWN = false; Action='none'; 
+		 }
+function pink_canvas()
+        {   
+	     CTX.fillStyle = '#FFAAAA';
+         CTX.fillRect(0, 0, width, height); DOWN = false; Action='none'; 
+		 }
+
+
+
+
+
+</script>
+</head>
+
+<body bgcolor="#dddddd">
+<div id="container" style="position: relative;">   <!--    DRAWING AREA    -->
+
+<canvas id="blob" style="position: relative; left: 0px; top: 0px;" width="464" height="464"></canvas>
+</div>
+<small>
+<b>Keys:&nbsp; </b> &nbsp; 
+<span style="background-color: rgb(255, 255, 255);">
+<b>c: </b>  &nbsp;<a href="javascript:clean_canvas()"> Clean paper;  </a>
+</span> 
+&nbsp;  &nbsp; 
+<span style="background-color: rgb(51, 204, 255);">
+	<b>b: </b>  &nbsp; <a href="javascript:blue_canvas()">Make paper blue;</a>
+</span>	&nbsp; &nbsp; 
+
+
+<span style="background-color: rgb(255, 190, 190);">
+                                 <b>p: </b>  &nbsp;
+								 <a href="javascript:pink_canvas()"> Make paper pink;</a>
+</span>	&nbsp; &nbsp;
+(keyboard)
+
+
+
+
+
+
+
+
+
+</small>
+<table>
+<tr><td>
+ <div id="Numb_MirrorsDiv" style="font-family: Helvetica,Arial,sans-serif;">
+     <!--  This is the area for the Number of mirrors   -->
+ </div>
+</td></tr>		   
+<tr><td>
+ <div id="PENCOLORS" style="font-family: Helvetica,Arial,sans-serif;">
+     <!--  This is the area for the Number of mirrors   -->
+ </div>
+ </td></tr>
+<tr><td>
+ <div id="SYMMETRIESLINES" style="font-family: Helvetica,Arial,sans-serif;">
+     <!--  This is the area for the SYMMETRIES AND LINES   -->	 
+ </div>
+</td></tr>
+<table>
+<div id="helpPar" style="font-family: Helvetica,Arial,sans-serif;"> 
+
+       <!--    HELP TEXT   SPACE   --> 
+
+<small><a href="javascript:help_fun()">Help and Information</a></small>; &nbsp; 
+<small><a href="http://web.ift.uib.no/AMOS/kalleid/">Gallery</a></small>
+</div> 			
+<script language="JavaScript">
+init();
+
+</script>
+
+
+				 
+
+</body></html>

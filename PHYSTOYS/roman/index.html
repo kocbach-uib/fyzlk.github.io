@@ -1,0 +1,291 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+<title>Sp&oslash;rsm&aring;l til Simen</title> 
+<script type="text/javascript">
+
+var now = new Date();
+var seed = now.getSeconds();
+var random_number = Math.random(seed);
+var numerals=[]; 
+var romans=[]; 
+
+var kk=0; var num=0;
+function init_tall(){
+      for (kk=1;kk<7;kk=kk+1)
+	  {
+	  random_number=Math.random(seed);
+	  question=Math.floor(random_number *2000);
+	  rest=question;
+	  strng="";
+	  if (rest>1000-1) {strng="M"; rest=rest-1000;}
+	  if (rest>900-1) {strng=strng+"CM"; rest=rest-900;}
+	  if (rest>500-1) {strng=strng+"D"; rest=rest-500;}
+	  if (rest>400-1) {strng=strng+"CD"; rest=rest-400;}	
+	  if (rest>300-1) {strng=strng+"CCC"; rest=rest-300;}	
+	  if (rest>200-1) {strng=strng+"CC"; rest=rest-200;}	
+	  if (rest>100-1) {strng=strng+"C"; rest=rest-100;}	
+	  if (rest>90-1) {strng=strng+"XC"; rest=rest-90;}
+	  if (rest>50-1) {strng=strng+"L"; rest=rest-50;}
+	  if (rest>40-1) {strng=strng+"XL"; rest=rest-40;}
+	  if (rest>30-1) {strng=strng+"XXX"; rest=rest-30;}
+	  if (rest>20-1) {strng=strng+"XX"; rest=rest-20;}
+	  if (rest>10-1) {strng=strng+"X"; rest=rest-10;}
+	  if (rest>8) {strng=strng+"IX"; rest=rest-9;}
+	  if (rest>4) {strng=strng+"V"; rest=rest-5;}
+	  if (rest>3) {strng=strng+"IV"; rest=rest-4;}
+	  if (rest>2) {strng=strng+"III"; rest=rest-3;}
+	  if (rest>1) {strng=strng+"II"; rest=rest-2;}
+	  if (rest==1) {strng=strng+"I"; rest=rest-1;}
+	  // document.write('roman:   <b>',strng,'</b>  &nbsp;&nbsp;&nbsp; decimal  ',question,'<br>');
+	  
+	  romans[kk]=strng; numerals[kk]=question;
+	  }
+
+}
+function insert_tall()
+{
+document.getElementById("aaarom").innerHTML=romans[1];
+document.getElementById("bbbrom").innerHTML=romans[2];
+document.getElementById("cccrom").innerHTML=romans[3];
+document.getElementById("dddrom").innerHTML=romans[4];
+document.getElementById("eeerom").innerHTML=romans[5];
+document.getElementById("fffrom").innerHTML=romans[6];
+}
+init_tall();
+insert_tall();
+</script>
+<body>
+<b>Symboler</b><br>
+<table style="text-align: left; width: 820px;" border="1"
+cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="vertical-align: top;">M<br>
+</td>
+<td style="vertical-align: top;">D<br>
+</td>
+<td style="vertical-align: top;">C<br>
+</td>
+<td style="vertical-align: top;">L<br>
+</td>
+<td style="vertical-align: top;">X<br>
+</td>
+<td style="vertical-align: top;">V<br>
+</td>
+<td style="vertical-align: top;">I<br>
+</td>
+</tr>
+<tr>
+<td style="vertical-align: top;">1000<br>
+</td>
+<td style="vertical-align: top;">500<br>
+</td>
+<td style="vertical-align: top;">100<br>
+</td>
+<td style="vertical-align: top;">50<br>
+</td>
+<td style="vertical-align: top;">10<br>
+</td>
+<td style="vertical-align: top;">5<br>
+</td>
+<td style="vertical-align: top;">1<br>
+</td>
+</tr>
+</tbody>
+</table>
+<br>
+<b>Eksempler</b><br>
+<table style="text-align: left; width: 820px;" border="1"
+cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td style="vertical-align: top;">MDCCIX<br>
+</td>
+<td style="vertical-align: top;">XLII<br>
+</td>
+<td style="vertical-align: top;">LXXXIX<br>
+</td>
+<td style="vertical-align: top;">XCVI<br>
+</td>
+<td style="vertical-align: top;">CMXCIX<br>
+</td>
+<td style="vertical-align: top;">CMLXXXIX<br>
+</td>
+<td style="vertical-align: top;">CDXLIV<br>
+</td>
+<td style="vertical-align: top;">MCMXCIX<br>
+</td>
+</tr>
+<tr>
+<td style="vertical-align: top;">1709<br>
+</td>
+<td style="vertical-align: top;">42<br>
+</td>
+<td style="vertical-align: top;">89<br>
+</td>
+<td style="vertical-align: top;">96<br>
+</td>
+<td style="vertical-align: top;">999<br>
+</td>
+<td style="vertical-align: top;">989<br>
+</td>
+<td style="vertical-align: top;">444<br>
+</td>
+<td style="vertical-align: top;">1999<br>
+</td>
+</tr>
+</tbody>
+</table>
+<br>
+<table width="820" border="1" cellpadding="5">
+<tr>
+<td width="200">
+<big><big>  <div id="aaarom">      </div>   </big></big>
+</td>
+<td width="200">
+<form name="aa1"> <textarea style="font-family: times, serif; font-size:14pt;"  name="aa2" cols="10" rows="1"> </textarea> </form>
+                                     </td><td width="200"><a href=
+"javascript:sjekk_aa()">sjekk svar</a> </td>  <td width="200">
+<div id="aaa">      </div>       </td>	   
+
+<script type="text/javascript">
+function sjekk_aa(){       //   XLII    42   
+sjekket="feil, pr&oslash;v igjen";  svar=aa1.aa2.value; if ((svar*1.0)==numerals[1]) {sjekket="<big><big>RIKTIG &nbsp;&nbsp;  "+"   "+numerals[1];}
+document.getElementById("aaa").innerHTML=sjekket;
+}
+</script>
+</tr>
+
+
+
+<tr>
+<td width="200">
+<big><big>   <div id="bbbrom">      </div>    </big></big>
+</td>
+<td width="200">
+<form name="bb1"> <textarea style="font-family: times, serif; font-size:14pt;"  name="bb2" cols="10" rows="1"> </textarea> </form>
+                                     </td><td width="200"><a href=
+"javascript:sjekk_bb()">sjekk svar</a> </td>  <td width="200">
+<div id="bbb">      </div>       </td>	   
+
+<script type="text/javascript">
+function sjekk_bb(){       //   DXIX    519   
+sjekket="feil, pr&oslash;v igjen";  svar=bb1.bb2.value; if ((svar*1.0)==numerals[2]) {sjekket="<big><big>RIKTIG &nbsp;&nbsp;  "+"   "+numerals[2];}
+document.getElementById("bbb").innerHTML=sjekket;
+}
+</script>
+</tr>
+
+
+
+
+<tr>
+<td width="200">
+<big><big>   <div id="cccrom">      </div>     </big></big>
+</td>
+<td width="200">
+<form name="cc1"> <textarea style="font-family: times, serif; font-size:14pt;"  name="cc2" cols="10" rows="1"> </textarea> </form>
+                                     </td><td width="200"><a href=
+"javascript:sjekk_cc()">sjekk svar</a> </td>  <td width="200">
+<div id="ccc">      </div>       </td>	   
+
+<script type="text/javascript">
+function sjekk_cc(){       //   MDCCC    1800   
+sjekket="feil, pr&oslash;v igjen";  svar=cc1.cc2.value; if ((svar*1.0)==numerals[3]) {sjekket="<big><big>RIKTIG &nbsp;&nbsp; "+"   "+numerals[3];}
+document.getElementById("ccc").innerHTML=sjekket;
+}
+</script>
+</tr>
+
+
+
+
+<tr>
+<td width="200">
+<big><big>    <div id="dddrom">      </div>     </big></big>
+</td>
+<td width="200">
+<form name="dd1"> <textarea style="font-family: times, serif; font-size:14pt;"  name="dd2" cols="10" rows="1"> </textarea> </form>
+                                     </td><td width="200"><a href=
+"javascript:sjekk_dd()">sjekk svar</a> </td>  <td width="200">
+<div id="ddd">      </div>       </td>	   
+
+<script type="text/javascript">
+function sjekk_dd(){       //   LXXIV    74   
+sjekket="feil, pr&oslash;v igjen";  svar=dd1.dd2.value; if ((svar*1.0)==numerals[4]) {sjekket="<big><big>RIKTIG &nbsp;&nbsp;  "+"   "+numerals[4];}
+document.getElementById("ddd").innerHTML=sjekket;
+}
+</script>
+</tr>
+
+
+
+
+<tr>
+<td width="200">
+<big><big>    <div id="eeerom">      </div>     </big></big>
+</td>
+<td width="200">
+<form name="ee1"> <textarea style="font-family: times, serif; font-size:14pt;"  name="ee2" cols="10" rows="1"> </textarea> </form>
+                                     </td><td width="200"><a href=
+"javascript:sjekk_ee()">sjekk svar</a> </td>  <td width="200">
+<div id="eee">      </div>       </td>	   
+
+<script type="text/javascript">
+function sjekk_ee(){       //   XCII    92   
+sjekket="feil, pr&oslash;v igjen";  svar=ee1.ee2.value; if ((svar*1.0)==numerals[5]) {sjekket="<big><big>RIKTIG &nbsp;&nbsp;  "+"   "+numerals[5];}
+document.getElementById("eee").innerHTML=sjekket;
+}
+</script>
+</tr>
+
+
+
+
+<tr>
+<td width="200">
+<big><big>    <div id="fffrom">      </div>       </big></big>
+</td>
+<td width="200">
+<form name="ff1"> <textarea style="font-family: times, serif; font-size:14pt;"  name="ff2" cols="10" rows="1"> </textarea> </form>
+                                     </td><td width="200"><a href=
+"javascript:sjekk_ff()">sjekk svar</a> </td>  <td width="200">
+<div id="fff">      </div>       </td>	   
+
+<script type="text/javascript">
+function sjekk_ff(){       //   CXLIV    144   
+sjekket="feil, pr&oslash;v igjen";  svar=ff1.ff2.value; if ((svar*1.0)==numerals[6]) {sjekket="<big><big>RIKTIG &nbsp;&nbsp; "+"   "+numerals[6];}
+document.getElementById("fff").innerHTML=sjekket;
+}
+</script>
+</tr>
+
+
+
+
+</table>
+<br>
+<a href="javascript:nye_sporsmaal()">Nye sp&oslash;rsm&aring;l - begyn p&aring; nytt</a> 
+
+<script type="text/javascript">
+insert_tall();
+</script>
+<script type="text/javascript">
+function nye_sporsmaal()
+{
+init_tall();
+insert_tall();
+document.getElementById("aaa").innerHTML=""; aa1.aa2.value="";
+document.getElementById("bbb").innerHTML=""; bb1.bb2.value="";
+document.getElementById("ccc").innerHTML=""; cc1.cc2.value="";
+document.getElementById("ddd").innerHTML=""; dd1.dd2.value="";
+document.getElementById("eee").innerHTML=""; ee1.ee2.value="";
+document.getElementById("fff").innerHTML=""; ff1.ff2.value="";
+
+}
+</script>
+
+</body>
+</html>

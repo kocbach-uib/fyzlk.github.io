@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>JavaScript-Canvas for Physics - L. Kocbach</title>
+ <style type="text/css"><!--
+      #container { position: relative; }
+      #DRAW_AREA { border: 1px solid #000; }
+    --></style>
+<!-- The tricks are invented by ROBO Design
+ * http://www.robodesign.ro   -->	
+<script language="JavaScript">
+//  Most of this part is general; used in Kaleidescope - math toy
+//  As well as other physics programs
+//  Parts copied from Bjoern Lindberg's Blobs: http://blobsallad.se/
+//  
+  var TheCanvas;
+  var ctx;
+  var  Action='none';  
+  var  Not_Switched=1;   
+  var Imp_sign=(1.0);
+  // 
+  //    GEOMETRY of DRAW_AREA
+  //
+  var Potential_String=[];  style="color: rgb(51, 102, 255);"
+  Potential_String[0]="<span style=\"background-color: rgb(255, 255, 75);\"> <b> Attractive Potential </b></span>";
+  Potential_String[1]="<span style=\"background-color: rgb(255, 0, 0); color: rgb(255,255, 255); \">   <b>  Repulsive Potential  </b></span>";
+  var width=600;  var height=600;
+  var OriginX=width/2;
+  OriginY=height/2;  
+  var Xmax=7.5;   var Ymax=height/width*Xmax;
+  var Xmin=-Xmax; var Ymin=-Ymax;
+  var Gscale = Xmax/OriginX;
+  var Xp_math=0;  var Yp_math=0;
+  //  
+  //     x_canv  positions on canvas  
+  //     X_math  positions in Mathematical space
+  //
+  //	 X_math=( x_canv - OriginX ) * Gscale;
+  //	 Y_math=( -y_canv + OriginY ) * Gscale;
+  //
+  //	 X_math / Gscale +  OriginX =  x_canv ;
+  //	 Y_math / Gscale -  OriginY = -y_canv ;  
+  //
+  //	 x_canv =   X_math / Gscale +  OriginX ;
+  //	 y_canv = - Y_math / Gscale +  OriginY  ;    
+  
+/* The tricks are invented by ROBO Design
+ * http://www.robodesign.ro   */
+
+// Initialization sequence.
+function init () {
+   // Find the canvas element.
+     TheCanvas = document.getElementById('DRAW_AREA');
+   // Get the 2D canvas context.
+     ctx = TheCanvas.getContext('2d');
+	   ctx.lineWidth = 2;
+	 ctx.fillStyle = '#FFFFFF';   ctx.fillRect(0, 0, width, height); 
+  // Attach the mousedown, mousemove and mouseup event listeners.
+    TheCanvas.addEventListener('mousedown', ev_canvas, false);
+    TheCanvas.addEventListener('mousemove', ev_canvas, false);
+    TheCanvas.addEventListener('mouseup',   ev_canvas, false);
+    
+    
+     document.onkeydown = function(event) 
+    {
+      var keyCode; 
+      if(event == null){
+        keyCode = window.event.keyCode; }
+      else    {
+        keyCode = event.keyCode;  }
+      Action='none';  
+      switch(keyCode)
+      {        
+
+        case 67:            // 'c' clean on press 
+          key_c();
+          break; 
+        case 66:           //  'b'  clean, blue
+          key_b();
+          break; 
+		case 78:  //    N
+          key_n();	
+          break; 		 
+		case 80:  //    P
+          key_p();	
+          break; 	
+		case 71:  //    G
+          key_g();	
+          break; 	
+		case 70:  //    F
+           fast();	   
+          break; 
+		case 72:  //    H
+          high_prec();	
+          break; 		  		  
+		case 81:   //   Q              
+          key_q();	
+          break; 			  
+		case 83:   //   S
+          draw_sun();	
+          break; 		 			  	 		  		  
+        default: 
+          break;  		   
+      }
+    }
+	
+/////////////////	
+
+      // The general-purpose event handler. This function just determines the mouse 
+      // position relative to the canvas element.
+  function ev_canvas (ev) {
+  if (ev.layerX || ev.layerX == 0) { // Firefox
+      ev._x = ev.layerX;
+      ev._y = ev.layerY;
+    } else if (ev.offsetX || ev.offsetX == 0) { // Opera
+      ev._x = ev.offsetX;
+      ev._y = ev.offsetY;
+    }   
+
+    // Call the event handler of the tool.
+    var func = ThePencil[ev.type];
+    if (func) {
+      func(ev);
+    }
+ 
+ }
+ 
+   var ThePencil = new tool_pencil();
+
+
+}   //  This is the whole init function
+
+function Mline( xs1, ys1, xe, ye)
+    {  var xs_canv; var xe_canv;
+	   var ys_canv; var ye_canv; 
+  	   xs_canv = Math.ceil(   xs1 / Gscale +  OriginX );
+  	   ys_canv = Math.ceil( - ys1 / Gscale +  OriginY ); 
+  	   xe_canv = Math.ceil(   xe / Gscale +  OriginX );
+  	   ye_canv = Math.ceil( - ye / Gscale +  OriginY ); 
+       // document.write( "<br>");
+       // document.write( xs_canv," &nbsp; &nbsp;", ys_canv, " &nbsp; &nbsp;", xe_canv," &nbsp; &nbsp;", ye_canv);
+
+	   ctx.beginPath();	
+	   ctx.moveTo( xs_canv, ys_canv );
+	   ctx.lineTo( xe_canv, ye_canv );
+	   ctx.stroke();	        	   	   
+     }
+
+  // This painting tool works like a drawing pencil which tracks the mouse 
+  // movements.
+
+  function tool_pencil () {     //  Pencil start
+    var thistool = this;
+    thistool.started = false;
+
+    //   MOUSEDOWN   = PEN_DOWN
+    thistool.mousedown = function (ev) {
+        ctx.beginPath();
+        ctx.moveTo(ev._x, ev._y);
+        thistool.started = true;
+  //	 X_math=( x_canv - OriginX ) * Gscale;
+  //	 Y_math=( -y_canv + OriginY ) * Gscale;       
+   	 Xp_math=(  ev._x - OriginX ) * Gscale;  
+   	 Yp_math=( -ev._y + OriginY ) * Gscale;     
+         document.getElementById("mousing").innerHTML= "X  "+   Xp_math.toPrecision(6) + "    Y  " +   Yp_math.toPrecision(6) ;
+    };
+    //   MOUSEMOVE   = MOVE_TO
+    thistool.mousemove = function (ev) {
+      if (thistool.started) {
+       // ctx.lineTo(ev._x, ev._y);    //   UNCOMMENT THIS TO DRAW
+       // ctx.stroke();
+      }
+    };
+    //   MOUSEUP   =  PEN_UP
+    thistool.mouseup = function (ev) {
+      if (thistool.started) {
+        thistool.mousemove(ev);
+        thistool.started = false;
+      }
+    };
+ 
+  }
+//
+	
+ function  key_c() 
+  {   
+	 ctx.fillStyle = '#FFFFFF'; 
+	 ctx.globalAlpha=0.8;
+     ctx.fillRect(0, 0, width, height); 
+	 ctx.globalAlpha=1.0; 
+  }
+
+ function  key_b() 
+  {   
+	 ctx.fillStyle = '#AAAAFF'; 
+	 ctx.globalAlpha=0.5;
+     ctx.fillRect(0, 0, width, height);  
+	 ctx.globalAlpha=1.0;
+  }
+ function  key_p() 
+  {   
+    Action = 'previous';	
+	if (Action=='previous' && stopped==1 )	 
+		 {  restart_show(); }	 
+  }
+
+ function  key_n() 
+  {   
+    Action = 'next';	
+	if (Action=='next' && stopped==1 )	 
+		 {  restart_show(); }	 
+  }
+ function  key_g() 
+  {   
+		if (stopped==1 )	 
+		 {  
+             stopped=0; setTimeout('calc_step()',0.00002);
+		 }
+  }
+ function key_q() 
+  {   
+       stopped=1; 
+  }    	     
+
+
+
+</script>
+</head>
+<body bgcolor = "#FFBBCC">
+<h4>MOTION IN CENTRAL FIELD: Kepler 1/r potential. Numerically solved by Verlet method </h4>
+<div id="container"   style="position: relative;">
+<table>
+<tr>
+<td> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  </td>
+<td>
+<canvas id="DRAW_AREA" style="position: relative" width="600" height="600 border: 3px solid #000"></canvas>
+
+</td>
+<td> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  </td>
+<td valign="top">
+<b>Keyboard/mouse control</b>
+<br><br>
+
+<a href="javascript:key_n()">
+<b>n</b>  Next path; <br></a>
+
+<a href="javascript:key_p()">
+<b>p</b>  Previous path; <br></a>
+<a href="javascript:key_q()">
+<b>q</b>  quit, stop <br></a>
+<a href="javascript:key_g()">
+<b>g</b>  go, after stop <br></a>
+<a href="javascript:draw_sun()">
+<b>s</b>  redraw the sun <br></a>
+<a href="javascript:key_c()">
+<b>c</b>  clean screen <br></a>
+<a href="javascript:key_b()">
+<b>b</b>  light blue screen <br></a>
+<br>
+
+<a href="javascript:fast()">
+<b>f</b>  Fast, low precision <br></a>
+<a href="javascript:high_prec()">
+<b>h</b>  High  precision, slow  <br></a>
+
+
+<br><br>
+<a href="../kepler/">Kepler bound ellipses</a> <br>
+<div id="TheCounter">
+
+</div>
+</td>
+</tr></table>
+</div>
+<div id="writingdiv">
+
+</div>
+</div>
+<div id="mousing">
+
+</div>
+<script language="JavaScript">
+//    This is the Physics part of the page; Geometry is defined in the init() script above
+//    Drawing is done by the function Mline()  defined above
+
+init();
+var Potsign=(-1.0);  
+var stringr=[ '#00f', '#880', '#080','#000','#a00','#880','#088','#f0f','#080','#00f' ,'#880', '#888'];
+
+//  CALCSTART
+
+var x0=12;
+var dT=0.008;    dT=0.03 
+var dTout=0.008; dTout=dT;
+var dTin=dT;  
+var Tmax=360;
+
+var vfact=0.8;  
+var vfacts=[]; 
+for (kl=0;kl<10;kl++){vfacts[kl]=0.35+(kl+1)*0.25;}; 
+
+var alreadyEntered=0;
+
+var Modif=0.0;     Modif=0;    //  only Kepler inverse square
+
+var Npaths=10; var kpaths=Npaths-1; 
+vfact=vfacts[Npaths-1];kpaths=Npaths-1;
+
+var velocity=1.0;
+var Mconst=1.0;  //  The strength parameter
+var xs=x0; var ys=0.2;              //  xstart
+var xm=x0; var ym=0.2; //  xmiddle
+
+ if ( Potsign < 0 ) { Imp_sign=1.0;} 
+		 dT=dTout;
+		 xs=x0;   ys=Imp_sign*vfacts[kpaths];              //  xstart
+         xm=x0-velocity*dT;   ym=ys; //  xmiddle
+         alreadyEntered=0;
+         //  var dTout=0.05; var dTin=dT;  Xmax   Xmin  Ymax  Ymin	
+			 
+           document.getElementById("writingdiv").innerHTML=
+     "<br>xs="+xs.toFixed(3)+"  ys="+ys.toFixed(3)+ "   kpaths=" + kpaths + "   Potential Sign=" + Potsign +  
+    Potential_String[ Math.floor(0.01+1+ Potsign )/2 ] + "<br>";
+
+     draw_sun();		 
+var xe; var ye;                   //  xend     for Verlet steps
+var Force=0; var Forcex=0; var Forcey=0; Potsign=(-1.0);
+var Nstep=Math.ceil(Tmax/dT);
+var kstep=0;
+var klm=0;
+
+var Psteps=25;   //  Smaller  Psteps slower run
+var xvec=[];  var yvec=[];
+for (kl=0;kl<Psteps+2;kl++){xvec[kl]=0;yvec[kl]=0;}   
+   
+
+
+r=Math.sqrt(Modif*Modif + x0*x0  );
+velocity=1.0;  //  velocity=Math.sqrt(1/r * vfact);
+
+function draw_sun()
+{
+   var srad=0.1;
+   if (Potsign<0)
+          {ctx.strokeStyle ='#ff0';  }
+   else
+          {ctx.strokeStyle ='#f00';  }
+   
+   ctx.lineWidth = 5;
+
+   var xxs=srad;  var yys=0; var iss=0; var phi=0;
+   for (iss=1;iss<50;iss++)   
+   {  phi=Math.PI*2/50*iss;
+      xxe=srad*Math.cos(phi); yye=srad*Math.sin(phi);
+      Mline(xxs,yys,xxe,yye);  
+	  xxs=xxe;yys=yye; 
+   }   
+   ctx.strokeStyle ='#00f';   ctx.lineWidth = 2;
+}
+
+draw_sun();   
+
+function  fast()  
+    { 
+       x0=12;
+       dT=0.008;    dT=0.03;
+       dTout=0.008; dTout=dT;
+       dTin=dT;  	
+	   Potsign=(1); restart_show();   
+	}
+function high_prec()
+    { 
+       x0=75;
+       dT=0.008;    
+       dTout=0.008; dTout=dT;
+       dTin=dT;  	
+	   Potsign=(1); restart_show();   
+	}
+
+function restart_show()
+{
+     kpaths=Npaths-1; vfact=vfacts[kpaths];
+     velocity=1;
+     Potsign= (- Potsign );    
+     if (  Potsign < 0.0 )
+      {
+		   ctx.fillStyle = '#FFFFFF'; 
+		   ctx.globalAlpha=0.8;
+           ctx.fillRect(0, 0, width, height);	
+		   ctx.globalAlpha=1.0;
+      }
+     if ( Potsign < 0 ) { Imp_sign=1.0;}
+     // xs=x0; ys=0;              //  xstart
+     // xm=x0; ym=ys+velocity*dT; //  xmiddle
+		 dT=dTout;	 
+		 xs=x0;   ys=Imp_sign*vfacts[kpaths];              //  xstart
+         xm=x0-velocity*dT;   ym=ys; //  xmiddle
+          alreadyEntered=0;
+         //  var dTout=0.05; var dTin=dT;  Xmax   Xmin  Ymax  Ymin	
+    
+           document.getElementById("writingdiv").innerHTML=
+     "<br>xs="+xs+"  ys="+ys+ "   kpaths=" + kpaths + "   Potential Sign=" + Potsign +  
+    Potential_String[ Math.floor(0.01+1+ Potsign ) /2] + "<br>";	  
+
+      draw_sun();	  
+      kstep=0;
+      klm=kpaths;
+	 Action='none';
+     stopped=0; setTimeout('calc_step()',0.000000002);
+	 
+}
+
+var stopped=0; setTimeout('calc_step()',0.00000002);
+
+function calc_step()
+  { 
+   //  var dTout=0.05; var dTin=dT;  Xmax   Xmin  Ymax  Ymin 
+    document.getElementById("TheCounter").innerHTML=xs.toFixed(2);
+	   if ( Potsign < 0 ) { Imp_sign=1.0; }
+   if ( xs < Xmax + 0.2 ) {
+      ctx.strokeStyle = stringr[kpaths];  
+      alreadyEntered=1;            //  var dTout=0.05; var dTin=dT;  Xmax   Xmin  Ymax  Ymin	
+	  dT=dTin;
+      } // inside picture	  
+      for (istep=0;istep<Psteps;istep++)
+       {    
+	      if(alreadyEntered==1){ Mline(xvec[istep],yvec[istep],xvec[istep+1],yvec[istep+1]);}
+       }   
+       ctx.strokeStyle ='#ff0';
+   xvec[0]=xs;  yvec[0]=ys;
+   for (istep=0;istep<Psteps;istep++)
+   {  
+    //   
+    //   This is the Verlet algorithm  The only important part
+	//     
+	r=Math.sqrt(Modif*Modif + xm*xm + ym*ym );
+	Force= Potsign /(r*r)  * dT * dT;
+	xe= 2* xm - xs + xm/r * Force;
+	ye= 2* ym - ys + ym/r * Force;
+	         xvec[istep+1]=xe;  yvec[istep+1]=ye;
+		if(alreadyEntered==1)    { Mline(xs,ys,xe,ye);} // inside picture
+	xs=xm; ys=ym; xm=xe; ym=ye;
+    kstep=kstep+1;
+   }
+   	ctx.strokeStyle = stringr[kpaths];
+    if ( alreadyEntered==1)
+	  {
+          if ( xe > Xmax+1 || xe < Xmin || ye > Ymax  ||	ye < Ymin )
+		     { Action = 'next'; alreadyEntered=0;  
+			 if (  Potsign<0  ){ kpaths=kpaths-1; }
+			 if (  Potsign>0 && Imp_sign <0 ){ kpaths=kpaths-1; }
+			} 
+		}
+	
+	if (kstep<Nstep && (Action != 'next') && (Action != 'previous')&& (stopped==0) ) { setTimeout('calc_step()',0.0000001);}
+	if ( (kstep>Nstep || kstep==Nstep || Action=='next' || Action=='previous') && (stopped==0) )	{    
+	     //
+		 //   This is just restarting the new path
+		 //   Should be moved to a function later
+		 //
+		 if ( Action=='next' || Action=='none' )   
+                   {  alreadyEntered=0;
+                      if ( Potsign < 0 ) 
+                        { Action='none';  klm=kpaths; Imp_sign=1.0; Not_Switched=1;}
+                       if ( Potsign > 0 ) 
+                          { 
+                           if (  Not_Switched==1 ) 
+                            { Action='none'; Imp_sign=-1.0; Not_Switched=0; }
+                           else
+                            { Action='none';   klm=kpaths;  Imp_sign=(1.0); Not_Switched=1; } 
+                          }
+                    }
+		 if ( Action=='previous' )  
+                     {alreadyEntered=0; kpaths=kpaths+1; Imp_sign=1.0; klm=kpaths; Action='none';Not_Switched=0; }
+				
+		if (kpaths > (-1) && kpaths < Npaths)
+		 {
+		   vfact=vfacts[kpaths];
+		   r=Math.sqrt(Modif*Modif + x0*x0  );	
+		   velocity=1.0;	 
+		 //  ctx.fillStyle = '#FFFFFF'; 
+         //  ctx.fillRect(0, 0, width, height); 
+         kstep=0;
+		 //  Modif=Modif/3;
+		 
+		 ctx.strokeStyle = stringr[kpaths];
+
+          if ( Potsign < 0 ) { Imp_sign=1.0; }
+
+
+		 dT=dTout;	 
+		 xs=x0;   ys=Imp_sign*vfacts[kpaths];              //  xstart
+         xm=x0-velocity*dT;   ym=ys; //  xmiddle
+          alreadyEntered=0;
+
+
+            document.getElementById("writingdiv").innerHTML=
+     "<br>xs="+xs.toFixed(2)+"  ys="+ys.toFixed(2)+ "   kpaths=" + kpaths + "   Potential Sign=" + Potsign +  
+    Potential_String[ Math.floor(0.01+1+ Potsign ) /2] + "<br>";
+
+               draw_sun();		 		 
+		 setTimeout('calc_step()',0.0002); 	
+		 } 
+		 else
+		 {
+		    restart_show();
+		   draw_sun(); 		 
+		 }
+	}
+
+  } 
+
+  
+// document.write( "<br>");
+// phi=0.44;
+// document.write( Math.ceil(15.0*Math.cos(phi))," &nbsp; &nbsp;", Math.ceil(15*Math.sin(phi)),"<br>");
+// document.write( "<br>");
+// document.write( Math.sqrt(16) );
+
+</script>
+</body>
+</html>
+
+

@@ -1,0 +1,1831 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+  <title>Fermi_golden with adjustable energy range L. Kocbach, Bergen</title>
+ <style type="text/css"><!--
+      #container { position: relative; }
+      #DRAW_AREA { border: 1px solid #000; }
+    --></style>
+<!-- The tricks are invented by ROBO Design
+ * http://www.robodesign.ro   -->       
+<script language="JavaScript">
+
+//             The mouse response has been re-written
+//             It is now prepared for touch-screen changes (comment 2010)
+
+//          AXES TICKS AND VALUES ADDED  Oct 28th, 2020
+
+//        function do_the_step()   - printout fixed - number.toFixed(9)  Oct 29th, 2020
+
+//   tmaxT   TMAXdiv
+</script>
+
+
+<style>[touch-action="none"]{ -ms-touch-action: none; touch-action: none; }
+[touch-action="auto"]{ -ms-touch-action: auto; touch-action: auto; }
+[touch-action~="pan-x"]{ -ms-touch-action: pan-x; touch-action: pan-x; }
+[touch-action~="pan-y"]{ -ms-touch-action: pan-y; touch-action: pan-y; }
+[touch-action~="pan-up"]{ -ms-touch-action: pan-up; touch-action: pan-up; }
+[touch-action~="pan-down"]{ -ms-touch-action: pan-down; touch-action: pan-down; }
+[touch-action~="pan-left"]{ -ms-touch-action: pan-left; touch-action: pan-left; }
+[touch-action~="pan-right"]{ -ms-touch-action: pan-right; touch-action: pan-right; }
+</style></head>
+<!--  
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+          Here starts the HTML -arrangement 
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+-->
+
+<body bgcolor="#CCCCFF" 
+style="font-family:Helvetica,Arial,sans-serif;font-size:12pt;background-color: rgb(230,230,255);">
+<div id="Entry_PAD" style="font-family: Helvetica,Arial,sans-serif;"></div>
+
+
+<table><tr><td style="font-family: Helvetica,Arial,sans-serif;  font-size: 12pt;">
+  <b>Suggested Examples:</b>&nbsp; 
+    <a href="javascript:example(20, 0.035, 50, 0.15,1)">N=20;V20</a>&nbsp;
+        <a href="javascript:example(6, 0.20, 50, 0.15,1)">N=6;V6</a>&nbsp;
+        <a href="javascript:example(4, 0.30, 50, 0.15,1)">N=4;V4</a>&nbsp;
+
+        <a href="javascript:example(2, 0.30, 50, 0.15,1)">N=2;V2</a>&nbsp;
+        <a href="javascript:example(40, 0.035, 30, 0.15,1)">(N=40;Vorg)</a>&nbsp;
+&nbsp; &nbsp; &nbsp; </td>
+<td>
+ <div id="Basic_PAD" style="font-family: Helvetica,Arial,sans-serif; font-size: 14pt;">
+ Probabilities x  6.000   -  <a href="javascript:re_scale(1)">zoom in (x1.2)</a>   
+ &nbsp; <a href="javascript:re_scale(-1)">zoom out (x0.8)</a>
+
+
+ </div> 
+ </td></tr></table> 
+
+
+ 
+
+
+<!--   rgb(203,203, 51);  -->
+
+<div id="interrupt_PAD" style="font-family: Helvetica,Arial,sans-serif;font-size: 14pt;"></div>
+<div id="interrupt_PAD2" style="font-family: Helvetica,Arial,sans-serif;font-size: 14pt;"></div>
+
+                
+                                                
+
+<!--      TABLE IMPORTED FROM SCHROEDINGER     --> 
+
+
+
+
+
+
+<div id="container" style="position: relative;">
+<!--   ---------------------------------------------------------------------------  -->
+<table>                          <!--    THE HTML IS ARRANGED IN A TABLE   -->
+
+<!--   ---------------------------------------------------------------------------  -->
+<tbody><tr>
+<td valign="top" style="font-family: Helvetica,Arial,sans-serif;" width="130">
+
+<big>
+<form name="myInputWindow">      
+Change<br>
+and<br>
+<a href="javascript:start_calculation()"> RESTART </a>
+<br>
+<hr>
+Number of<br>    
+ states. <br>
+<textarea 
+style="font-family:monospace; font-size: 14pt; resize: none; height: 28px" name="N_of_states" 
+cols="9" rows="1">40
+</textarea><br>
+<hr>
+Tmax<br>
+<textarea 
+style="font-family:monospace; font-size: 14pt; resize: none; height: 28px" name="T_MAX_win" 
+cols="9" rows="1">30.0
+</textarea><br>
+<hr>
+dT step<br>
+<textarea 
+style="font-family:monospace; font-size: 14pt; resize: none; height: 28px" name="dT_win" 
+cols="9" rows="1">0.15
+</textarea><br>
+
+<hr>
+V value<br>
+<textarea 
+style="font-family:monospace; font-size: 14pt; resize: none; height: 28px" name="V_win" 
+cols="9" rows="1">0.035
+</textarea>
+
+<hr>
+Emax mult.<br>
+<textarea 
+style="font-family:monospace; font-size: 14pt; resize: none; height: 28px" name="E_win" 
+cols="9" rows="1">1.0
+</textarea>
+
+
+<div id="V_PAD" style="font-family: Helvetica,Arial,sans-serif;"><big>V used<br> 0.03500 </big></div>
+ </form>
+
+</small>
+
+
+<!-- //   Text Areas   N_of_states   T_MAX_win  dT_win  V_win  -->
+
+
+
+
+  </td>
+<td>
+
+
+<!--   -------------------------     THE CANVAS             ------------------  -->
+<div id="pictlabel" style="font-family: Helvetica,Arial,sans-serif;font-size: 14pt;background-color: rgb(255,255,240);"></div>
+<div id="LAYERS" style="position: relative;">
+
+<canvas class="canvas" id="rubber" style="position: absolute;" width="750" height="550"></canvas>
+    <canvas class="overlay" id="DRAW_AREA" style="position: relative;" width="750" height="550" border:="" 3px="" solid="" #000"=""></canvas>
+</div>
+</td>
+
+
+<td> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  </td>
+<td valign="top" style="font-family: Helvetica,Arial,sans-serif;font-size:12pt">
+
+<div  style="background-color: rgb(255, 255, 255);">
+<center>
+<br>
+<big>
+  Fermi Golden Rule  <br>
+  Simulator  
+  </big>
+  <br><br>
+  November 2020
+</center>
+<br>
+</div>
+<br>
+<br>
+<!--   ---------------------------------------------------------------------------  -->
+            <b>Keyboard control</b>
+
+<!--   ---------------------------------------------------------------------------  -->
+<br>
+<a href="javascript:stop_running()">
+<b>s</b>  single step</a> <br>
+<a href="javascript:start_running()">
+<b>g</b> Go - start running </a> <br>
+<a href="javascript:start_running()">
+<b>SPACE BAR </b> also start running </a> <br>
+
+
+
+&nbsp; &nbsp; <br>
+&nbsp; &nbsp; <br>
+<b>Mouse and keyboard</b>   <br>
+1.  &nbsp; click in the lower part to set time <br>
+&nbsp; &nbsp; click in the upper part to stop<br>
+
+2.  &nbsp; Use links STOP / GO etc <br><br>
+
+press key s - single step <br>
+press key g or space-bar to restart <br>
+
+ <br> <br>
+ <b>Long calculation can be stopped</b>
+ by the interrupt function
+ 
+  
+<br><br>
+NEW FEATURE<br><big>
+ADJUST ENERGY RANGE</big>
+<small><br>
+A new text-input 'Emax mult.'is added
+at the right
+to extend or shrink the energy range
+<br>
+</small>
+
+</td>
+</tr>
+</tbody>
+</table>
+
+<!--     The below-canvas table   -->
+<!--   -------------          The below-canvas table      -----------------  -->
+<div id="controlPAD" style="font-family: Helvetica,Arial,sans-serif;">
+ <table width="900">
+ <tbody><tr>
+ <td>    <a href="javascript:go_to_start()"> t = 0 </a>     </td>
+
+<td>    <a href="javascript:stop_running()">STOP</a>     </td>
+
+<td>  <a href="javascript:start_running()"> GO </a>      </td>
+
+
+<td>  <a href="javascript:make_step()"> Single STEP </a>     </td>
+
+
+<td>  <a href="javascript:go_to_end()"> t = Tmax </a>      </td>
+
+<td> 
+   <div id="TMAXdiv" style="font-family: Helvetica,Arial,sans-serif; text-align: left;"><span style="background-color: rgb(255, 255, 200);"><small>Displayed Tmax is       50.1  </small></span></div>
+  
+</td>
+</tr>
+<tr>
+<td>
+<a href="javascript:example2(40,1.0)">N=40, Erang=1.0</a>&nbsp;
+</td>
+<td>
+<a href="javascript:example2(80,2.0)">N=80, Erang=2.0</a>&nbsp;
+</td>
+<td>
+<a href="javascript:example2(120,3.0)">N=120, Erang=3.0</a>&nbsp;
+</td>
+<td>
+<a href="javascript:example2(20,1.0)">N=20, Erang=1.0</a>&nbsp;
+</td>
+<td>
+<a href="javascript:example2(40,2.0)">N=40, Erang=2.0</a>&nbsp;
+</td>
+<td>
+<a href="javascript:example2(60,3.0)">N=60, Erang=3.0</a>&nbsp;
+</td>
+</tr>
+<tr>
+<td>
+(Standard)
+</td>
+
+<td>
+2 x range
+</td>
+<td>
+triple
+</td>
+<td>
+low dens.
+</td>
+<td>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  
+</td>
+<td>
+predefined
+</td>
+</tr>
+
+<tr>
+<td>
+<a href="javascript:logarit(1)">logscale on</a>
+
+</td>
+
+<td>
+<a href="javascript:logarit(0)">logscale off</a>
+
+</td>
+<td>
+<a href="javascript:s_rateplot(1)">show rate</a>
+</td>
+<td>
+<a href="javascript:s_rateplot(0)">hide rate</a>
+</td>
+<td>
+<a href="javascript:example(40, 0.040, 450, 0.8,1)">Recurrence</a><br>
+(some 10 seconds)
+</td>
+<td>
+&nbsp;&nbsp;
+</td>
+</tr>
+
+</tbody></table> <!--  The below-canvas table      -->
+
+
+
+
+
+<div id="display_PAD1" style="font-family: Helvetica,Arial,sans-serif;"></div>
+
+<!--      DORESULTS      Input parameters   <br>    -->
+
+<div id="results" style="background-color: rgb(255, 255, 200);">
+<br>
+<b>Run Data and Analysis</b><br>
+
+<form name="OutputWindow">       
+<table>      
+<tr>
+<!-- 1 -->  <td align="right">
+E-Range (fixed -1:1) 
+</td>
+<!-- 1b --> <td align="left">
+<textarea readonly 
+style="font-family:monospace; font-size: 14pt; resize: none; height: 28px"    name="Erange" cols="11" rows="1">
+ -1 to 1
+</textarea>  
+ </td>
+<!-- 2 -->  <td align="right">
+N of states  = 
+</td>
+<!-- 2b --> <td align="left">   
+<textarea readonly 
+style="font-family:monospace; font-size: 14pt; resize: none; height: 28px"   name="Nstat" cols="10" rows="1">
+</textarea>  
+</td>
+<!-- 3 --> <td align="right">  
+Thus rho = N/Erange =  
+</td>
+<!-- 3b --> <td align="left">   
+<textarea readonly 
+style="font-family:monospace; font-size: 14pt; resize: none; height: 28px"   name="rho" cols="10" rows="1">
+</textarea>  
+</td>   
+</tr>
+<!-- second row   -->   <tr>  
+<!-- 1 -->   <td align="right">  
+ V = 
+   </td>
+<!-- 1b -->   <td align="left">   
+   <textarea readonly 
+style="font-family:monospace; font-size: 14pt; resize: none; height: 28px" name="Vpot" cols="11" rows="1">
+</textarea> 
+</td> 
+<!-- 2 -->  <td align="right">
+     Fermi rate  2*pi*V*V*rho = 
+  </td>
+<!-- 2b -->   <td align="left">    
+   <textarea readonly 
+style="font-family:monospace; font-size: 14pt; resize: none; height: 28px" name="rate" cols="10" rows="1">
+</textarea> 
+</td>
+<!-- 3 -->  <td align="right">
+     Lifetime  1/rate = 
+  </td>
+<!-- 3b -->   <td align="left">   
+   <textarea readonly 
+style="font-family:monospace; font-size: 14pt; resize: none; height: 28px" name="tau" cols="10" rows="1">
+</textarea> 
+</td>
+
+</tr> 
+<!-- third row   --> <tr>
+<!-- 1 -->   <td align="right">  
+ Tmax = 
+   </td>
+<!-- 1b -->   <td align="left">   
+   <textarea readonly 
+style="font-family:monospace; font-size: 14pt; resize: none; height: 28px" name="tmax" cols="11" rows="1">
+</textarea> 
+</td> 
+<!-- 2 -->  <td align="right">
+time step      dT = 
+  </td>
+<!-- 2b -->   <td align="left">    
+   <textarea readonly 
+style="font-family:monospace; font-size: 14pt; resize: none; height: 28px" name="deltaT" cols="10" rows="1">
+</textarea> 
+</td>
+<!-- 3 -->  <td align="right">
+Recurrence time   2*pi/deltaE = 
+  </td>
+<!-- 3b -->   <td align="left">   
+   <textarea readonly 
+style="font-family:monospace; font-size: 14pt; resize: none; height: 28px" name="Trecc" cols="10" rows="1">
+</textarea> 
+</td>
+</tr>         
+</table> 
+<br>
+</form>
+</div>
+
+
+
+<div id="output_PAD" style="font-family: Helvetica,Arial,sans-serif;">  
+Calculation finished  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ <a href="javascript:display_calcul()"> Click here to view the output</a> </div>
+
+<div id="history" style="font-family: Helvetica,Arial,sans-serif;"></div>
+
+
+
+
+<br><br>
+<div id="EventView" style="font-family: Helvetica,Arial,sans-serif;">   <!--  EventView    -->
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+
+// -------------------------------------------------------------------------------------
+  var TheCanvas;                                     // *** THE VARIABLES, JAVASCRIPT
+  var TheRubber; var rubctx;  var ctx;
+
+  var width=750;  var rwidth=635; var height=550;    // *** GENERAL CANVAS PART
+// -------------------------------------------------------------------------------------
+
+var  Keyboard_func= true;
+var mSTARTED = 0;
+
+var HTML_of_MoreTexts = " ";   //    HTML manipulation - the last div-window's contents
+
+var StopFlagg = false; 
+var calculating=1;
+
+var To_text_area="";
+var From_Text_Area="";
+var Basic_String="";
+var logscale=0;       var rateplot=0;    var erange_more=1.0;
+var do_not_speed=0;
+
+function init () {                         //  Function init:   Initialization sequence.
+
+   // Find the canvas element.
+     TheCanvas = document.getElementById('DRAW_AREA');
+   // Get the 2D canvas context.
+     ctx = TheCanvas.getContext('2d');
+           ctx.lineWidth = 1;
+         ctx.fillStyle = '#FFFFFF';   
+          ctx.clearRect(0, 0, width, height); 
+	//  RUBBER 
+	 TheRubber = document.getElementById("rubber");
+     rubctx = TheRubber.getContext('2d');
+	   rubctx.lineWidth = 1; rubctx.strokeStyle = '#ddf';
+	    rubctx.fillStyle = '#FFFFFF';
+	    rubctx.fillRect(0, 0, width, height);
+		 
+
+  // Attach the mousedown, mousemove and mouseup event listeners.
+    TheCanvas.addEventListener('mousedown', fun_mousedown, false);
+    TheCanvas.addEventListener('mousemove', fun_mousemove, false);
+    TheCanvas.addEventListener('mouseup',   fun_mouseup, false);
+    
+    
+
+	Basic_String=    "<small>  Probabilities x"; 
+   
+	
+   // ******************************************************************** 
+   document.onkeydown = function(event)           //   init:  KEYBOARD EVENTS  KEYBOARD 
+    {
+      var keyCode; 
+      if(event == null){
+        keyCode = window.event.keyCode; }
+      else    {
+        keyCode = event.keyCode;  }
+                Handle_keyboard(keyCode)
+    }
+
+// ***********************************************************   
+// 
+//   CANVAS MOUSE   see above  - TheCanvas.addEventListener('mousedown', fun_mousedown, false);
+//   
+//     fun_mousedown(ev)  
+//     fun_mousemove(ev)
+//     fun_mousemove(ev)
+//
+//     position relative to the canvas element.
+
+function fun_mousedown(ev) 
+ {                                                 //   MOUSEDOWN   = PEN_DOWN
+  if (ev.layerX || ev.layerX == 0) { // Firefox
+          ev.preventDefault();         //   experimental changes for TOUCH  
+      ev._x = ev.layerX;
+      ev._y = ev.layerY;
+    } else if (ev.offsetX || ev.offsetX == 0) { // Opera
+          ev.preventDefault();     //   experimental changes for TOUCH  
+      ev._x = ev.offsetX;
+      ev._y = ev.offsetY;
+    }   
+               // ctx.beginPath();    // disabled raw pencil function
+        ctx.moveTo(ev._x, ev._y);
+                XmouseDOWN=ev._x; YmouseDOWN=ev._y;
+        mSTARTED = true; BUTTONdown=1;
+           Handle_Mouseclick(); //  This is the mouse steering
+                   respond_mouse();             //  This is only diagnostics    
+ }
+
+function respond_mouse()
+{ var a=1;
+}
+function fun_mousemove(ev) 
+  {                                                  //   MOUSEMOVE   = MOVE_TO
+  if (ev.layerX || ev.layerX == 0) { // Firefox
+          ev.preventDefault();     //   experimental changes for TOUCH  
+      ev._x = ev.layerX;
+      ev._y = ev.layerY;
+    } else if (ev.offsetX || ev.offsetX == 0) { // Opera
+          ev.preventDefault();     //   experimental changes for TOUCH  
+      ev._x = ev.offsetX;
+      ev._y = ev.offsetY;
+    }
+        if (mSTARTED) {
+       // ctx.lineTo(ev._x, ev._y);                      // disabled raw pencil function
+       // ctx.stroke();                                  // disabled raw pencil function
+                XmouseMOVED=ev._x; YmouseMOVED=ev._y; 
+                Handle_Mouseclick();    //  This is the mouse steering
+                  respond_mouse();     //  This is only diagnostics
+      }
+
+ }         
+
+function fun_mouseup(ev) 
+{                                                   //   MOUSEUP   =  PEN_UP
+  if (ev.layerX || ev.layerX == 0) { // Firefox
+          ev.preventDefault();               //   experimental changes for TOUCH  
+      ev._x = ev.layerX;
+      ev._y = ev.layerY;
+    } else if (ev.offsetX || ev.offsetX == 0) { // Opera
+          ev.preventDefault();              //   experimental changes for TOUCH 
+      ev._x = ev.offsetX;
+      ev._y = ev.offsetY;
+    }   
+      if (mSTARTED) {
+       // thistool.mousemove(ev);
+                XmouseUP=ev._x; YmouseUP=ev._y; BUTTONdown=0;
+        mSTARTED = false;
+                   Handle_Mouseclick(); //  This is the mouse steering
+                   respond_mouse();     //  This is only diagnostics
+      }
+ }
+    // ***********************************************************   CANVAS MOUSE PENCIL
+    //   function tool_pencil ()  -removed 
+
+        //    These event variables are treated by   Handle_Mouseclick();
+        //    XmouseMOVED  YmouseMOVED ;  XmouseDOWN   YmouseDOWN ; XmouseUP  YmouseUP ;  BUTTONdown   
+
+
+}   //  This is the whole init function               END OF  INIT  FUNCTION          
+//////////////////////////////////////////////////////////////////////////////////
+
+
+// *********************************************************** 
+  //  
+  // 
+  //    GEOMETRY of DRAW_AREA
+  //
+// *********************************************************** 
+  var OriginX=width/2;
+  OriginY=height/2;  
+  var Xmax=5.0;   var Ymax=5.0;
+  var Xmin=-5.0; var Ymin=-5.0;
+  var Xdivide=5;  //  will be adjusted below - depends on rwidth
+  var Xscale = (Xmax-Xmin)/width;
+  Ymax=Xmax* height / width;
+  Ymin= - Ymax;
+  var Yscale = Xscale;                     //  (Ymax-Ymin)/height;
+  //    remove this later Xdivide = (rwidth - OriginX ) * Xscale;
+  var Xrescale=1.0;
+  
+var Plot_Height=3.2; 
+var UpperBase=0.1;
+var Lower_Base= - UpperBase - Plot_Height;
+var Upper_Width=3.0;  
+var Lower_Start= 0.6;  var xTime0= -5 + Lower_Start ; var Lower_Width=10 -  Lower_Start-0.2;
+var xStart1=( - Lower_Start - Upper_Width );  var xStart2= Lower_Start;
+  
+var str_05="0.5";  // Becomes 0.1 when logscale
+  
+var firsttime =1;  
+var histostring="<table><tr><td><b>History of calculations</b></td><td>&nbsp;</td></tr>";
+
+
+  var XmouseDOWN=0; var YmouseDOWN=0; var XmouseMOVED=0; var YmouseMOVED=0; 
+  var XmouseUP=0; var YmouseUP=0; var BUTTONdown=0;
+  var TheKeyboard=0;
+  //   math coordinate system counterparts of 
+  //  XmouseDOWN   YmouseDOWN ; XmouseMOVED  YmouseMOVED ;  XmouseUP  YmouseUP ;
+  // 
+  var Xdown=0; var Ydown=0; var Xmoved=0;   var Ymoved=0; var Xup=0; var Yup=0;
+  
+  XmouseDOWN=0; YmouseDOWN=0;XmouseMOVED=0; YmouseMOVED=0; 
+  XmouseUP=0;YmouseUP=0;BUTTONdown=0;  
+
+  //  
+  //     x_canv  positions on canvas  
+  //     X_math  positions in Mathematical space
+  //
+  //     X_math=( x_canv - OriginX ) * Xscale;
+  //     Y_math=( -y_canv + OriginY ) * Yscale;
+  //
+  //     X_math / Xscale +  OriginX =  x_canv ;
+  //     Y_math / Yscale -  OriginY = -y_canv ;  
+  //
+  //     x_canv =   X_math / Xscale +  OriginX ;
+  //     y_canv = - Y_math / Yscale +  OriginY  ;
+
+  //     Xdivide = (rwidth - OriginX ) * Xscale;
+  
+/* The tricks are invented by ROBO Design
+ * http://www.robodesign.ro   */
+
+var ColorsSaved=[]; 
+ColorsSaved[0]='#00a'; ColorsSaved[1]='#f5c';
+ColorsSaved[2]='#cc0';  ColorsSaved[3]='#090';
+ColorsSaved[4]='#888';  ColorsSaved[5]='#990';
+ColorsSaved[6]='#066';  ColorsSaved[7]='#444';
+ColorsSaved[8]='#5aa';  ColorsSaved[9]='#aa5';
+
+    var fading=1;  var fade_alpha=0.04;  var fade_counter=0; var fading_text="  Fading is on";
+    
+var Event_Output=" ";
+
+
+var T_INTERUPT= " Remaining time (atomic units)  is ";
+
+var T_INTERUPT1="You can <a href=\"javascript:stop_calculate()\">INTERRUPT</a> "+
+    " the calculation  if taking too long time<br>"
+
+/////////////////////////////////////////
+
+//      HERE IS THE ACTUAL FERMI GOLDEN RULE CODE 
+
+/////////////////////////////////////////
+
+
+
+init();     //    AND HERE WE JUST CALL THE init()   function ; after defining geometry etc .....
+
+             var To_Ouput_done="<small>  Calculation finished <br> "+
+                "<a href=\"javascript:display_calcul()\"> Click here to view the output</a> </small>";
+
+
+      var Nstates=10;
+          var Ntimes=10;
+
+//    Number of States       
+      var Nstates1=40;
+	 var To_text_area=" "+Nstates1;
+     
+	 //   not necessary   myInputWindow.N_of_states.value = To_text_area;
+          
+      var  y = []; var x=[];    
+                        
+      var  W = [];    //  Double Real array to store squared amplitudes
+          var w_sing=[];  //  single row of W ( for each time)   
+          var  V;
+          var Sum=[];  var tt= [];  // Single arrays 
+          var t;  var dt; var tmax;
+          var  k = 0;
+          
+      var emin=-1.0;
+      var emax=1.0;    //  E min and E max
+      var rho;   // S   ... State density       
+//        var y[];  var e[];  //   Complex array to store         
+      var ki=[];   //for (var  j = 2; j <Nstates; j=j+1){  ki[j] = cZero; }
+      var y=[];   // for (var  j = 2; j <Nstates; j=j+1){  y[j] = cZero; }
+      var e=[];   // for (var  j = 2; j <Nstates; j=j+1){  e[j] = cZero; }
+          var En =[];   //  energy without I 
+
+
+       
+      var running = 1; 
+      var lscale=1;        
+          
+
+//   Table plot definitions
+
+function TABLE( tWidth, linew) {
+  return "<table style=\"text-align: left; vertical-align:top; "+
+                  " width: " + tWidth +"px;" +
+                                  " font-family: Helvetica,Arial,sans-serif;\" border=\""+ linew  +"\" "+
+                  " cellpadding=\"0\" cellspacing=\"0\" bgcolor=\"#FFFFFF\">";
+}       
+
+function ATABLE(  linew) {
+  return "<table style=\"text-align: left; vertical-align:top; "+
+                                  " font-family: monospace;\" border=\""+ linew  +"\" "+
+                  " cellpadding=\"0\" cellspacing=\"0\" bgcolor=\"#FFFFFF\">";
+}                                         
+var TABLE_END=  "</table>";
+
+
+BOXLEFT=  "<td style=\"vertical-align: top; text-align: left;\">";
+BOXCENTER="<td style=\"vertical-align: top; text-align: center;\">";
+BOXRIGHT= "<td style=\"vertical-align: top; text-align: right;\">";
+
+var C_TXT="";
+
+
+
+                  
+var LI_BEG=     "<tr>";   
+var BOX_BEG  =  "<td  style=\"font-family: monospace; text-align: left; vertical-align:middle; \">" + "<small><small><small>&nbsp;"
+var BOX_END  =  "</small></small></small></span></td>";
+var LI_END="</tr>";
+var  T_OUT="<br><br>  The plot appears here after the calculation <br> Temaining time (atomic units)  ";
+var wscaled=0;
+var wwidth = 120;
+       var                      fscale =  1;
+       var                      fscale1 = 1;
+var tTIME=1; var LT=1;
+var bars=1;   var colored=1;
+var rate=0.0;
+//  <span style="color: rgb(51, 51, 255); background-color: rgb(255, 255, 102);">
+
+var color_BEG = "<span style=\"background-color: rgb(255, 255, 160);\">";
+var color_END ="</span>";
+
+var Tcolor_BEG = "<span style=\"color: rgb(155, 155, 200);\">";
+var Tcolor_END = color_END;
+
+
+var   Minx=0;    var Maxx= x[Ntimes-1];
+var   Miny=0;    var Maxy=1.1;
+
+var vertiDim=25;            //      DISPLAY VARIABLES
+var horizDim=100;           //      DISPLAY VARIABLES
+
+var displMatr = [];         //      DISPLAY VARIABLES 
+
+var Empty_line=pads("e",horizDim);
+
+var tmaxOLD; var dtOLD; var VOLD; var NstatesOLD; var EextOLD;
+
+
+var To_Output="<listing> \n <br /> Calculation - probability of 1. state and sum of all other states listed  \n";
+        
+//    
+//     Dynamical solution of the coupled equations
+//    
+//       i (d/dt) c(n)  =  M(n,n) c(n)
+//    
+//     where M(n,n) are n by n matrices, c(n) are a n vector
+//    
+//         ( V  V     V    V     V ... )
+//     M = ( V E1+V   V    0     0 ....)
+//         ( V  0    E2+V  0     0 ... )
+//         ( V  0     0   E3+V   0 ... )
+//         ( .  .     .
+//    
+//     This matrix model GOLDEN RULE assumption  
+
+// /////////////////////////////////////////////////////////////////
+//
+//    Using our Complex class
+//
+//   FORTRAN   evaluate    
+//       z = V * exp ( i * omega * t ) + i * H ;
+           
+//   JAVASCRIPT EQUIVALENT  
+//       z =  I.times ( omega * t ).EXP().times(V).PLUS (   I.times ( H )   )   ;
+
+//   CAN BE GROUPED BY PARANTHESES 
+//       z = ( (  ( I.times ( omega * t ) ).EXP() ).times(V) ).PLUS (   I.times ( H )   )   ;
+
+//   LESS COMPACT VERSION   
+//        zm =  CEXP ( I.times ( omega * t ) );
+//   z = CSUM ( zm.times(V) ,   I.times ( H )   )   ;
+var cZero = new Complex(0,0);
+var cOne = new Complex(1,0);
+var I  = new Complex(0,1);
+      emin=-1.0;
+          
+      emax=1.0;
+      rho = Nstates/(emax-emin);
+//                 'Interaction strenght V '
+//  document.write("<br />  cOne.DIVIDE(I ).  ");
+        //    document.write("<br /> " +      cOne.DIVIDE(I ).re  + "    "  +        cOne.DIVIDE(I ).im     );
+          
+    start_calculation();
+
+// calculate();
+
+
+
+
+
+
+
+// //////////////////////////////////////////////////////////////////
+//
+//       Complex Number Class definition
+//
+// //////////////////////////////////////////////////////////////////
+
+//   Construction
+function Complex(real, imag) 
+    {                            //   Some operations are defined in two mays
+    this.re = real;         
+        this.im = imag;                 
+        this.times = function (a) {                           //      times a real constant
+             return new Complex (a*this.re, a*this.im); };      
+        this.plus = function (c) {                            //      plus a real constant
+             return new Complex (this.re + c , this.im );       }       ;                
+        this.abs = function () {                              //      absolute value
+             return Math.sqrt(this.re*this.re + this.im*this.im);       }       
+        this.CC = function () {                               //      C.C. complex conjugate
+             return new Complex (this.re, - this.im);   };
+        this.INVERT = function () {                           //      evaluate  1 / this.complex
+             return new Complex (this.re/this.abs(), - this.im/this.abs() );    }                
+        this.EXP = function ()                                //      complex exponential func of this
+        { return new Complex( Math.exp( this.re ) * Math.cos (  this.im )  ,
+                              Math.exp( this.re ) * Math.sin (  this.im )   );   };                             
+        this.PLUS = function (c) {                            //      PLUS  another complex number
+             return new Complex (this.re  + c.re, this.im + c.im );     }               ; 
+        this.TIMES = function (c) {                           //      TIMES  another complex number
+             return new Complex(this.re   * c.re - this.im * c.im, this.re   * c.im + this.im * c.re);   };     
+        this.DIVIDE = function (b) {                           //      DIVIDE by  another complex number
+             return this.TIMES(b.INVERT()  );   };                                                                                                               
+        }       
+// Add two complex numbers and return the result.          REDUNDANT; useful for testing and some long formulas
+   function CSUM(a, b) {
+    return new Complex(a.re  + b.re , a.im + b.im ); };
+
+// Multiply two complex numbers and return the product.    REDUNDANT; useful for testing and some long formulas
+   function CPROD(a, b) 
+   { return new Complex(a.re  * b.re - a.im * b.im,
+                        a.re  * b.im + a.im * b.re);   };
+// e ^ ( Complex c )   exponential of complex number       REDUNDANT; useful for testing and some long formulas 
+   function CEXP( c ) 
+   { return new Complex( Math.exp( c.re ) * Math.cos (  c.im )  ,
+                         Math.exp( c.re ) * Math.sin (  c.im )   );   };   
+
+// //////////////////////////////////////////////////////////////////
+//
+//       Formatted output functions
+//
+// //////////////////////////////////////////////////////////////////
+
+        function pads(Strng, count)
+           {   var blnks="";
+               for (var k=0;k<count;k++){blnks=blnks+Strng;}
+               return blnks;
+           }                            
+        function Format_number( num, Length , Decimpl )
+            {  var tot=""; var strn=num+" ";    //  add one space
+                   if ( num > 0 ) {strn=" " + strn;}  //  make place for sign of negatives
+                   var dec=strn.indexOf(".");
+                   var leng=strn.length;
+                   if (Decimpl > Length-3) { return num +"* "; }
+                   if ( dec > Length - 3 ) { return num +"* "; }
+                
+           if (dec < 0)   //  if integer without dot
+                      { 
+                                strn = strn.substr(0, leng -1) + "." + pads("0", Decimpl) + " ";
+                                leng=strn.length; 
+                          }
+                   if (dec>0)
+                      {    
+                             if ( ( leng-dec -1 ) < Decimpl ) 
+                                    { strn = strn.substr(0, leng -1) + pads("0", Decimpl + dec - leng +2) ;} 
+                             strn=strn.substr(0,dec+Decimpl+1)+" "; leng=strn.length;
+                      }
+                        if ( leng == Length ) {return strn; }
+                        if ( leng < Length ) { return pads(" ", Length-leng) + strn ; }
+            }
+
+
+function example(Nstat, V0, Tt_max, dT0, Eextd)
+{
+   To_text_area = Nstat;
+   myInputWindow.N_of_states.value = To_text_area;
+   To_text_area = dT0;
+   myInputWindow.dT_win.value = To_text_area;
+   To_text_area = Tt_max;
+   myInputWindow.T_MAX_win.value = To_text_area; 
+   To_text_area = V0;    
+   myInputWindow.V_win.value = To_text_area;  
+   Erange1=Eextd; erange_more=Erange1;
+   To_text_area = Erange1;
+   myInputWindow.E_win.value = To_text_area; 
+   start_calculation();
+}
+
+function logarit(numero){
+  logscale=numero;
+  Lin_Log_start();   // Linear-Logarithmic Y-axis
+  go_to_start();
+}
+
+function s_rateplot(numero){
+  rateplot=numero;
+  go_to_start();
+}
+
+
+function example2(Nstat, Erang)
+{
+   To_text_area = Nstat;
+   myInputWindow.N_of_states.value = To_text_area;
+   To_text_area = Erang; erange_more=Erang;
+   myInputWindow.E_win.value = To_text_area;
+   start_calculation();
+}
+
+function start_calculation()
+{
+       running=0;  
+ 
+          Clear_Time_Display_start();  
+          tTIME=1;
+  //   Text Areas   N_of_states   T_MAX_win  dT_win  V_win   
+      V=0.045;  V=0.035;      
+          tmax=50.0;  
+          dt=0.15 ;         //   Test values - to be changed
+      var Eext=1.0
+          k = 0;
+	  From_Text_Area=myInputWindow.N_of_states.value;   Nstates = parseInt(From_Text_Area);
+	//  From_Text_Area=document.getElementById("N_of_states").value; Nstates = parseInt(From_Text_Area);
+      From_Text_Area=myInputWindow.T_MAX_win.value;     tmax = parseFloat(From_Text_Area);
+      From_Text_Area=myInputWindow.dT_win.value;        dt = parseFloat(From_Text_Area);
+      From_Text_Area=myInputWindow.V_win.value;         V  = parseFloat(From_Text_Area);	  
+      From_Text_Area=myInputWindow.E_win.value;         Eext  = parseFloat(From_Text_Area);
+
+      erange_more=Eext;
+
+      tmaxOLD=tmax; dtOLD=dt; VOLD=V; NstatesOLD=Nstates; EextOLD=Eext;
+
+    //  if( ! firsttime){     
+       //   example(Nstat, V0, Tt_max, dT0, Eextd)
+       startArea = "<td>  <textarea " + 
+           "style=\" font-family:monospace; font-size: 12pt; resize: none; height: 26px;\"" +
+           " cols=\"50\" rows=\"1\">";
+
+       labeltext=  "&nbsp; Nstates="+NstatesOLD+"&nbsp;&nbsp; V=" + VOLD.toFixed(5) +
+                   " &nbsp;&nbsp; Tmax=" + tmaxOLD.toFixed(1) + " &nbsp;&nbsp;dT=" +
+                    dtOLD.toFixed(3) +
+                   " &nbsp;&nbsp; E_extend=" +  EextOLD.toFixed(2);
+
+       last_time=  "Nstates="+NstatesOLD+" V=" + VOLD.toFixed(7) +
+                   "  tmax=" + tmaxOLD.toFixed(1) + " dt=" + dtOLD.toFixed(3) +
+                   " E_extend=" +  EextOLD.toFixed(3);
+
+        //    removed  "</td><td>  <textarea cols=\"80\" rows=\"1\">"
+
+        linking="<tr><td> <a href=\"javascript:example(" + NstatesOLD + "," +
+                VOLD + "," + tmaxOLD + ","  + dtOLD +  "," + EextOLD +")\">" +
+                last_time + "</a></td>"+ startArea;
+                
+        if(firsttime){  linking=linking +  " comment?";}
+         linking=linking +     "</textarea></td></tr>";
+
+        histostring= histostring+ linking; 
+        histring= histostring+ "</table>";
+        document.getElementById("history").innerHTML= histring; 
+        
+        document.getElementById("pictlabel").innerHTML= labeltext; 
+   //}  was if not firsttime
+              if( firsttime){       firsttime=0; }
+
+
+      emin=-1.0;
+      emax=1.0;    //  E min and E max
+      emin=-Eext;
+      emax=Eext;    //  E min and E max     
+      rho = Nstates/(emax-emin);        // S   ... State density  
+       
+      rate=2*3.14159*V*V*rho;   
+
+//        var y[];  var e[];  //   Complex array to store         
+      ki=[];   for (var  j = 2; j <Nstates; j=j+1){  ki[j] = cZero; }
+      y=[];   for (var  j = 2; j <Nstates; j=j+1){  y[j] = cZero; }
+      e=[];   for (var  j = 2; j <Nstates; j=j+1){  e[j] = cZero; }
+          
+ //         V= V*20.0*rho;  PHYS261 removes the redefinition of V
+		  document.getElementById("V_PAD").innerHTML= "Dens.Stat<br>"+ 
+                            Format_number( rho, 9, 2)+ " "; 
+          fscale1=1.0;
+          fscale =  1.0;
+          if (Nstates < 6)  fscale=fscale1;
+          fscale= fscale1 + (Nstates /40)* 5* fscale1;
+		     
+				 
+          //   fscale (40 )   =  300
+     To_Output="<listing> \n <br /> Calculation - probability of 1. state and sum of all other states listed  \n";   
+         C_TXT="";
+                
+         document.getElementById("output_PAD").innerHTML= To_Output;                              
+  
+          To_Output = To_Output + "<br>   Nstates is " + Nstates + "<br>";        
+          To_Output = To_Output + "<br>   Strength V is " + V + "<br>";  
+          To_Output = To_Output + "   rho is " + rho + "<br>";  
+          To_Output = To_Output + "rate  2 pi*V*V*rho is " + rate + "<br>";  
+          To_Output = To_Output + "Math.log10(100.0) = " + Math.log10(100.0)+"<br>";
+          T_OUT="";             
+        
+         calculate();      
+         Output_Analyze();
+         draw_plotting_windows();
+                              
+}
+
+function  calculate()
+{
+//
+//  Initialization
+//        
+//          Energy phases   and amplitudes 
+      for (var  ii = 2; ii <Nstates+1; ii=ii+1){
+        e[ii] = I.times ( -(emin+(ii-1)/rho)  );
+                En[ii] =  emin+(ii-1)/rho; 
+                y[ii] = cZero;
+      }
+      y[1] = cOne;
+      t = 0;
+//
+// computational loop
+// 
+         k = 0;
+    calculating=1;
+        setTimeout('do_the_step()',1);
+    // var My_interval =     setInterval('do_the_step()',10);   
+       
+        document.getElementById("interrupt_PAD2").innerHTML= T_INTERUPT1;     // interrupting calc.
+
+}                            //    end of the main function routine calculate()
+
+function do_the_step()
+   {
+   //   call runge(y,Nstates,t,dt,V,e)
+        runge();
+        k = k + 1;
+                W[k]  = [];           //   empty the row 
+        Sum[k] = 0;
+        for ( klm = 1; klm <Nstates+1; klm=klm+1) {
+            dummy= y[klm].abs();   dummy=dummy*dummy;
+                    //  W[k][klm]  =  dummy;
+                        w_sing[klm]=dummy;
+                        W[k] [klm]=dummy;
+           if (klm>1) { Sum[k]  =  Sum[k] + dummy;}
+        }
+        tt[k] = t;  Ntimes=k; tmaxT=Ntimes*dt;
+//    for(var kk=1; kk<  Ntimes; kk=kk+1)
+        // { document.write("<br /> " + Format_number( tt[kk], 14, 4) + Format_number( W[kk][1], 14, 6) + Format_number( Sum[kk], 14, 6) );}
+
+        //  document.write("<br /> " + Format_number( tt[k], 14, 4) + Format_number( W[k][1], 14, 6) + Format_number( Sum[k], 14, 6) ); 
+ //    To_Output = To_Output + "<br /> " + "     " + tt[k].toPrecision(6) +
+ //      "   " + W[k][1].toPrecision(6) + "   "  +   Sum[k].toPrecision(6)  + "    ";
+
+     To_Output = To_Output + "<br /> " + "     " + tt[k].toFixed(4) + "   " ;
+     if (W[k][1]>0.000001) {To_Output = To_Output +  W[k][1].toFixed(9) + "   ";}
+     else { To_Output = To_Output +  W[k][1].toExponential(6) + "   "; }
+     To_Output = To_Output +   Sum[k].toFixed(9)  + "    ";
+
+
+//Format_number( tt[k], 14, 4) + Format_number( W[k][1], 14, 6) + Format_number( Sum[k], 14, 6);
+
+         T_OUT=T_INTERUPT +  pads("&nbsp;",10) +
+                          Format_number( (tmax - t), 10, 4 ) +"<br></small>" ;
+         document.getElementById("output_PAD").innerHTML= To_Output;            
+                                          
+                 document.getElementById("interrupt_PAD").innerHTML= T_OUT;                               
+                                                                                                                                  
+        //  if ( t > tmax ) break;
+      if ((t < tmax ) && (calculating==1)) 
+             {                  
+                 setTimeout('do_the_step()',0);    }
+          else 
+             {    
+                   running=1; 
+				          document.getElementById("Entry_PAD").innerHTML= "";
+                         document.getElementById("interrupt_PAD").innerHTML= "";
+						 document.getElementById("interrupt_PAD2").innerHTML= "";
+                         document.getElementById("display_PAD1").innerHTML= "";    
+						 document.getElementById("TMAXdiv").innerHTML=
+						 "<span style=\"background-color: rgb(255, 255, 200);\">"+
+						 "<small>Displayed Tmax is "+  Format_number( tmaxT, 12,2)+ "</small></span>";      
+                          To_Output =  "<a href=\"javascript:hide_calcul()\"> hide this view of the output</a> "+"<br>"+
+                                       To_Output + "<br /> " + 
+                                        "<a href=\"javascript:hide_calcul()\"> hide this view of the output</a> ";
+                                                        
+           hide_calcul();
+		   document.getElementById("Basic_PAD").innerHTML= 
+	     Basic_String + Format_number( fscale,9, 3 ) +
+      "  &nbsp; &nbsp; <a href=\"javascript:re_scale(1)\">zoom in (x1.2)</a>   &nbsp; "+
+        "<a href=\"javascript:re_scale(-1)\">zoom out (x0.8)</a>    </small> ";
+   
+
+
+              setTimeout("demo()",100 );  //  start after calculation
+      }
+
+      
+   }
+function  hide_calcul()    {document.getElementById("output_PAD").innerHTML= To_Ouput_done;}
+
+function display_calcul()   {document.getElementById("output_PAD").innerHTML= To_Output;}
+
+
+
+//      subroutine runge(y,mm,t,dt,V,e)         FORTRAN ORIGINAL  
+
+   function runge()
+   //              function runge()   - one step in Runge-Kutta iteration
+   {
+      //
+      //   performs runge kutta 4-step iteration
+      //   Initially y(t) as input, Output y(t+dt)
+      //
+    var k1=[];  var k2=[];  var k3=[];  var k4=[];
+    var res=[];
+     //     subroutine prdkt(ki,y,t,dt,mm,V,e)   ki is the return, y is input 
+         //     call prdkt(k1,y,t,dt,mm,V,e)
+          prdkt(t, y);
+          for (var  ii = 1; ii <Nstates+1; ii=ii+1){
+      //    res(i) = y(i)+ k1(i)*0.5
+                k1[ii] = ki[ii]; 
+                res[ii]= (  y[ii]   ).PLUS  ( k1[ii].times (0.5)     );
+      }  //  end ii loop
+          
+      //  call prdkt(k2,res,t+0.5*dt,dt,mm,V,e)
+          prdkt(t+0.5*dt, res );          
+      for (var  ii = 1; ii <Nstates+1; ii=ii+1){          
+      //   res(i) = y(i)+ k2(i)*0.5
+                   k2[ii] = ki[ii];       
+                   res[ii]= (  y[ii]    ).PLUS  ( k2[ii].times (0.5)     )
+      }  //  end ii loop
+
+      //  call prdkt(k3,res,t+0.5*dt,dt,mm,V,e)
+          prdkt(t+0.5*dt, res );          
+      for (var  ii = 1; ii <Nstates+1; ii=ii+1){
+      //    res(i) = y(i)+ k3(i)
+                   k3[ii] = ki[ii];       
+                   res[ii]= (  y[ii]    ).PLUS  ( k3[ii]     )          
+      }  //  end ii loop
+
+     //
+     // This is the completion of the iteration step:
+     //
+      t = t + dt                                //   this t is upgraded
+      //      call prdkt(k4,res,t,dt,mm,V,e)
+          prdkt(t, res );         
+      for (var  ii = 1; ii <Nstates+1; ii=ii+1){
+          
+     //     y(i) = y(i) + k1(i)/6 + k2(i)/3 + k3(i)/3 + k4(i)/6
+                    //  k4[ii] = ki[ii];          //   can be eliminated later
+                    y[ii]  = ( y[ii]  ).PLUS(  k1[ii].times(1/6) );
+                    y[ii]  = ( y[ii]  ).PLUS(  k2[ii].times(1/3) );
+                        y[ii]  = ( y[ii]  ).PLUS(  k3[ii].times(1/3) );
+                        y[ii]  = ( y[ii]  ).PLUS(  ki[ii].times(1/6) );                                         
+      }  //  end ii loop
+
+ }    //   End function runge()   - one step in Runge-Kutta iteration
+
+
+   function prdkt(time, y_in)
+   {
+    //     subroutine prdkt(ki,y_in,t,dt,mm,V,e)
+    //     returns ki = Coup.matrix * y_in - vector * dt
+    //
+    //       complex arrays  ki(nstat),y(nstat),e(nstat)             
+    //       global variables   V,dt,t
+    //       e[i]   stands  for  I.times( En[i]  )   exp( e[j]*t ) means the energy factor
+    //  
+     //    ki(1) = cmplx(0.,0.)             FORTRAN   original
+     //    do  j = 2,mm
+     //         ki(1) = ki(1) + cmplx(0,-1)*V*exp(-e(j)*t)*y(j)*dt 
+     //         ki(j) =         cmplx(0,-1)*V*exp( e(j)*t)*y(1)*dt
+         //    end do          
+        ki[1] = cZero; ki[0] = cZero;   //  Nstates=20;
+        for (var  j = 2; j <Nstates+1; j=j+1){
+           //  ki[1] = ( ki[1] ).PLUS ( (I.times(-V*dt ).TIMES ( CEXP ( e[j].times(-time)  ) )).TIMES( y_in[j] ) ) ;
+                    var cmid=CEXP ( e[j].times(-time)  );
+                        cmid =  I.times(-V*dt ).TIMES ( cmid ); 
+            ki[1] = ( ki[1] ).PLUS (     cmid .TIMES( y_in[j] )       ) ;
+                                
+                 //     ki[j] =                  (I.times(-V*dt ).TIMES ( CEXP ( e[j].times( time)  ) )).TIMES( y_in[1] ) ;  }
+                    cmid=CEXP ( e[j].times( time)  );
+                        cmid =  I.times(-V*dt ).TIMES ( cmid ); 
+            ki[j] =  cmid.TIMES( y_in[1] )  ;                    }
+                //  document.write("<br /> Nstates  ki[Math.ceil(Nstates/2)]" + Math.ceil(Nstates/2) + "   "+      ki[Math.ceil(Nstates/2)].re   + "    "  +       ki[Math.ceil(Nstates/2)].im       );
+      }
+
+
+function stop_calculate()
+     { calculating=0; tmax=t;  
+      draw_plotting_windows();
+       document.getElementById("TMAXdiv").innerHTML=
+             "<span style=\"background-color: rgb(255, 255, 200);\">"+
+             "<small>Displayed Tmax is "+  Format_number( tmaxT, 12,2)+ "</small></span>";     
+     }
+
+
+
+function make_step()
+     { running=0; demo(); }
+
+function stop_running()
+     {   running=0;
+         fix_linewid_plot();
+     } 
+function start_running() {  
+      if(running==0) {running=1;  setTimeout("demo()",10 );} 
+   }         
+
+function go_to_start()
+     {   
+             Clear_Time_Display_start();  Time_Plot_Exp();
+                 tTIME=1; LT=1; 
+                 do_not_speed=1; 
+                 if (! running) make_step(); 
+                // if(running==0) {running=1;  setTimeout("demo()",10 );} 
+               }        
+
+function go_to_end()  {   
+      tTIME=Ntimes - 3; LT=1; do_not_speed=1; make_step();
+      // if(running==0) {running=1;  setTimeout("demo()",10 );} 
+ }     
+         
+function Jump_To( xdist )
+     {   
+             
+             Clear_Time_Display_start(); Time_Plot_Exp();
+                 LT=1;  
+                 tTIME= Math.floor( (xdist-xTime0)/(Lower_Width)*(Ntimes-1) ) ;
+                 tTIME=Math.max ( 1, Math.min(Ntimes,tTIME) );
+                 
+         //   Mline(xTime0+Lower_Width*tt[i  ]/tmax, Lower_Base+Plot_Height*  W [i][1],
+                 
+                 if (running==0 ) {setTimeout("demo()",100 ); }
+        }         
+
+
+function demo()            //    PLOTTING FUNCTION LOOP - TIMEOUT FUNCTION
+{       
+
+       var Eposup= UpperBase + Plot_Height/2 * (1+ En[Nstates]);
+      var Eposdown= UpperBase + Plot_Height/2 * (1+ En[2]);
+      MRectangle(-1,"#FFFFFF", xStart2,  Eposup, xStart2 + Upper_Width, Eposdown);      
+
+       MRectangle(-1,"#FFFFFF", xStart1,  UpperBase, xStart1 + Upper_Width,  UpperBase +  Plot_Height );
+        MRectangle(1,"#000", xStart1,  UpperBase, xStart1 + Upper_Width,  UpperBase +  Plot_Height ); 
+      //    //  draw the initial state line  
+             Mline( xStart1, UpperBase + Plot_Height/2, xStart1 + (Upper_Width *0.9)*  W[ tTIME ][ 1 ] , UpperBase + Plot_Height/2 ) 
+           //  draw the  line for all remaining states 
+                      MRectangle(-1,"#FFFFFF", xStart2,  UpperBase, xStart2 + Upper_Width,  UpperBase +  Plot_Height); 
+                         MRectangle(1,"#000", xStart2,  UpperBase, xStart2 + Upper_Width,  UpperBase +  Plot_Height);  
+ 
+          var xEnd=0;
+          for (var jj= 2; jj< Nstates+1 ; jj=jj+1 )
+           {
+                var Eposition= UpperBase + Plot_Height/2 * (1+ En[jj]);
+				xEnd=Upper_Width *0.9;
+				xEnd=Math.min( xEnd *  W[ tTIME ][ jj ] * fscale , xEnd );
+				Mline( xStart2, Eposition , xStart2 + xEnd , Eposition );                 
+           } 
+    //  Added from   Clear_Time_Display()
+    //   MRectangle(1,"#000000", xTime0 ,  Lower_Base, xTime0 + Lower_Width , Lower_Base + Plot_Height );   
+    if (erange_more>1.0) fix_linewid_plot();   
+ 
+    Time_Plot_Step();
+        
+    tTIME=tTIME+1; 
+        if (tTIME>Ntimes-1)
+           {    
+             tTIME=1;
+         Clear_Time_Display();Time_Plot_Exp();
+           }
+        
+        if (running==1)
+          {   
+            if (do_not_speed == 0 )  setTimeout("demo()",10 ); 
+            if (do_not_speed == 1 )  {do_not_speed=0;  demo();}   
+        } 
+}
+
+
+ 
+ function Clear_Time_Display_start()
+    {
+     //  CLEAR RECTANGLE
+ 
+     BRectangle(-1,"#FFFFFF",xTime0-0.05 ,Lower_Base-0.1,xTime0+Lower_Width+0.05,Lower_Base + Plot_Height );
+    
+     BRectangle(0,"#FFFFFF", xTime0-0.05 ,Lower_Base-0.1,xTime0+Lower_Width+0.05,Lower_Base + Plot_Height );
+     //MRectangle(-1,"#FFFFFF", xTime0-0.05 ,  Lower_Base-0.1, xTime0 + Lower_Width+0.05 , Lower_Base + Plot_Height );
+
+     var xEnd=xStart2 + Upper_Width *0.95;
+     MRectangle(-1,"#FFFFFF", xStart2-0.1 , Lower_Base + Plot_Height, xEnd , UpperBase );           
+     MRectangle(-1,"#FFFFFF", xStart2-0.1 , UpperBase + Plot_Height, xEnd , UpperBase+1.2*Plot_Height);
+
+     BRectangle(1,"#000000", xTime0 ,  Lower_Base, xTime0 + Lower_Width , Lower_Base + Plot_Height );     
+     fix_linewid_plot();            
+ } 
+ 
+function Clear_Time_Display()
+  {
+     //  CLEAR RECTANGLE
+     
+     BRectangle(0,"#FFFFFF", xTime0 ,  Lower_Base, xTime0 + Lower_Width , Lower_Base + Plot_Height );
+     MRectangle(-1,"#FFFFFF", xTime0 ,  Lower_Base, xTime0 + Lower_Width , Lower_Base + Plot_Height );           
+     BRectangle(1,"#000000", xTime0 ,  Lower_Base, xTime0 + Lower_Width , Lower_Base + Plot_Height );    
+             rubctx.strokeStyle = '#ddf';     
+         var xEnd=Upper_Width *0.95;
+         for (var jj= 2; jj< Nstates+1 ; jj=jj+1 )
+          {
+                var Eposition= UpperBase + Plot_Height/2 * (1+ En[jj]);               
+               Bline( xStart2, Eposition , xStart2 + xEnd , Eposition );                 
+          } 
+
+      
+  }                    
+ 
+function Time_Plot_Step()            //    PLOTTING FUNCTION LOOP - TIMEOUT FUNCTION
+{
+        rubctx.strokeStyle = 'rgba(0,0,255,0.5)'; 
+        rubctx.lineWidth = 3;        
+            Npoints=tTIME+1;
+    //    Add the mechanism to draw either 1 line or a multiline from the start           
+ 
+            for(var i=LT; i<Npoints; i=i+1)
+            {   
+
+              Wa1=W [i][1]; 
+              Wa2=W [i+1][1]; 
+              if (logscale){
+                 Wa1=0.5*(Math.log10(Wa1)+2); if(Wa1<0) Wa1=0;
+                 Wa2=0.5*(Math.log10(Wa2)+2); if(Wa2<0) Wa2=0;
+               }
+                Ya1=Lower_Base+Plot_Height*  Wa1;
+                Ya2=Lower_Base+Plot_Height*  Wa2;
+ 
+           
+             Bline(xTime0+Lower_Width*tt[i  ]/tmaxT, Ya1, 
+             xTime0+Lower_Width*tt[i+1]/tmaxT, Ya2 );
+            }
+            rubctx.lineWidth = 1;
+           if(LT<2 ) Time_Plot_Exp();
+           LT=tTIME;           
+     //   Normally just draw the ONE segment  
+   
+} //   END FUNCTION Time_Plot_Step()
+
+function Time_Plot_Exp()            //    PLOTTING FUNCTION LOOP - TIMEOUT FUNCTION
+{
+          rubctx.strokeStyle = '#FFAAAA';
+       
+        if (logscale) {
+               for (var kl=2; kl<10; kl++){
+                  w1=0.5*Math.log10(kl); w2=0.5+w1;
+                  w1=Lower_Base+Plot_Height*w1;
+                  w2=Lower_Base+Plot_Height*w2;
+                  Bline(xTime0, w1, xTime0+Lower_Width, w1 ); 
+                  Bline(xTime0, w2, xTime0+Lower_Width, w2 );  
+                }
+          rubctx.strokeStyle = '#0000BB';
+          Bline(xTime0,Lower_Base+0.5*Plot_Height,xTime0+Lower_Width,Lower_Base+0.5*Plot_Height );
+          }
+        if(rateplot){
+            rubctx.strokeStyle = 'rgba(255,128,128,0.7)';   //'#CCCC80';
+            rubctx.lineWidth = 2;
+            for(var i=0; i<Ntimes-2; i=i+1)
+            {   
+             Wa1=Math.exp(-rate*tt[i]); Wa2=Math.exp(-rate*tt[i+1]); 
+             if (logscale){
+                 Wa1=0.5*(Math.log10(Wa1)+2); if(Wa1<0) Wa1=0;
+                 Wa2=0.5*(Math.log10(Wa2)+2); if(Wa2<0) Wa2=0;
+               }
+                Ya1=Lower_Base+Plot_Height*  Wa1;
+                Ya2=Lower_Base+Plot_Height*  Wa2;
+         
+             Bline(xTime0+Lower_Width*tt[i  ]/tmaxT, Ya1, 
+             xTime0+Lower_Width*tt[i+1]/tmaxT, Ya2 );
+            }
+        }  //  if(rateplot) ends
+        rubctx.lineWidth = 1;  ctx.lineWidth = 1;
+} //   END FUNCTION Time_Plot_Exp()
+
+
+
+
+        
+function pads(Strng, count)
+           {   var blnks="";
+               for (var k=0;k<count;k++){blnks=blnks+Strng;}
+               return blnks;
+           }            
+
+function draw_plotting_windows() 
+{
+
+   rubctx.lineWidth = 1; ctx.lineWidth = 1; 
+	 MRectangle(-1,"#FFFFFF", xStart1,  UpperBase, xStart1 + Upper_Width,  UpperBase +  Plot_Height );
+	 MRectangle(1,"#000", xStart1,  UpperBase, xStart1 + Upper_Width,  UpperBase +  Plot_Height );
+
+	 MRectangle(1,"#000", xStart2,  UpperBase, xStart2 + Upper_Width,  UpperBase +  Plot_Height);  
+     MRectangle(1,"#000", xStart1,  UpperBase, xStart1 + Upper_Width,  UpperBase +  Plot_Height );
+     MRectangle(1,"#000", xStart2,  UpperBase, xStart2 + Upper_Width,  UpperBase +  Plot_Height); 
+     MRectangle(1,"#000", xTime0 ,  Lower_Base, xTime0 + Lower_Width , Lower_Base + Plot_Height );
+     rubctx.lineWidth = 1; ctx.lineWidth = 1;
+     ctx.fillStyle = '#FF1010';  ctx.font = "20px Arial";
+     Mtext( "1.0", xStart2 + Upper_Width+0.1, UpperBase +  Plot_Height-0.1);
+     Mtext( "0.5", xStart2 + Upper_Width+0.1, UpperBase +  0.75*Plot_Height-0.1);
+     Mtext( "0", xStart2 + Upper_Width+0.1, UpperBase +  0.5*Plot_Height-0.1);
+     Mtext( "-0.5", xStart2 + Upper_Width+0.1, UpperBase +  0.25*Plot_Height-0.1);
+     Mtext( "-1.0", xStart2 + Upper_Width+0.1, UpperBase +  0.0*Plot_Height-0.1);
+     nsc=5.5;
+     Mtext( " 1.0", xStart1 - Upper_Width/nsc, UpperBase +  Plot_Height-0.1);
+     Mtext( " 0.5", xStart1 - Upper_Width/nsc, UpperBase +  0.75*Plot_Height-0.1);
+     Mtext( "   0", xStart1 - Upper_Width/nsc, UpperBase +  0.5*Plot_Height-0.1);
+     Mtext( "-0.5", xStart1 - Upper_Width/nsc, UpperBase +  0.25*Plot_Height-0.1);
+     Mtext( "-1.0", xStart1 - Upper_Width/nsc, UpperBase +  0.0*Plot_Height-0.1);
+
+     Mtext( "1.0", xStart1 + Upper_Width*0.9 -0.2, UpperBase +  Plot_Height+0.14);
+     Mtext( "0.5", xStart1 + Upper_Width*0.45-0.2, UpperBase +  Plot_Height+0.14);
+     Mline(xStart1+Upper_Width*0.45, UpperBase+Plot_Height,
+           xStart1+Upper_Width*0.45, UpperBase+Plot_Height+0.1);
+     Mline(xStart1+Upper_Width*0.9, UpperBase+Plot_Height,
+           xStart1+Upper_Width*0.9, UpperBase+Plot_Height+0.1);
+ 
+     fix_linewid_plot();
+     rubctx.lineWidth = 1; ctx.lineWidth = 1;   
+     MRectangle(-1,"#FFFFFF", xTime0 -1.0 , Lower_Base -1.0 , Lower_Width +1, Lower_Base);
+
+      rubctx.fillStyle = '#FFFFFF';
+      rubctx.fillRect(0, 0, width, height);   //  sets white in bottom rectangle
+
+     BRectangle(1,"#000", xTime0 ,  Lower_Base, xTime0 + Lower_Width , Lower_Base + Plot_Height );
+    
+     tTIME=1;   // Drawing the time plot frame
+
+    rubctx.fillStyle = '#FFFFFF';
+      rubctx.fillRect(0, 0, width, height);    // wash the background rectangle
+    
+
+        rubctx.strokeStyle = '#ddf';
+      //    //  draw the initial state line  
+             Bline( xStart1, UpperBase + Plot_Height/2, xStart1 + (Upper_Width *0.95) , UpperBase + Plot_Height/2 ) 
+        rubctx.strokeStyle = '#ddf';     
+          var xEnd=0;
+          for (var jj= 2; jj< Nstates+1 ; jj=jj+1 )
+           {
+                var Eposition= UpperBase + Plot_Height/2 * (1+ En[jj]);
+				        xEnd=Upper_Width *0.95;
+				        Bline( xStart2, Eposition , xStart2 + xEnd , Eposition );                 
+           } 
+
+      //     stri=""+xtick;
+      //     xs=xtick-0.05;
+     Mtext( "0", xTime0 -0.05 ,  Lower_Base -0.31);  
+     if (tmax > 0.2) tstep=0.1;  if (tmax > 1.0) tstep=0.2;
+     if (tmax > 2.0) tstep=1;  if (tmax > 10) tstep=2;
+     if (tmax > 20) tstep=10;  if (tmax > 100) tstep=20;
+     if (tmax > 200) tstep=100;  if (tmax > 1000) tstep=200;
+
+ 
+     for (ttim=tstep;ttim<tmax;ttim=ttim+tstep) {
+            stri=""+ttim;
+            disp=0.15*stri.length/2.0;
+        Mtext( stri, xTime0 - disp + Lower_Width*ttim/tmax,  Lower_Base -0.31);      
+     }
+    for (ttim=tstep/2.0;ttim<tmax;ttim=ttim+tstep/2.0) {
+        xtick =  xTime0  + Lower_Width*ttim/tmax;
+        Mline(xtick,Lower_Base,xtick,Lower_Base - 0.1);           
+     }
+    Lin_Log_start();      //  Linear - Logarithmic Y-axis
+}
+
+function Lin_Log_start(){
+                                                         //  Linear - Logarithmic Y-axis
+    MRectangle(-1,"#FFFFFF",xTime0-1.0 ,Lower_Base-0.5,xTime0 -0.05,Lower_Base+1.2*Plot_Height);
+
+     if(logscale) {   str_05="0.1"; str_00="0.01";  }  
+     if(! logscale) { str_05="0.5"; str_00=" 0.0"; }   
+     Mtext( "1.0", xTime0 -0.45, Lower_Base  +  Plot_Height-0.05);
+     Mtext( str_05, xTime0 -0.45, Lower_Base  +  0.5*Plot_Height-0.05);
+     Mtext( str_00, xTime0 -0.55, Lower_Base  -0.05);
+
+}
+
+function Mline( xs, ys, xe, ye)      //   Line drawing in the Math coordinate system
+    {  var xs_canv; var xe_canv;
+           var ys_canv; var ye_canv; 
+           xs_canv = Math.ceil(   xs / Xscale +  OriginX );
+           ys_canv = Math.ceil( - ys / Yscale +  OriginY ); 
+           xe_canv = Math.ceil(   xe / Xscale +  OriginX );
+           ye_canv = Math.ceil( - ye / Yscale +  OriginY ); 
+       // document.write( "<br>");
+       // document.write( xs_canv," &nbsp; &nbsp;", 
+       // ys_canv, " &nbsp; &nbsp;", xe_canv," &nbsp; &nbsp;", ye_canv);
+
+           ctx.beginPath();     
+           ctx.moveTo( xs_canv, ys_canv );
+           ctx.lineTo( xe_canv, ye_canv );
+           ctx.stroke();                                   
+     }
+
+
+function Mtext( charstr, xs, ys)      //  Char String print in the Math coordinate system
+    {  var xs_canv; var ys_canv;
+       xs_canv = Math.ceil(   xs / Xscale +  OriginX );
+       ys_canv = Math.ceil( - ys / Yscale +  OriginY ); 
+       ctx.fillText( charstr, xs_canv, ys_canv);                
+ }
+
+
+
+function Bline( xs, ys, xe, ye)      //   Line drawing in the Math coordinate system
+    {  var xs_canv; var xe_canv;
+           var ys_canv; var ye_canv; 
+           xs_canv = Math.ceil(   xs / Xscale +  OriginX );
+           ys_canv = Math.ceil( - ys / Yscale +  OriginY ); 
+           xe_canv = Math.ceil(   xe / Xscale +  OriginX );
+           ye_canv = Math.ceil( - ye / Yscale +  OriginY ); 
+       // document.write( "<br>");
+       // document.write( xs_canv," &nbsp; &nbsp;", 
+       // ys_canv, " &nbsp; &nbsp;", xe_canv," &nbsp; &nbsp;", ye_canv);
+
+           rubctx.beginPath();     
+           rubctx.moveTo( xs_canv, ys_canv );
+           rubctx.lineTo( xe_canv, ye_canv );
+           rubctx.stroke();                                   
+     }
+
+// -----------------------------------------------------------------------
+//      
+function MRectangle(TYPE, COLOR, xs,ys, xe, ye)   //  Fill = 0, Draw = thickness , Clear < 0 
+{
+ var xs_canv; var xe_canv;
+           var ys_canv; var ye_canv; 
+           xs_canv = Math.ceil(   xs / Xscale +  OriginX );
+           ys_canv = Math.ceil( - ys / Yscale +  OriginY ); 
+           xe_canv = Math.ceil(   xe / Xscale +  OriginX );
+           ye_canv = Math.ceil( - ye / Yscale +  OriginY ); 
+       // document.write( "<br>");
+       // document.write( xs_canv," &nbsp; &nbsp;", 
+       // ys_canv, " &nbsp; &nbsp;", xe_canv," &nbsp; &nbsp;", ye_canv);
+    if (TYPE==0)    //   Fill Rectangle
+    {
+     ctx.fillStyle = COLOR;                              //   ctx.fillStyle = '#FFFFFF'
+     ctx.fillRect(Math.min(xs_canv,xe_canv), Math.min(ys_canv,ye_canv), Math.abs(xe_canv-xs_canv), Math.abs(ye_canv-ys_canv));
+    }
+    if (TYPE>0)     //   Draw Rectangle
+    {
+          ctx.strokeStyle = COLOR;
+          ctx.lineWidth = TYPE;
+          ctx.strokeRect(Math.min(xs_canv,xe_canv), Math.min(ys_canv,ye_canv), Math.abs(xe_canv-xs_canv), Math.abs(ye_canv-ys_canv));
+    }
+    if (TYPE<0)       //   Clear Rectangle
+    {
+          ctx.clearRect(Math.min(xs_canv,xe_canv), Math.min(ys_canv,ye_canv), Math.abs(xe_canv-xs_canv), Math.abs(ye_canv-ys_canv));
+    }    
+
+}       
+
+function BRectangle(TYPE, COLOR, xs,ys, xe, ye)   //  Fill = 0, Draw = thickness , Clear < 0 
+{
+ var xs_canv; var xe_canv;
+           var ys_canv; var ye_canv; 
+           xs_canv = Math.ceil(   xs / Xscale +  OriginX );
+           ys_canv = Math.ceil( - ys / Yscale +  OriginY ); 
+           xe_canv = Math.ceil(   xe / Xscale +  OriginX );
+           ye_canv = Math.ceil( - ye / Yscale +  OriginY ); 
+ 
+    if (TYPE==0)    //   Fill Rectangle
+    {
+     rubctx.fillStyle = COLOR;                              //   rubctx.fillStyle = '#FFFFFF'
+     rubctx.fillRect(Math.min(xs_canv,xe_canv), Math.min(ys_canv,ye_canv), Math.abs(xe_canv-xs_canv), Math.abs(ye_canv-ys_canv));
+    }
+    if (TYPE>0)     //   Draw Rectangle
+    {
+          rubctx.strokeStyle = COLOR;
+          rubctx.lineWidth = TYPE;
+          rubctx.strokeRect(Math.min(xs_canv,xe_canv), Math.min(ys_canv,ye_canv), Math.abs(xe_canv-xs_canv), Math.abs(ye_canv-ys_canv));
+    }
+    if (TYPE<0)       //   Clear Rectangle
+    {
+          rubctx.clearRect(Math.min(xs_canv,xe_canv), Math.min(ys_canv,ye_canv), Math.abs(xe_canv-xs_canv), Math.abs(ye_canv-ys_canv));
+    }    
+
+}         
+                                          
+// -----------------------------------------------------------------------
+// -------------         BEGIN   KEYBOARD RESPONSE FUNCTION   ------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+//
+function Handle_keyboard(keyCode)
+   {
+      Action='none';
+          running=0;
+      var TESTING=0;
+          if ( TESTING ){
+          Event_Output=Event_Output + " Last pressed key code is " + keyCode +  "<br>";
+          document.getElementById("EventView").innerHTML= Event_Output+ "</small><br>";         }  
+
+    if(Keyboard_func)
+        {               
+      switch(keyCode)
+      {        
+          //    KEYBOARD handlings
+          //
+  /*      case 69:            //  e for  erase 
+                  key_e();
+          break; 
+        case 74:            //  j for  JavaScript solves by derivative matching 
+                  key_j();
+          break;        
+        case 73:            //  i for iterative; but means single En by derivative matching 
+                  key_i();
+          break;                                  
+        case 76:          //    L  for light blue
+          key_l();
+          break; 
+        case 78:          //    N  for normal forward Schroedinger for current En
+          key_n();
+          break;                  
+        case 68:          //    d  for defaults
+          key_d();
+          break;   
+        case 83:          //    s   for save
+          key_s();
+          break; 
+        case 84:          //    t   for total  derivative matching replot
+          key_t();
+          break; 
+                  
+        case 87:          //    w   for write parameters
+          key_w();
+          break;                  
+        case 79:          //    o   old browsers
+          key_o();
+          break;                  
+        case 70:          //    f   fading
+                  key_f();
+          break; 
+        case 72:          //    h half erase
+          key_h();
+          break; 
+        case 66:          //    b   for barrier
+          key_b();               
+          break;                  
+        case 82:          //    r   for remove
+          key_r();
+          break; 
+                  
+        case 80:           //  p for potential
+                  key_p();
+          break; 
+        case 32:            //  space  for leaving potential adjusts key_g()
+                  key_g();
+          break; 
+        case 71:            //  g  for go
+                  key_g();
+          break; 
+        case 37:            //  <-  zoom out x-axis     
+                  cursor_left();          
+                  break;
+        case 39:            //  ->  zoom in     x-axis
+                  cursor_right();         
+                  break;
+                case 38:            //   ^ up   arrow  zoom in y-axis
+                  cursor_up();  
+                  break;                
+                case 40:            //   v down arrow  zoom out y-axis
+                  cursor_down();                        
+                  break;                */  
+
+
+        case 71:            //  g  for go
+                  start_running();
+          break; 
+        case 32:            //  space  for leaving potential adjusts key_g()
+                  start_running();
+          break;                  
+        case 83:          //    s   for save
+          make_step();
+          break;                  
+        default:                
+          break;  
+      }
+        }    //    if(  Keyboard_func )
+                   
+    }
+// -----------------------------------------------------------------------
+// -------------            END  KEYBOARD RESPONSE FUNCTION   ------------
+// -----------------------------------------------------------------------
+
+// -------------            BEGIN  MOUSE  RESPONSE FUNCTION   ------------
+// -----------------------------------------------------------------------
+    function Handle_Mouseclick()
+          {  
+                  //     Y_math=( -y_canv + OriginY ) * Yscale;
+                  //     X_math=( x_canv - OriginX ) * Xscale;
+          
+            Ycalc= ( -YmouseDOWN + OriginY ) * Yscale;
+                Xcalc= (  XmouseDOWN - OriginX ) * Xscale;
+                
+                if ( Ycalc < 0 )
+                  {
+                    var Xvalue= Math.max(xTime0, Xcalc);
+                            Xvalue= Math.min(xTime0+Lower_Width, Xvalue);
+                                Jump_To ( Xvalue );
+          //   Mline(xTime0+Lower_Width*tt[i  ]/tmax, Lower_Base+Plot_Height*  W [i][1],
+
+                  }
+                else
+                  {
+                         
+                                 if (running ==1 ) { running = 0; }
+
+                  }
+
+                }       
+        
+
+// -----------------------------------------------------------------------
+// -------------            END  MOUSE RESPONSE FUNCTION   ------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------               
+	
+										
+	
+	function re_scale(fac)
+      {   
+	     if (fac> 0) { fscale=fscale*1.2;}
+		 else { fscale=fscale*0.8;}
+       document.getElementById("Basic_PAD").innerHTML= 
+       Basic_String + Format_number( fscale,9, 3 ) +
+      "  &nbsp; &nbsp; <a href=\"javascript:re_scale(1)\">zoom in (x1.2)</a>   &nbsp; "+
+        "<a href=\"javascript:re_scale(-1)\">zoom out (x0.8)</a>    </small> ";
+        //  do_not_speed=1; demo();
+        if (! running) make_step();    
+     fix_linewid_plot();
+	  }																			
+
+function fix_linewid_plot(){
+    MRectangle(-1,"#FFFFFF", xStart2,UpperBase+Plot_Height,xStart2+Upper_Width,
+      UpperBase+Plot_Height*1.20);
+    Unitt=1/fscale; Unit_str=Unitt.toFixed(3);
+    Mtext( Unit_str, xStart2 + Upper_Width*0.9 -0.4 , UpperBase +  Plot_Height+0.14);
+    Mline(xStart2+Upper_Width*0.9, UpperBase+Plot_Height,
+          xStart2+Upper_Width*0.9, UpperBase+Plot_Height+0.1);
+    Unitt=0.5/fscale; Unit_str=Unitt.toFixed(3)
+    Mtext( Unit_str, xStart2 + Upper_Width*0.45 -0.4 , UpperBase +  Plot_Height+0.14);
+    Mline(xStart2+Upper_Width*0.45, UpperBase+Plot_Height,
+          xStart2+Upper_Width*0.45, UpperBase+Plot_Height+0.1);
+}	
+
+function Output_Analyze()
+{
+ OutputWindow.Erange.value = emin.toFixed(1) + " : " + emax.toFixed(1);   
+ OutputWindow.Nstat.value = Nstates.toFixed(0); 
+ OutputWindow.rho.value = rho.toFixed(4); 
+ OutputWindow.rate.value = rate.toFixed(4); 
+ OutputWindow.tau.value = (1/rate).toFixed(4); 
+ OutputWindow.tmax.value = tmax.toFixed(0);
+ OutputWindow.deltaT.value = dt.toFixed(4);
+ OutputWindow.Vpot.value = V.toFixed(7);
+ OutputWindow.Trecc.value = (2*3.14159*rho).toFixed(4);
+
+}																																													                                          
+                        
+</script>
+<br>
+<div id="Exit_PAD" style="font-family: Helvetica,Arial,sans-serif;"> 
+<small>
+<!--   
+<b>Here is <a href="http://web.ift.uib.no/~ladi/Fysisk/Teori/Pictures/Golden.html">
+http://web.ift.uib.no/~ladi/Fysisk/Teori/Pictures/Golden.html</a> a 1996 explanation of the model</b><br>  -->   
+<span style="font-family: Helvetica,Arial,sans-serif;  font-size: 12pt;background-color: rgb(255, 255, 200);">
+View the source of the document - the whole script is included. 
+( From Version 3 (Sept 2010) - extended; logscale, analysis, variable energy range. 
+<br> Oct-Nov 2020 - L. Kocbach, Bergen.) 
+</span></small>
+  
+</div>
+<br>
+
+
+
+</body>
+</html>

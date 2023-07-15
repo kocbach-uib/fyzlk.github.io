@@ -1,0 +1,694 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+  <title>Fermi_golden_rule_plot test </title>
+</head>
+<body>
+<form name="myInputWindow">
+<b>Fermi golden rule plot. </b>   
+ <b>Examples:</b>&nbsp; 
+    <a href="javascript:example(20)"> N=20 </a>&nbsp;
+	<a href="javascript:example(6)"> N=6 </a>&nbsp;
+	<a href="javascript:example(4)"> N=4 </a>&nbsp;
+	<a href="javascript:example(2)"> N=2 </a>&nbsp;
+	
+<!--   rgb(203,203, 51);  -->
+ <b>Now running:</b>&nbsp;
+<textarea style=""  name="InputText" cols="3" rows="1">
+
+</textarea>
+ states. 
+ Change  and  <a href="javascript:start_calculation()"> RESTART </a> 
+ &nbsp; &nbsp; 
+
+</form>
+
+
+		
+						
+<div id="controlPAD" style="font-family: Helvetica,Arial,sans-serif;">
+</div>
+
+<div id="TABLEPAD" style="font-family: Helvetica,Arial,sans-serif;">
+</div>
+<div id="TIMEPAD" style="font-family: Helvetica,Arial,sans-serif;">
+</div>
+
+<div id="JumpPAD" style="font-family: Helvetica,Arial,sans-serif;">	 
+</div>
+
+<br>
+<br>
+Click <a href="javascript:start_running()"> GO </a>  several times
+for high speed.
+<br>
+<br>
+<b>Here is <a href="http://web.ift.uib.no/~ladi/Fysisk/Teori/Pictures/Golden.html">
+http://web.ift.uib.no/~ladi/Fysisk/Teori/Pictures/Golden.html</a> a 1996 explanation of the model</b>
+
+<div id="helpPar" style="font-family: Helvetica,Arial,sans-serif;">
+<listing> 
+This performs the numerical calculation <br />	
+
+</listing>
+</div>
+
+
+<script type="text/javascript">
+
+
+
+      var Nstates=1;
+	  var Ntimes=10;
+
+//    Number of States       
+      var Nstates1=40;
+	  
+     myInputWindow.InputText.value = Nstates1;
+	  
+      var  y = []; var x=[];    
+	  	        
+      var  W = [];    //  Double Real array to store squared amplitudes
+	  var w_sing=[];  //  single row of W ( for each time)   
+	  var  V;
+	  var Sum=[];  var tt= [];  // Single arrays 
+	  var t;  var dt; var tmax;
+	  var  k = 0;
+	  
+      var emin=-1.0;
+      var emax=1.0;    //  E min and E max
+      var rho;   // S   ... State density   	
+//        var y[];  var e[];  //   Complex array to store 	  
+      var ki=[];   //for (var  j = 2; j <Nstates; j=j+1){  ki[j] = cZero; }
+      var y=[];   // for (var  j = 2; j <Nstates; j=j+1){  y[j] = cZero; }
+      var e=[];   // for (var  j = 2; j <Nstates; j=j+1){  e[j] = cZero; }
+	  var En =[];   //  energy without I 
+
+
+       
+      var running = 1; 
+      var lscale=1;        
+	  
+	  var sPART="<a href=\"javascript:Jump_To(";         //   Jump_To variables
+	  var ePART=")\">I</a>";
+      var scale_str="";
+
+//   Table plot definitions
+
+function TABLE( tWidth, linew) {
+  return "<table style=\"text-align: left; vertical-align:top; "+
+                  " width: " + tWidth +"px;" +
+				  " font-family: Helvetica,Arial,sans-serif;\" border=\""+ linew  +"\" "+
+                  " cellpadding=\"0\" cellspacing=\"0\" bgcolor=\"#FFFFFF\">";
+}	
+
+function ATABLE(  linew) {
+  return "<table style=\"text-align: left; vertical-align:top; "+
+				  " font-family: monospace;\" border=\""+ linew  +"\" "+
+                  " cellpadding=\"0\" cellspacing=\"0\" bgcolor=\"#FFFFFF\">";
+}					  
+var TABLE_END= 	"</table>";
+
+
+BOXLEFT=  "<td style=\"vertical-align: top; text-align: left;\">";
+BOXCENTER="<td style=\"vertical-align: top; text-align: center;\">";
+BOXRIGHT= "<td style=\"vertical-align: top; text-align: right;\">";
+
+var C_TXT="";
+
+
+
+		  
+var LI_BEG=	"<tr>";   
+var BOX_BEG  =	"<td  style=\"font-family: monospace; text-align: left; vertical-align:middle; \">" + "<small><small><small>&nbsp;"
+var BOX_END  =	"</small></small></small></span></td>";
+var LI_END="</tr>";
+var  T_OUT="<br><br>  The plot appears here after the calculation <br> Temaining time (atomic units)  ";
+var wscaled=0;
+var wwidth = 120;
+       var                      fscale =  300;
+       var                      fscale1 = 50;
+var tTIME=1;
+var bars=1;   var colored=1;
+
+//  <span style="color: rgb(51, 51, 255); background-color: rgb(255, 255, 102);">
+
+var color_BEG = "<span style=\"background-color: rgb(255, 255, 160);\">";
+var color_END ="</span>";
+
+var Tcolor_BEG = "<span style=\"color: rgb(155, 155, 200);\">";
+var Tcolor_END = color_END;
+
+
+var   Minx=0;    var Maxx= x[Ntimes-1];
+var   Miny=0;    var Maxy=1.1;
+
+var vertiDim=25;            //      DISPLAY VARIABLES
+var horizDim=100;           //      DISPLAY VARIABLES
+
+var displMatr = [];         //      DISPLAY VARIABLES 
+
+var Empty_line=pads("e",horizDim);
+
+
+
+
+var To_Output="<listing> \n <br /> Calculation - probability of 1. state and sum of all other states listed  \n";
+	
+//    
+//     Dynamical solution of the coupled equations
+//    
+//       i (d/dt) c(n)  =  M(n,n) c(n)
+//    
+//     where M(n,n) are n by n matrices, c(n) are a n vector
+//    
+//         ( V  V     V    V     V ... )
+//     M = ( V E1+V   V    0     0 ....)
+//         ( V  0    E2+V  0     0 ... )
+//         ( V  0     0   E3+V   0 ... )
+//         ( .  .     .
+//    
+//     This matrix model GOLDEN RULE assumption	 
+
+// /////////////////////////////////////////////////////////////////
+//
+//    Using our Complex class
+//
+//   FORTRAN   evaluate    
+//       z = V * exp ( i * omega * t ) + i * H ;
+	   
+//   JAVASCRIPT EQUIVALENT  
+//       z =  I.times ( omega * t ).EXP().times(V).PLUS (   I.times ( H )   )   ;
+
+//   CAN BE GROUPED BY PARANTHESES 
+//       z = ( (  ( I.times ( omega * t ) ).EXP() ).times(V) ).PLUS (   I.times ( H )   )   ;
+
+//   LESS COMPACT VERSION   
+//        zm =  CEXP ( I.times ( omega * t ) );
+//   z = CSUM ( zm.times(V) ,   I.times ( H )   )   ;
+var cZero = new Complex(0,0);
+var cOne = new Complex(1,0);
+var I  = new Complex(0,1);
+
+	document.write("<br> _______________  END OF LISTING __________________________"  );
+	
+
+      emin=-1.0;
+	  
+      emax=1.0;
+      rho = (emax-emin)/Nstates;
+//                 'Interaction strenght V '
+//  document.write("<br />  cOne.DIVIDE(I ).  ");
+	//    document.write("<br /> " +      cOne.DIVIDE(I ).re  + "    "  +        cOne.DIVIDE(I ).im     );
+	  
+
+start_calculation();
+// calculate();
+
+
+
+// //////////////////////////////////////////////////////////////////
+//
+//       Complex Number Class definition
+//
+// //////////////////////////////////////////////////////////////////
+
+//   Construction
+function Complex(real, imag) 
+    {                            //   Some operations are defined in two mays
+    this.re = real;         
+	this.im = imag;                 
+	this.times = function (a) {                           //      times a real constant
+	     return new Complex (a*this.re, a*this.im);	};	
+	this.plus = function (c) {                            //      plus a real constant
+	     return new Complex (this.re + c , this.im );	}	;	 	 
+	this.abs = function () {                              //      absolute value
+	     return Math.sqrt(this.re*this.re + this.im*this.im);	}	
+	this.CC = function () {                               //      C.C. complex conjugate
+	     return new Complex (this.re, - this.im);	};
+	this.INVERT = function () {                           //      evaluate  1 / this.complex
+	     return new Complex (this.re/this.abs(), - this.im/this.abs() );	}		 
+	this.EXP = function ()                                //      complex exponential func of this
+        { return new Complex( Math.exp( this.re ) * Math.cos (  this.im )  ,
+                              Math.exp( this.re ) * Math.sin (  this.im )   );   };			 	
+	this.PLUS = function (c) {                            //      PLUS  another complex number
+	     return new Complex (this.re  + c.re, this.im + c.im );	}		; 
+	this.TIMES = function (c) {                           //      TIMES  another complex number
+	     return new Complex(this.re   * c.re - this.im * c.im, this.re   * c.im + this.im * c.re);   };	
+	this.DIVIDE = function (b) {                           //      DIVIDE by  another complex number
+	     return this.TIMES(b.INVERT()  );   };												 	 	 
+	}	
+// Add two complex numbers and return the result.          REDUNDANT; useful for testing and some long formulas
+   function CSUM(a, b) {
+    return new Complex(a.re  + b.re , a.im + b.im ); };
+
+// Multiply two complex numbers and return the product.    REDUNDANT; useful for testing and some long formulas
+   function CPROD(a, b) 
+   { return new Complex(a.re  * b.re - a.im * b.im,
+                        a.re  * b.im + a.im * b.re);   };
+// e ^ ( Complex c )   exponential of complex number       REDUNDANT; useful for testing and some long formulas 
+   function CEXP( c ) 
+   { return new Complex( Math.exp( c.re ) * Math.cos (  c.im )  ,
+                         Math.exp( c.re ) * Math.sin (  c.im )   );   };   
+
+// //////////////////////////////////////////////////////////////////
+//
+//       Formatted output functions
+//
+// //////////////////////////////////////////////////////////////////
+
+	function pads(Strng, count)
+           {   var blnks="";
+               for (var k=0;k<count;k++){blnks=blnks+Strng;}
+               return blnks;
+           }				
+	function Format_number( num, Length , Decimpl )
+	    {  var tot=""; var strn=num+" ";    //  add one space
+		   if ( num > 0 ) {strn=" " + strn;}  //  make place for sign of negatives
+		   var dec=strn.indexOf(".");
+		   var leng=strn.length;
+		   if (Decimpl > Length-3) { return num +"* "; }
+		   if ( dec > Length - 3 ) { return num +"* "; }
+		
+           if (dec < 0)   //  if integer without dot
+		      { 
+				strn = strn.substr(0, leng -1) + "." + pads("0", Decimpl) + " ";
+				leng=strn.length; 
+			  }
+		   if (dec>0)
+		      {    
+			     if ( ( leng-dec -1 ) < Decimpl ) 
+				    { strn = strn.substr(0, leng -1) + pads("0", Decimpl + dec - leng +2) ;} 
+			     strn=strn.substr(0,dec+Decimpl+1)+" "; leng=strn.length;
+		      }
+			if ( leng == Length ) {return strn; }
+			if ( leng < Length ) { return pads(" ", Length-leng) + strn ; }
+	    }
+
+
+function example(Nstat)
+{
+   myInputWindow.InputText.value = Nstat;
+   start_calculation();
+}
+
+function start_calculation()
+{
+      running=0; 
+
+	  Clear_displMatr();  
+	  tTIME=1;
+
+      V=0.045;        
+	  tmax=25.0;  
+	  dt=0.15 ;         //   Test values - to be changed
+
+	  k = 0;
+	  var Nstring=myInputWindow.InputText.value;
+      Nstates = parseInt(Nstring);
+	  
+      emin=-1.0;
+      emax=1.0;    //  E min and E max
+      rho = (emax-emin)/Nstates;	// S   ... State density  
+	  
+//        var y[];  var e[];  //   Complex array to store 	  
+      ki=[];   for (var  j = 2; j <Nstates; j=j+1){  ki[j] = cZero; }
+      y=[];   for (var  j = 2; j <Nstates; j=j+1){  y[j] = cZero; }
+      e=[];   for (var  j = 2; j <Nstates; j=j+1){  e[j] = cZero; }
+	  
+	  V= 0.7*rho;
+	  
+	  fscale =  300;
+	  if (Nstates < 6)  fscale=fscale1;
+	  fscale= fscale1 + (Nstates /40)* 5* fscale1;
+	  //   fscale (40 )   =  300
+     To_Output="<listing> \n <br /> Calculation - probability of 1. state and sum of all other states listed  \n";   
+	 C_TXT="";
+	 	
+	 document.getElementById("helpPar").innerHTML= To_Output;				  
+  
+	  To_Output = To_Output + "<br>   Nstates is " + Nstates + "<br>";	  
+	  To_Output = To_Output + "<br>   Strength V is " + V + "<br>";	  
+	  T_OUT="";		
+		document.getElementById("controlPAD").innerHTML= " ";
+		document.getElementById("TABLEPAD").innerHTML= " ";
+		document.getElementById("TIMEPAD").innerHTML= " ";
+		
+    calculate();	
+	 
+
+}
+
+
+function  calculate()
+{
+//
+//  Initialization
+//	  
+//          Energy phases   and amplitudes 
+      for (var  ii = 2; ii <Nstates+1; ii=ii+1){
+        e[ii] = I.times ( -(emin+(ii-1)*rho)  );
+		En[ii] =  emin+(ii-1)*rho; 
+		y[ii] = cZero;
+      }
+      y[1] = cOne;
+      t = 0;
+//
+// computational loop
+// 
+	 k = 0;
+
+	setTimeout('do_the_step()',1);
+    // var My_interval =     setInterval('do_the_step()',10);   
+       
+	     
+
+}                            //    end of the main function routine calculate()
+
+function do_the_step()
+   {
+   //   call runge(y,Nstates,t,dt,V,e)
+        runge();
+        k = k + 1;
+		W[k]  = [];           //   empty the row 
+        Sum[k] = 0;
+        for ( klm = 1; klm <Nstates+1; klm=klm+1) {
+            dummy= y[klm].abs();   dummy=dummy*dummy;
+		    //  W[k][klm]  =  dummy;
+			w_sing[klm]=dummy;
+			W[k] [klm]=dummy;
+           if (klm>1) { Sum[k]  =  Sum[k] + dummy;}
+        }
+        tt[k] = t;  Ntimes=k;
+//    for(var kk=1; kk<  Ntimes; kk=kk+1)
+	// { document.write("<br /> " + Format_number( tt[kk], 14, 4) + Format_number( W[kk][1], 14, 6) + Format_number( Sum[kk], 14, 6) );}
+
+	//  document.write("<br /> " + Format_number( tt[k], 14, 4) + Format_number( W[k][1], 14, 6) + Format_number( Sum[k], 14, 6) ); 
+     To_Output = To_Output + "<br /> " + 
+       Format_number( tt[k], 14, 4) + Format_number( W[k][1], 14, 6) + Format_number( Sum[k], 14, 6);
+
+	 T_OUT="<br><br>View the source of the document - the whole numerical script is included "+
+	       "<br><br>  The plot appears here after the calculation <br> Remaining time (atomic units)  " +
+	              pads("&nbsp;",10) +
+		          Format_number( (tmax - t), 10, 4 ) +"<br>";
+         document.getElementById("helpPar").innerHTML= To_Output;				  
+		 document.getElementById("TABLEPAD").innerHTML= T_OUT;
+	//  if ( t > tmax ) break;
+      if ((t < tmax )) 
+	     {       		
+		 setTimeout('do_the_step()',0);    }
+	  else 
+	     {    
+		   init_Timeplot();
+		   running=1; 
+		   setTimeout("demo()",0 );}
+	
+   }
+
+//      subroutine runge(y,mm,t,dt,V,e)         FORTRAN ORIGINAL  
+
+   function runge()
+   //              function runge()   - one step in Runge-Kutta iteration
+   {
+      //
+      //   performs runge kutta 4-step iteration
+      //   Initially y(t) as input, Output y(t+dt)
+      //
+    var k1=[];  var k2=[];  var k3=[];  var k4=[];
+    var res=[];
+     //     subroutine prdkt(ki,y,t,dt,mm,V,e)   ki is the return, y is input 
+	 //     call prdkt(k1,y,t,dt,mm,V,e)
+	  prdkt(t, y);
+	  for (var  ii = 1; ii <Nstates+1; ii=ii+1){
+      //    res(i) = y(i)+ k1(i)*0.5
+	        k1[ii] = ki[ii]; 
+	        res[ii]= (  y[ii]   ).PLUS  ( k1[ii].times (0.5)     );
+      }  //  end ii loop
+	  
+      //  call prdkt(k2,res,t+0.5*dt,dt,mm,V,e)
+	  prdkt(t+0.5*dt, res );	  
+      for (var  ii = 1; ii <Nstates+1; ii=ii+1){ 	  
+      //   res(i) = y(i)+ k2(i)*0.5
+		   k2[ii] = ki[ii];	  
+		   res[ii]= (  y[ii]    ).PLUS  ( k2[ii].times (0.5)     )
+      }  //  end ii loop
+
+      //  call prdkt(k3,res,t+0.5*dt,dt,mm,V,e)
+	  prdkt(t+0.5*dt, res );	  
+      for (var  ii = 1; ii <Nstates+1; ii=ii+1){
+      //    res(i) = y(i)+ k3(i)
+		   k3[ii] = ki[ii];	  
+		   res[ii]= (  y[ii]    ).PLUS  ( k3[ii]     )		
+      }  //  end ii loop
+
+     //
+     // This is the completion of the iteration step:
+     //
+      t = t + dt                                //   this t is upgraded
+      //      call prdkt(k4,res,t,dt,mm,V,e)
+	  prdkt(t, res );	  
+      for (var  ii = 1; ii <Nstates+1; ii=ii+1){
+	  
+     //     y(i) = y(i) + k1(i)/6 + k2(i)/3 + k3(i)/3 + k4(i)/6
+		    //  k4[ii] = ki[ii];	  //   can be eliminated later
+		    y[ii]  = ( y[ii]  ).PLUS(  k1[ii].times(1/6) );
+		    y[ii]  = ( y[ii]  ).PLUS(  k2[ii].times(1/3) );
+			y[ii]  = ( y[ii]  ).PLUS(  k3[ii].times(1/3) );
+			y[ii]  = ( y[ii]  ).PLUS(  ki[ii].times(1/6) );						
+      }  //  end ii loop
+
+ }    //   End function runge()   - one step in Runge-Kutta iteration
+
+
+   function prdkt(time, y_in)
+   {
+    //     subroutine prdkt(ki,y_in,t,dt,mm,V,e)
+    //     returns ki = Coup.matrix * y_in - vector * dt
+    //
+    //       complex arrays  ki(nstat),y(nstat),e(nstat)             
+    //       global variables   V,dt,t
+    //       e[i]   stands  for  I.times( En[i]  )   exp( e[j]*t ) means the energy factor
+    //  
+     //    ki(1) = cmplx(0.,0.)             FORTRAN   original
+     //    do  j = 2,mm
+     //         ki(1) = ki(1) + cmplx(0,-1)*V*exp(-e(j)*t)*y(j)*dt 
+     //         ki(j) =         cmplx(0,-1)*V*exp( e(j)*t)*y(1)*dt
+	 //    end do 	       
+        ki[1] = cZero; ki[0] = cZero;   //  Nstates=20;
+        for (var  j = 2; j <Nstates+1; j=j+1){
+           //  ki[1] = ( ki[1] ).PLUS ( (I.times(-V*dt ).TIMES ( CEXP ( e[j].times(-time)  ) )).TIMES( y_in[j] ) ) ;
+		    var cmid=CEXP ( e[j].times(-time)  );
+			cmid =  I.times(-V*dt ).TIMES ( cmid ); 
+            ki[1] = ( ki[1] ).PLUS (     cmid .TIMES( y_in[j] )       ) ;
+            			
+		 //	ki[j] =                  (I.times(-V*dt ).TIMES ( CEXP ( e[j].times( time)  ) )).TIMES( y_in[1] ) ;  }
+		    cmid=CEXP ( e[j].times( time)  );
+			cmid =  I.times(-V*dt ).TIMES ( cmid ); 
+            ki[j] =  cmid.TIMES( y_in[1] )  ;			 }
+		//  document.write("<br /> Nstates  ki[Math.ceil(Nstates/2)]" + Math.ceil(Nstates/2) + "   "+      ki[Math.ceil(Nstates/2)].re   + "    "  +       ki[Math.ceil(Nstates/2)].im       );
+      }
+
+
+function make_step()
+     { running=0; demo(); }
+
+function stop_running()
+     {   running=0;} 
+function start_running()
+     {   running=1;  setTimeout("demo()",1 ); } 	
+
+function go_to_start()
+     {   
+	     Clear_displMatr();  
+		 tTIME=1; setTimeout("demo()",0 ); }	  
+
+function go_to_end()
+     {   tTIME=Ntimes - 1; setTimeout("demo()",0 );  }	 
+	 
+function Jump_To( numb )
+     {   
+	     
+	     Clear_displMatr();  
+		 tTIME= Math.ceil( numb * (Ntimes-1) /  horizDim) ; 
+		 setTimeout("demo()",0 ); }	  
+
+	 
+ 
+function demo()            //    PLOTTING FUNCTION LOOP - TIMEOUT FUNCTION
+{	
+   T_OUT=" ";
+   T_OUT= T_OUT+	TABLE(700,1) ;
+   T_OUT= T_OUT + LI_BEG +BOX_BEG;
+      T_OUT= T_OUT+	TABLE(350,0) ; 
+           for (var jjj= 1; jjj< Nstates ; jjj=jjj+1 ){
+	           if ( jjj == Math.floor(Nstates/2)){
+                     wscaled=Math.floor( ( W[ tTIME ][ 1 ]) * fscale1);				
+                     T_OUT= T_OUT + LI_BEG +BOX_BEG+ color_BEG +
+					                pads("|", wscaled) + color_END + Tcolor_BEG +
+					                pads("-", Math.floor( (fscale1-wscaled))) + Tcolor_END +BOX_END+LI_END;
+					 }	
+                else {  
+				      T_OUT= T_OUT + LI_BEG +BOX_BEG+ "&nbsp;"    +BOX_END+LI_END;
+				  }
+		 	}
+	   T_OUT= T_OUT+	TABLE_END  ;    
+	 T_OUT= T_OUT +  BOX_END; 
+    T_OUT= T_OUT + BOX_BEG;	 
+      T_OUT= T_OUT+	TABLE(350,0) ; 
+          for (var jj= 2; jj< Nstates+1 ; jj=jj+1 ){
+                wscaled=Math.floor( ( W[ tTIME ][ jj ]) * fscale); 
+                     T_OUT= T_OUT + LI_BEG +BOX_BEG+ color_BEG +
+					                pads("|", wscaled) + color_END + Tcolor_BEG +
+					                pads("-", Math.floor( (fscale1-wscaled))) + Tcolor_END +BOX_END+LI_END;
+				} 
+	
+	   T_OUT= T_OUT+	TABLE_END  ; 
+	   	 T_OUT= T_OUT+"<br>&nbsp;";   
+    T_OUT= T_OUT+ BOX_END+LI_END;
+
+   T_OUT= T_OUT+	TABLE_END  ; 
+   //   T_OUT=T_OUT+"<br>  tTime is now " + tTIME ;
+   //   T_OUT=T_OUT+"<br>  Ntimes is now " + Ntimes + "<br>";   //  TESTING - some OUTPUT
+   
+    document.getElementById("TABLEPAD").innerHTML= T_OUT;
+
+    Time_Plot_Step();
+	
+    tTIME=tTIME+1; 
+	if (tTIME>Ntimes-1)
+	   {    
+	     tTIME=1;
+         Clear_displMatr();
+	   }
+	
+	if (running==1)
+	  {   setTimeout("demo()",10);	} 
+}
+
+function  init_Timeplot(){
+  
+    for (var jj= 0; jj< Ntimes ; jj=jj+1 ){
+             x[jj] = tt[jj+1];
+	     y[jj] = W[jj+1][1] ; }
+
+
+    horizDim=100;           //      DISPLAY VARIABLES
+	if ((Ntimes-30) > horizDim ) {  horizDim = (Ntimes-30); }
+	if (horizDim > 180 ) {  horizDim = 180; }
+
+    Empty_line=pads("e",horizDim);
+
+		    
+    Minx=0;      Maxx= x[Ntimes-1];
+    Miny=0;      Maxy=1.1;
+	
+		                                             //     Jump_To link string construction
+	scale_str="<span style=\"font-family: monospace;\"><small><small><small>";
+    for (kl=1;kl<horizDim-1;kl++)         //     Jump_To link string construction
+      { 
+	    scale_str=scale_str + sPART + kl + ePART;
+      }
+	scale_str=scale_str+"</small></small></small></span>";
+
+ 
+   C_TXT=C_TXT+ 	TABLE(700,0)  + LI_BEG + "<td>";
+      C_TXT= C_TXT+	TABLE(700,0) ;
+	       C_TXT= C_TXT + LI_BEG; 
+	            C_TXT= C_TXT+BOXLEFT;
+				   C_TXT= C_TXT+"<a href=\"javascript:go_to_start()\"> t = 0 </a>";
+				C_TXT= C_TXT+ "</td>";
+	            C_TXT= C_TXT+BOXCENTER;
+				    C_TXT= C_TXT+"<a href=\"javascript:stop_running()\">STOP</a>";
+				C_TXT= C_TXT+ "</td>";
+	            C_TXT= C_TXT+BOXCENTER;
+				   C_TXT= C_TXT+"<a href=\"javascript:start_running()\"> GO </a>";
+				C_TXT= C_TXT+ "</td>";				
+	            C_TXT= C_TXT+BOXCENTER;
+				   C_TXT= C_TXT+"<a href=\"javascript:make_step()\"> Single STEP </a>";
+				C_TXT= C_TXT+ "</td>";
+	            C_TXT= C_TXT+BOXRIGHT;
+				   C_TXT= C_TXT+"<a href=\"javascript:go_to_end()\"> t = Tmax </a> ";
+				C_TXT= C_TXT+ "</td>";	
+         C_TXT= C_TXT+LI_END;
+     C_TXT= C_TXT+	TABLE_END  ; 
+	 C_TXT= C_TXT+	TABLE(700,0) + LI_BEG + "<td>";
+		C_TXT= C_TXT+	    scale_str;                     //   SCALE SLIDER
+	 C_TXT= C_TXT+ "</td>" + LI_END +	TABLE_END  ;
+   C_TXT= C_TXT+  "</td>" + LI_END + TABLE_END  ;
+     
+    document.getElementById("controlPAD").innerHTML=  C_TXT ;	
+			
+	Clear_displMatr();
+	
+  }
+
+  
+function Clear_displMatr()
+  {
+	    for(var kk = 0; kk < vertiDim; kk=kk+1)
+            {
+	    	 displMatr[kk] = Empty_line;
+	    }
+  }		   
+ 
+function Time_Plot_Step()            //    PLOTTING FUNCTION LOOP - TIMEOUT FUNCTION
+{
+   var Iverti;  var  Ihoriz; 
+   T_OUT=" ";  var Todisplay=" ";
+   T_OUT= T_OUT+  tTIME + "<br>";
+   T_OUT= T_OUT+	ATABLE(1) ;
+   T_OUT= T_OUT + LI_BEG +"<td>";
+   T_OUT=T_OUT+"<span style=\"font-family: monospace;\"><small><small><small>";
+   T_OUT=T_OUT+pads("-",horizDim)+" <br>";
+
+            Npoints=tTIME+1;
+            
+
+	    for(var i=0; i<Npoints; i=i+1)
+	    {
+	    	Ihoriz=Math.round((x[i]-Minx)*horizDim/(Maxx-Minx));
+	    	Iverti=Math.round((y[i]-Miny)*vertiDim/(Maxy-Miny));
+	    	Ihoriz=Math.max(0,Ihoriz); Ihoriz=Math.min(Ihoriz,horizDim-1);
+	    	Iverti=Math.max(0,Iverti); Iverti=Math.min(Iverti,vertiDim-1);
+		Iverti=vertiDim-1-Iverti;
+		for (var kverti= Iverti; kverti< vertiDim; kverti++ ){
+	    	replace_in_Display( kverti, Ihoriz ,"Q"); }
+	    }
+	    for(inn = 0; inn < vertiDim; inn=inn+1)
+	    {
+	    	 Todisplay = displMatr[inn].replace(/e/g,"&nbsp;");
+		 Todisplay =  Todisplay.replace(/Q/g,color_BEG+"&nbsp;"+color_END);
+		 T_OUT=T_OUT+ Todisplay + "<br> ";
+	    }
+	    		  
+   T_OUT=T_OUT+"</small></small></small></span>"; 	
+   
+   
+   
+   T_OUT= T_OUT+ "</td>"+ LI_END + 	TABLE_END  ; 
+    document.getElementById("TIMEPAD").innerHTML= T_OUT;
+
+} //   END FUNCTION Time_Plot_Step()
+
+
+function replace_in_Display( vert, horiz, Strng )
+{
+  var build_string="";
+  build_string =  displMatr[ vert ].substr(0, horiz) + Strng + displMatr[ vert ].substring(horiz+1) ;
+  displMatr[ vert ]=build_string;
+}
+
+	
+function pads(Strng, count)
+           {   var blnks="";
+               for (var k=0;k<count;k++){blnks=blnks+Strng;}
+               return blnks;
+           }				
+</script>
+<br>
+View the source of the document - the whole script is included <br>
+
+
+</body>
+</html>
