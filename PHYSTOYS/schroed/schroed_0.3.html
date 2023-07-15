@@ -1,0 +1,802 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Schr&ouml;dinger's Toy - version 0.3 - debugging. L. Kocbach, Bergen</title>
+ <style type="text/css"><!--
+      #container { position: relative; }
+      #DRAW_AREA { border: 1px solid #000; }
+    --></style>
+<!-- The tricks are invented by ROBO Design
+ * http://www.robodesign.ro   -->	
+
+<script language="JavaScript"> 
+// -------------------------------------------------------------------------------------
+  var TheCanvas;                                     // *** THE VARIABLES, JAVASCRIPT
+  var ctx;
+  var width=750;  var rwidth=635; var height=550;    // *** GENERAL CANVAS PART
+// -------------------------------------------------------------------------------------
+
+function init () {                         //  Function init:   Initialization sequence.
+   // Find the canvas element.
+     TheCanvas = document.getElementById('DRAW_AREA');
+   // Get the 2D canvas context.
+     ctx = TheCanvas.getContext('2d');
+	   ctx.lineWidth = 1;
+	 ctx.fillStyle = '#FFFFFF';   ctx.fillRect(0, 0, width, height); 
+  // Attach the mousedown, mousemove and mouseup event listeners.
+    TheCanvas.addEventListener('mousedown', ev_canvas, false);
+    TheCanvas.addEventListener('mousemove', ev_canvas, false);
+    TheCanvas.addEventListener('mouseup',   ev_canvas, false);
+    
+   // ******************************************************************** 
+   document.onkeydown = function(event)           //   init:  KEYBOARD EVENTS  KEYBOARD 
+    {
+      var keyCode; 
+      if(event == null){
+        keyCode = window.event.keyCode; }
+      else    {
+        keyCode = event.keyCode;  }
+		Handle_keyboard(keyCode)
+    }
+
+// ***********************************************************   CANVAS MOUSE 
+// The general-purpose event handler. This function just determines the mouse 
+// position relative to the canvas element.
+
+function ev_canvas (ev) {
+  if (ev.layerX || ev.layerX == 0) { // Firefox
+      ev._x = ev.layerX;
+      ev._y = ev.layerY;
+    } else if (ev.offsetX || ev.offsetX == 0) { // Opera
+      ev._x = ev.offsetX;
+      ev._y = ev.offsetY;
+    }   
+
+    // Call the event handler of the tool.
+    var func = ThePencil[ev.type];
+    if (func) {
+      func(ev);
+    }
+ 
+ }
+
+var ThePencil = new tool_pencil();
+
+}   //  This is the whole init function               END OF  INIT  FUNCTION          
+
+
+// ***********************************************************   CANVAS MOUSE PENCIL
+// ***********************************************************   RAW DRAWING DISABLED 
+  // This was a painting tool - works like a drawing pencil which tracks the mouse 
+  // movements.
+
+function tool_pencil () 
+{                                                   //  Pencil start
+    var thistool = this;
+    thistool.started = false; 
+	var Ycalc=0;
+    //   MOUSEDOWN   = PEN_DOWN
+    thistool.mousedown = function (ev) {
+       // ctx.beginPath();                          // disabled raw pencil function
+        ctx.moveTo(ev._x, ev._y);
+		XmouseDOWN=ev._x; YmouseDOWN=ev._y;
+        thistool.started = true; BUTTONdown=1;
+           Handle_Mouseclick(); //  This is the mouse steering
+		   respond_mouse();		//  This is only diagnostics	
+    };
+    //   MOUSEMOVE   = MOVE_TO
+    thistool.mousemove = function (ev) {
+      if (thistool.started) {
+       // ctx.lineTo(ev._x, ev._y);                      // disabled raw pencil function
+       // ctx.stroke();                                  // disabled raw pencil function
+		XmouseMOVED=ev._x; YmouseMOVED=ev._y; 
+		Handle_Mouseclick();    //  This is the mouse steering
+		   respond_mouse(); 	//  This is only diagnostics
+      }
+    };
+    //   MOUSEUP   =  PEN_UP
+    thistool.mouseup = function (ev) {
+      if (thistool.started) {
+        thistool.mousemove(ev);
+		XmouseUP=ev._x; YmouseUP=ev._y; BUTTONdown=0;
+        thistool.started = false;
+		   Handle_Mouseclick(); //  This is the mouse steering
+		   respond_mouse();   	//  This is only diagnostics
+      }
+    }; 
+}
+//    These event variables are treated by   Handle_Mouseclick();
+//    XmouseMOVED  YmouseMOVED ;  XmouseDOWN   YmouseDOWN ; XmouseUP  YmouseUP ;  BUTTONdown 
+</script>
+</head>
+<!--  
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+          Here starts the HTML -arrangement of the actual Schroedinger's Toy
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+-->
+<body bgcolor = "#FFBBCC">
+<div style="font-family: Helvetica,Arial,sans-serif;"> 
+<small>
+<b>Schr&ouml;dinger's Toy - version 0.3 - debugging. JavaScript.</b>
+&nbsp; &nbsp; &nbsp;
+<span style="background-color: rgb(255, 255, 55);">
+This is not working in Microsoft's Internet Exploader.
+</span>     <br></small>
+
+
+<div id="helpPar" style="font-family: Helvetica,Arial,sans-serif;"> 
+
+       <!--    HELP TEXT   SPACE   --> 
+
+<small><a href="javascript:help_fun()">Help and Information</a></small>; &nbsp; 
+<small>See also <a href="http://web.ift.uib.no/AMOS/resonance/">
+http://web.ift.uib.no/AMOS/resonance/</a></small>
+</div> 			
+
+<div id="container"   style="position: relative;">
+<!--   ---------------------------------------------------------------------------  -->
+<table>                          <!--    THE HTML IS ARRANGED IN A TABLE   -->
+<!--   ---------------------------------------------------------------------------  -->
+<tr>
+<td> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  </td>
+<td>
+<div id="EnergyView" style="font-family: Helvetica,Arial,sans-serif;">   <!--  EnergyView    -->
+
+       <!--    ENERGY VIEW POSITION  --> 
+	   
+</div> 
+<!--   -------------------------     THE CANVAS             ------------------  -->
+        
+<canvas id="DRAW_AREA" style="position: relative" width="750" height="550 border: 3px solid #000"></canvas>
+
+<!--   ---------------------------------------------------------------------------  -->
+</td>
+<td> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  </td>
+<td valign="top">
+<!--   ---------------------------------------------------------------------------  -->
+            <b>Keyboard control</b>
+<!--   ---------------------------------------------------------------------------  -->
+<br>
+<b>c</b>  clean screen <br>
+<b>b</b>  light blue screen <br>
+<b>s</b>  save present energy <br>
+<b>r</b>  remove saved energies <br>
+<b>v</b>  do potential shape <b>V</b>pot<br>
+<b>g</b>  done potential <b>G</b>o on<br>
+<b>_</b>  also SPACE BAR when done<br>
+
+
+&nbsp; &nbsp; <br>
+&nbsp; &nbsp; <br>
+<b>Changing energy: </b>   <br>
+&nbsp; &nbsp; 1.  &nbsp; click in the potential <br>
+&nbsp; &nbsp;&nbsp; &nbsp; large changes, not precise <br>
+&nbsp; &nbsp; 2.  &nbsp; click in the right area <br>
+
+&nbsp; &nbsp;&nbsp; &nbsp; more to the right - finer <br>
+&nbsp; &nbsp;&nbsp; &nbsp; red - increase <br>
+&nbsp; &nbsp;&nbsp; &nbsp; blue - decrease <br>
+&nbsp; &nbsp;&nbsp; &nbsp; smaller changes close to<br>
+&nbsp; &nbsp;&nbsp; &nbsp; the red-blue border<br>
+&nbsp; &nbsp;&nbsp; &nbsp; larger changes close to<br>
+&nbsp; &nbsp;&nbsp; &nbsp; the upper and lower <br>
+&nbsp; &nbsp;&nbsp; &nbsp; window frame
+ <br>
+				<div id="SavedEnergies">                     <!--  EnergyView    -->
+				<!--    ENERGY LIST   SPACE  --> 
+				</div>         
+ 
+</td>
+</tr>
+<tr>
+<td> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  </td>
+<td>    
+<div id="EventView" style="font-family: Helvetica,Arial,sans-serif;">   <!--  EventView    -->
+<small>Events view</small>
+</div>
+<div id="ExtraView"  style="font-family: Helvetica,Arial,sans-serif;">  <!-- Can be used diagnostics -->
+</div>
+</td>
+<td> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  
+</td>
+</tr>
+</table>
+</div>
+<!--  
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+          Here starts the actual program of Schroedinger's Toy
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+-->
+<script language="JavaScript">
+  
+  var  Action='none';  
+  //  
+  // 
+  //    GEOMETRY of DRAW_AREA
+  //
+
+  var OriginX=30;
+  OriginY=height/2;  
+  var Xmax=6;   var Ymax=2.5;
+  var Xmin=-0.2; var Ymin=-2.7;
+  var Xdivide=5;  //  will be adjusted below - depends on rwidth
+  var Xscale = (Xmax-Xmin)/width; var Yscale =  (Ymax-Ymin)/height;
+  Xdivide = (rwidth - OriginX ) * Xscale;
+
+  var XmouseDOWN=0; var YmouseDOWN=0; var XmouseMOVED=0; var YmouseMOVED=0; 
+  var XmouseUP=0; var YmouseUP=0; var BUTTONdown=0;
+  var TheKeyboard=0;
+  //   math coordinate system counterparts of 
+  //  XmouseDOWN   YmouseDOWN ; XmouseMOVED  YmouseMOVED ;  XmouseUP  YmouseUP ;
+  // 
+  var Xdown=0; var Ydown=0; var Xmoved=0;   var Ymoved=0; var Xup=0; var Yup=0;
+  
+  XmouseDOWN=0; YmouseDOWN=0;XmouseMOVED=0; YmouseMOVED=0; 
+  XmouseUP=0;YmouseUP=0;BUTTONdown=0;  
+
+  //  
+  //     x_canv  positions on canvas  
+  //     X_math  positions in Mathematical space
+  //
+  //	 X_math=( x_canv - OriginX ) * Xscale;
+  //	 Y_math=( -y_canv + OriginY ) * Yscale;
+  //
+  //	 X_math / Xscale +  OriginX =  x_canv ;
+  //	 Y_math / Yscale -  OriginY = -y_canv ;  
+  //
+  //	 x_canv =   X_math / Xscale +  OriginX ;
+  //	 y_canv = - Y_math / Yscale +  OriginY  ;
+
+  //     Xdivide = (rwidth - OriginX ) * Xscale;
+  
+/* The tricks are invented by ROBO Design
+ * http://www.robodesign.ro   */
+
+var ColorsSaved=[]; ColorsSaved[0]='#00f'; ColorsSaved[1]='#f55';
+ColorsSaved[2]='#5f5';  ColorsSaved[3]='#aa5';
+var Event_Output=" ";
+
+//   Variables used in adjusting potential function Vpot
+//	
+var Adjusting=0;   //  This  is set 1 when adjusting the potentials (and 2 for bump)	  
+var Adjusting_Steep=0; var Adjusting_Edge=0; var StartSteep=0; var StartEdge=0;	  
+
+
+init();
+
+
+//
+//    It does the help and info functions                                HELP   
+//
+//    A variable part of the page is added -     look for  div id= helpPar
+//    The helpPar changes on clicks
+//
+var  Help_String=
+   "<small><b>JavaScript Canvas Implementation of Schr&ouml;dinger's Toy; Work: " + 
+   " <a href=\"http://web.ift.uib.no/%7Eladi/\">L. Kocbach</a></b> <br>" + 
+   "<br>For mouse interaction I have modified basic pencil tricks from <a href=\"http://www.robodesign.ro/\">http://www.robodesign.ro/</a> "+
+    "via Opera development. <br>"+
+ 
+          "<br>What can you do here? <br>"
+          
+         +"The page solves Schr&ouml;dinger Equation <br> "   +  
+     "<br>Draw by mouse-button pressed in the drawing pad;&nbsp; &nbsp; &nbsp; <br>"+
+  
+          "<br>Saving the pictures? <br>"+
+          "In Firefox and related browsers - just right-click and save the image.<br>"+
+          "Or take a screen-shot. Easy on Linux and Apple Mac<br>"+
+          "Normal saving: Next version - needs extarnal library.<br>"+
+          
+         
+   "<br> <br>  You can modify the program - the program is in the page - A good start to learn JavaScript<br>"+
+         "I have chosen to use the links instead of buttons,  "
+         +"the links are much simpler.<br><br>"
+         +"<b>This help text can be closed   "  + "</b> <br> </small>";
+
+     
+var Help_Link="<small><a href=\"javascript:help_fun()\">Help and Information</a> &nbsp;</small></b>"+
+
+
+"<small>See also <a href=\"http://web.ift.uib.no/AMOS/resonance/\">" + 
+"http://web.ift.uib.no/AMOS/resonance/</a></small>";
+
+var Help_Output=" ";
+
+
+function help_fun()
+{
+Help_Output="<br><hr><small><a href=\"javascript:close_help_area()\">Close this view</a></small></b>"
+                      +  "<br><br>"+Help_String;
+Help_Output=Help_Output+"<small><br><a href=\"javascript:close_help_area()\">Close this view</a></small><b><hr><b></b>";
+         
+document.getElementById("helpPar").innerHTML= Help_Output;                  
+}
+
+
+function close_help_area()
+{
+document.getElementById("helpPar").innerHTML= Help_Link;  
+}
+
+
+
+
+
+
+
+
+// -------------------------------------------------------------------------------------
+// Variables for Ruku                                      ***   Variables for Ruku
+// Runge Kutta for 2. order ODE - Schroedinger type
+//
+// R are the R-values
+// F are function values   
+// G are 1. derivative values
+//  
+   var Rold=0;  var Fold=0; var Fnew=0; var Gold=0;  var  Gnew=0; 
+   var Rmid=0;  var Gmid=0; var Fmid=0; var Vpotmid=0;   
+   var Akg=[]; var Akf=[]; var Rkf=[];
+   Akg[0]=0;
+   Rkf[1]=1.0;
+   Rkf[2]=0.5;
+   Rkf[3]=0.5;
+   Rkf[4]=1.0;
+   
+   var dR=0.005;
+   var InvMass = 22.0;   //   WILL NOT BE CHANGED
+   var Edge=1.4; var Steep=0.15;   
+   var Vpot_depth=1.5;
+// -----------------------------------------------------------------------
+  var Mufact=0 ; var Efact=0;    //  Variables for the energy adjustment
+   
+  var WaveBase=1.0;              //  Variables for the drawing of functions
+  var Ebase=-1.0;
+  
+//   Activate the Present Energy view   "EnergyView"
+//
+var To_Output="<small>E=(-1.0037) </small><br>";  
+document.getElementById("EnergyView").innerHTML= To_Output;  
+
+//   Activate the Saved energies view
+//
+var To_Energies="<br><b>Saved energies</b>";
+document.getElementById("SavedEnergies").innerHTML= To_Energies;  
+// -----------------------------------------------------------------------
+
+var En=(-1.0037); var E6=1.0/6.0;
+var tempEn=(-1.0);  var Energy=[]; var Nsaved=0;
+
+
+//   var Edge=2.0; var Steep=0.2;       THIS ACTIVATES THE PROGRAM
+//                                      ALL ELSE RESPONSE TO USER
+Draw_Plotting();
+plotPOTENTIAL();
+solveSchroed();
+// 
+//                      The energy adjusment red-blue pad drawn
+//
+ctx.fillStyle = '#FF6666';   
+ctx.fillRect(rwidth, 0, width, height/2); 
+
+ctx.fillStyle = '#9999FF';   
+ctx.fillRect(rwidth, height/2, width, height); 
+
+ctx.font = "20px Times New Roman";    ctx.font = "bold 18px sans-serif";
+ctx.fillStyle = '#FFFFFF';
+ctx.fillText("Energy +", width-80, 30);
+ctx.fillText("Energy -", width-80, height-30);
+
+//                               FROM HERE RESPONSE TO USER clicks and keys
+// -----------------------------------------------------------------------
+//
+  
+function Mline( xs, ys, xe, ye)      //   Line drawing in the Math coordinate system
+    {  var xs_canv; var xe_canv;
+	   var ys_canv; var ye_canv; 
+  	   xs_canv = Math.ceil(   xs / Xscale +  OriginX );
+  	   ys_canv = Math.ceil( - ys / Yscale +  OriginY ); 
+  	   xe_canv = Math.ceil(   xe / Xscale +  OriginX );
+  	   ye_canv = Math.ceil( - ye / Yscale +  OriginY ); 
+       // document.write( "<br>");
+       // document.write( xs_canv," &nbsp; &nbsp;", 
+       // ys_canv, " &nbsp; &nbsp;", xe_canv," &nbsp; &nbsp;", ye_canv);
+
+	   ctx.beginPath();	
+	   ctx.moveTo( xs_canv, ys_canv );
+	   ctx.lineTo( xe_canv, ye_canv );
+	   ctx.stroke();	        	   	   
+     }
+
+// -----------------------------------------------------------------------
+//
+function Draw_Plotting()       //    Draw the basic lines for plotting
+      {
+		   Mline(0,Ebase,Xdivide,Ebase);   Mline(0,WaveBase,Xdivide,WaveBase);
+           Mline(0,-2.5,0,Ebase+0.5);  Mline(0,WaveBase-1.3,0,WaveBase+1.4);
+           Mline(Xdivide,-3,Xdivide,3);
+      }
+	  
+// -----------------------------------------------------------------------
+//
+function solveSchroed()
+{
+Mline(0,Ebase+En,Edge+3*Steep,Ebase+En);
+var iteri=0;
+Fold=1.0-dR*dR;
+//  Fold=0;
+Rold=0;
+Gold=0;
+         for(iteri=0;iteri<100000;iteri++)
+          {
+             Ruku();
+			 Mline(Rold,WaveBase+Fold,Rold+dR,WaveBase+Fnew);
+             Rold=Rold+dR;
+             Fold=Fnew;
+             Gold=Gnew;
+
+      
+//             Npoints++;
+//             Xfelt[Npoints-1]=Ix;
+//             Yfelt[Npoints-1]=Iy;
+            
+//             cdec=' ';  cdec=DoItAll();
+             
+//             if (cdec != ' ') {  ALLREADY = TRUE; break; }
+                      
+
+		   if ( Rold > Xdivide || (Math.abs(Fnew) > 4.0  ) )  break;
+         }
+
+}
+// -----------------------------------------------------------------------
+// -------------         BEGIN   KEYBOARD RESPONSE FUNCTION   ------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+//
+function Handle_keyboard(keyCode)
+   {
+      Action='none';
+	  Event_Output=Event_Output + " Last pressed key code is " + keyCode +  "<br>";
+	  document.getElementById("EventView").innerHTML= Event_Output+ "</small><br>";  	  
+      switch(keyCode)
+      {        
+	  //    KEYBOARD handlings
+	  //
+        case 67:            //  c for  clean 
+          Action='clean';
+          break; 
+        case 66:          //    b  for blue
+          Action='blue';
+          break; 
+        case 83:          //    s   for save
+          Action='save';
+          break; 
+        case 82:          //    r   for remove
+          Action='remove';
+          break; 
+		  
+        case 86:           //  v   for Vpot
+          Action='Vpot'; 
+		  Adjust_potential_Vpot();
+          break; 
+        case 32:            //  space  for leaving
+          Action='Done';
+		  Finish_Vpot();
+          break; 
+        case 71:            //  g  for go
+          Action='Done';
+		  Finish_Vpot();
+          break; 
+		  
+        default: 		
+          break;  
+      }
+         if (Action=='clean') {   
+	        ctx.fillStyle = '#FFFFFF'; 
+            ctx.fillRect(0, 0, rwidth, height); }
+         if (Action=='blue') {   
+	        ctx.fillStyle = '#DDDDFF'; 
+            ctx.fillRect(0, 0, rwidth, height);  }
+		 if (Action=='clean'  || Action=='blue') {
+           Draw_Plotting();
+           plotPOTENTIAL();    Action='none';  
+		   RedoSavedEnergies();
+		   solveSchroed();
+		   }
+		 if (Action=='save') {	
+		   Energy[Nsaved]=En; 
+           DoSavedEnergy( Nsaved );		 
+		   To_Energies=To_Energies + "<br>" + "<a href=\"javascript:goEnergy(" + Nsaved +
+		   ")\">"  +  En  + "</a>";
+           document.getElementById("SavedEnergies").innerHTML= To_Energies;
+		   Nsaved=Nsaved+1;  Action='none';  
+		 }	   
+		 if (Action=='remove') {	
+		   Nsaved=0;  
+		   To_Energies="<br><b>Saved energies</b>";           
+		   document.getElementById("SavedEnergies").innerHTML= To_Energies;
+		   Action='none';  
+		 }	   
+		   
+    }
+// -----------------------------------------------------------------------
+// -------------            END  KEYBOARD RESPONSE FUNCTION   ------------
+// -----------------------------------------------------------------------
+
+// -------------            BEGIN  MOUSE  RESPONSE FUNCTION   ------------
+// -----------------------------------------------------------------------
+    function Handle_Mouseclick()
+	  {
+		if ( (XmouseDOWN < rwidth) && Adjusting==0 )
+		  {
+		  //	 Y_math=( -y_canv + OriginY ) * Yscale;
+		  Ycalc= ( -YmouseDOWN + OriginY ) * Yscale;
+		  //  Ycalc= Ebase+En
+		  En=Ycalc-Ebase;
+		  solveSchroed();
+		  }
+
+		if ( (XmouseDOWN > rwidth) && Adjusting==0  )
+		  {
+		   Efact=0.1*Math.exp( -(XmouseDOWN - rwidth)/10 );
+		   Mufact=2*( (height -YmouseDOWN)-height/2 )/height;
+		   En=En+Mufact*Efact;
+		   solveSchroed();
+		  }	
+	
+	//	  Here ends the normal solutions
+	//    Here starts the potential adjustment
+		  
+     //     BUTTONdown 		  	  
+     //   math coordinate system counterparts of 
+	 //  XmouseDOWN   YmouseDOWN ; XmouseMOVED  YmouseMOVED ;  XmouseUP  YmouseUP ; 
+     //   var Xdown=0; var Ydown=0; var Xmoved=0;   var Ymoved=0; var Xup=0; var Yup=0;
+
+	   if (  Adjusting==1 )
+	      {   
+		  // Event_Output= Adjusting_Edge +" " + Adjusting_Steep +" " +Adjusting +" " + Edge + Xdown  + Ydown;
+          //  document.getElementById("ExtraView").innerHTML= Event_Output + "<br>"; 
+		  
+		  
+		  Xdown= ( XmouseDOWN - OriginX ) * Xscale; 
+		  Ydown=( -YmouseDOWN + OriginY ) * Yscale; 
+		  Xmoved=( XmouseMOVED - OriginX ) * Xscale;    
+		  Ymoved=( -YmouseMOVED + OriginY ) * Yscale;
+		  Xup=( XmouseUP - OriginX ) * Xscale; 
+		  Yup= ( -YmouseUP + OriginY ) * Yscale;
+          if (  BUTTONdown==1 && Adjusting_Steep==1 )
+		      {
+			   // set color to background;
+			   ctx.strokeStyle = '#4ff';			   
+			   plotPOTENTIAL(); 
+			   // set color to foreground
+			   ctx.strokeStyle = '#000';			   
+			   Steep= Xmoved - Edge;          //   Xdown-(Edge+Steep)=0
+               if (Steep < 0.0001) {Steep=0.0001;}	
+               if (Steep > 2.5) {Steep=2.5;}				   	
+			   plotPOTENTIAL();			   			   	   
+			  }
+          if (  BUTTONdown==1 && Adjusting_Edge==1 )
+		      {
+			   // set color to background;
+			   ctx.strokeStyle = '#4ff';
+			   plotPOTENTIAL(); 
+			   // set color to foreground
+			   ctx.strokeStyle = '#000';
+			   Edge= Xmoved;               //   Xdown-(Edge)=0
+               if (Edge < 0.3) {Edge = 0.3;}	
+               if (Edge > 4.5) {Edge = 4.5;}				   	
+			   plotPOTENTIAL();			   			   	   
+			  }
+			  
+		//   when button released, we are done for the moment
+			  
+          if ( BUTTONdown==0 ) 
+		      { 
+	           ctx.fillStyle = '#4ff'; 
+               ctx.fillRect(0, 0, rwidth, height); 
+			   Draw_Plotting();  			   
+			   plotPOTENTIAL();				   	  			  
+			  Adjusting_Edge=0; Adjusting_Steep=0; 
+	          plotSquare(Edge, Ebase-Vpot_depth/2);
+	          plotSquare(Edge+Steep, Ebase-0.25*Vpot_depth);				  
+			  }
+			  
+		  if ( BUTTONdown==1 && Math.abs(Xdown-(Edge+Steep))<0.12 
+		        && Math.abs(Ydown-(Ebase-0.25*Vpot_depth)) < 0.12  )
+				{
+				 Adjusting_Steep=1; StartSteep=Steep; StartEdge=Edge;
+				}
+		  if ( BUTTONdown==1 && Math.abs(Xdown-(Edge))<0.12 
+		        && Math.abs(Ydown-(Ebase-0.5*Vpot_depth)) < 0.12  )
+				{
+				 Adjusting_Edge=1; StartSteep=Steep; StartEdge=Edge;
+				}		  		  
+	      }
+		
+        To_Output="<small>E= "+  En +    " &nbsp; &nbsp;  &nbsp; &nbsp; </small><br>";
+        document.getElementById("EnergyView").innerHTML= To_Output; 
+	   }
+// -----------------------------------------------------------------------
+// -------------            END  MOUSE RESPONSE FUNCTION   ------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+
+function  Adjust_potential_Vpot()
+    {  Adjusting = 1;
+	   oldNsaved=Nsaved; 
+	   Nsaved=0;
+	   ctx.fillStyle = '#4ff'; 
+       ctx.fillRect(0, 0, rwidth, height); 	   
+       Draw_Plotting();   //  var Vpot_depth=1.5;   AND REMAINS CONSTANT
+       plotPOTENTIAL();   // Original var Edge=2.0; var Steep=0.2;  
+	   plotSquare(Edge, Ebase-Vpot_depth/2);
+	   plotSquare(Edge+Steep, Ebase-0.25*Vpot_depth);	    	   
+	}
+function Finish_Vpot() 
+    {  Adjusting = 0;
+	   ctx.fillStyle = '#FFFFFF'; 
+       ctx.fillRect(0, 0, rwidth, height); 	   
+       Draw_Plotting();   
+       plotPOTENTIAL();  
+       solveSchroed();	    	  
+	}
+function  plotSquare( xxx, yyy)
+    {    
+	    var boxedge=0.05;
+	     Mline(xxx-boxedge,yyy-boxedge,xxx+boxedge,yyy-boxedge);
+	     Mline(xxx+boxedge,yyy-boxedge,xxx+boxedge,yyy+boxedge);
+	     Mline(xxx+boxedge,yyy+boxedge,xxx-boxedge,yyy+boxedge);
+	     Mline(xxx-boxedge,yyy+boxedge,xxx-boxedge,yyy-boxedge);		 		 	
+	}
+
+
+function  goEnergy(  Inum )    //   SHOWING ONE OF THE SAVED ENERGIES
+{
+	        ctx.fillStyle = '#FFFFCC'; 
+            ctx.fillRect(0, 0, rwidth, height);  
+	        ctx.lineWidth = 1;ctx.strokeStyle = '#000';
+				
+		   Mline(0,Ebase,Xdivide,Ebase);   Mline(0,WaveBase,Xdivide,WaveBase);
+           Mline(0,-2.5,0,Ebase+0.5);  Mline(0,WaveBase-1.3,0,WaveBase+1.4);
+           Mline(Xdivide,-3,Xdivide,3);
+           plotPOTENTIAL();   
+		   
+		   En=Energy[Inum];
+	       ctx.lineWidth = 3;  ctx.strokeStyle = ColorsSaved[Inum];
+		   solveSchroed();
+	       ctx.lineWidth = 1;ctx.strokeStyle = '#000';		
+}
+// -----------------------------------------------------------------------
+function DoSavedEnergy( Inum )   //  SOLVING FOR Inum-th SAVED ENERGY VALUE
+{
+           tempEn=En;
+		   En=Energy[Inum];
+	       ctx.lineWidth = 3;  ctx.strokeStyle = ColorsSaved[Inum];
+		   solveSchroed();
+	       ctx.lineWidth = 1;ctx.strokeStyle = '#000';		   
+           En=tempEn;
+}
+
+// -----------------------------------------------------------------------
+function RedoSavedEnergies()    //   SHOWING ALL THE THE SAVED ENERGIES
+{  var inum=0;                  //   USED WHEN CLEANING THE SCREEN
+   temEn=En;
+   for (inum=0;inum<Nsaved;inum++)
+   {
+        DoSavedEnergy( inum );
+   }
+}
+
+
+// -----------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------
+function Ruku()    //   One step in differential equation Runge-Kutta solution
+{ 
+// Variables for Ruku
+//
+// Runge Kutta for 2. order ODE - Schroedinger type
+//
+// R are the R-values
+// F are function values   
+// G are 1. derivative values
+//  
+// VARIABLES ALREADY DEFINED:
+// var Rold=0;  var Fold=0; var Fnew=0; var Gold=0;  var  Gnew=0; 
+// var Rmid=0;  var Gmid=0; var Fmid=0; var Vpotmid=0;   
+  
+  Rmid=Rold;
+  Gmid=Gold;
+  Fmid=Fold;
+  Fnew=Fold;
+  Gnew=Gold;
+  Vpotmid=Vpot(Rmid);
+  
+  Akg[1]=dR*(Vpotmid-En)*InvMass*Fmid;
+  Akf[1]=dR*Gmid;
+  Fnew=Fnew+E6*Akf[1];
+  Gnew=Gnew+E6*Akg[1];
+
+  for (K=2; K< 5; K++)
+   {
+ 
+    Gmid=Gold+Akg[K-1]*Rkf[K];
+    Fmid=Fold+Akf[K-1]*Rkf[K];
+    Vpotmid=Vpot(Rmid);
+    Akg[K]=dR*(Vpotmid-En)*InvMass*Fmid;
+    Akf[K]=dR*Gmid;
+    Rmid=Rold+dR*Rkf[K];
+    Ah6=E6/Rkf[K];
+    Gnew=Gnew+Ah6*Akg[K];
+    Fnew=Fnew+Ah6*Akf[K]; 
+   }
+   Rnew=Rold+dR;
+}
+// -----------------------------------------------------------------------
+//
+function Vpot(R)                   //   Potential energy function
+{ var Q=0; var T=0; 
+  Q=-Vpot_depth*(1.0/(1.0+Math.exp((R-Edge)/Steep)));
+
+//  if( ( R>PertLeft ) && ( R<PertRight ) && Perturb )
+//  {
+//  T = cos( ( R - PertPos) * 3.14159/PertWidth );
+//  Q=Q + Magn* T * T;
+//  }
+  return( Q );
+}
+// -----------------------------------------------------------------------
+function plotPOTENTIAL()
+{
+var iteri=0;
+var Ro=0; var Rn=0;
+var Fo=0;  var Fn=0;
+         Fo=Vpot(Ro);
+         for(iteri=0;iteri<100000;iteri++)
+          {
+             Rn=Ro+dR;
+             Fn=Vpot(Rn);
+             Mline(Ro,Ebase+Fo,Rn,Ebase+Fn);
+			 Ro=Rn;
+			 Fo=Fn;
+                      
+           if ( Ro > 5.0 )  break;
+         }
+}
+
+// -----------------------------------------------------------------------
+function respond_mouse()
+{
+//   XmouseDOWN=0; YmouseDOWN=0;XmouseMOVED=0; YmouseMOVED=0; 
+//   XmouseUP=0;YmouseUP=0;BUTTONdown=0; 
+Event_Output="<small> mouseDOWN "+ XmouseDOWN+" "+YmouseDOWN + 
+"  mouseUP "+ XmouseUP +" " + YmouseUP + "  mouseMOVED "+ XmouseMOVED +" " + YmouseMOVED + " BUTTON "+BUTTONdown;  //+"  EXP "+
+   // (-0.5*(1.0/(1.0+Math.exp((1.0-Edge)/Steep))))+ 
+   "</small><br>";
+document.getElementById("EventView").innerHTML= Event_Output + "</small><br>"; 
+}
+
+
+
+
+//  Saved energies
+
+//  -1.4358655545655161
+//  -1.0026555725071526
+//  -0.3599664054424752
+
+
+
+
+</script>
+</body>
+</html>
+
