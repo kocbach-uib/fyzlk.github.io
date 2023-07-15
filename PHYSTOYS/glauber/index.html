@@ -1,0 +1,1182 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+    <title>Glauber States: Harmonic Oscillator</title>
+ <style type="text/css"><!--
+      #container { position: relative; }
+      #DRAW_AREA { border: 1px solid #000; }
+    -->
+          .drag { position: relative;  
+                cursor: move;}
+</style>
+
+<!--  
+             The whole javascript is now collected
+             behind the HTML - part    
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+          Here starts the HTML -arrangement of the actual Toy
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+-->
+</head>
+<body bgcolor = "#222222" style="color: rgb(150, 150, 150);">
+<div id="container"   style="position: relative;">
+
+<!--   -------------------------     THE CANVAS             ------------------  -->
+        
+<canvas id="BOTTOM" position: absolute; left: 0px; top: 0px;"           width="400" height="580" border: 0px"></canvas>
+<canvas id="DRAW_AREA" style="position: absolute; left: 0px; top: 0px;" width="400" height="580" border: 0px"></canvas>
+<script language="JavaScript">  
+                                                                      var width=400;   var height=580;    
+  var energycol= '#CCFFCC';  sliderscol='#99CC99';	levelcolor=	'#55CC55';															                 
+// -------------------------------------------------------------------------------------
+</script>  
+</div>
+<div>
+<table style="text-align: right;  width: 401px; background-color:
+rgb(255, 255, 255); color: rgb(40, 40, 40);" border="0" cellpadding="1" cellspacing="1">
+<tbody>
+<tr>
+
+<td style="vertical-align: top;" id="id0"><a href="javascript: states(0);">0</a><br>
+</td>
+<td style="vertical-align: top;" id="id1"><a href="javascript: states(1);">1</a><br>
+</td>
+<td style="vertical-align: top;" id="id2"><a href="javascript: states(2);">2</a><br>
+</td>
+<td style="vertical-align: top;" id="id3"><a href="javascript: states(3);">3</a><br>
+</td>
+<td style="vertical-align: top;" id="id4"><a href="javascript: states(4);">4</a><br>
+</td>
+<td style="vertical-align: top;" id="id5"><a href="javascript: states(5);">5</a><br>
+</td>
+<td style="vertical-align: top;" id="id6"><a href="javascript: states(6);">6</a><br>
+</td>
+<td style="vertical-align: top;" id="id7"><a href="javascript: states(7);">7</a><br>
+</td>
+<td style="vertical-align: top;" id="id8"><a href="javascript: states(8);">8</a><br>
+</td>
+<td style="vertical-align: top;" id="id9"><a href="javascript: states(9);">9</a><br>
+</td>
+<td style="vertical-align: top;">&nbsp;<br>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+ 
+
+<div>
+<table style="text-align: center;  width: 401px; background-color:
+rgb(240, 240, 200); color: rgb(80, 80, 80);" border="0" cellpadding="1" cellspacing="1">
+<tbody>
+<tr><td>
+&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;
+<a href="javascript: running0();">stop</a>  
+&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;
+<a href="javascript: steps();">step</a> 
+&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;
+<a href="javascript: runfun();">run</a>  
+
+&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;
+<a href="javascript: halfdelay();">faster</a>  
+
+&nbsp; &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;
+<a href="javascript: doubledelay();">slower</a><br> 
+<a href="http://web.ift.uib.no/AMOS/MOV/HO/">WWW Link: Glauber States in JAVA and explanation</a><br>
+</td></tr></tbody></table>
+</div>
+<!-- <div id="MessageInner"  class="drag"  style="display:inline; opacity:0.35;   -->
+<div id="MessageInner"    style="display:inline; opacity:0.35; position: absolute; top: 250px;
+ background-color: rgb(255, 255, 100); color: rgb(0, 0, 0); font-family: Helvetica,Arial,sans-serif;width: 150px;">	
+ Here is the message   
+</div>
+
+
+<div>
+<table style="text-align: left;  width: 401px; background-color:
+rgb(240, 240, 200); color: rgb(80, 80, 80);" border="0" cellpadding="1" cellspacing="1">
+<tbody>
+<tr><td>
+<b>Harmonic Oscillator: Coherent Glauber States</b><br>
+This is a touch-and mouse version, preliminary, August 2012.<br>
+There are 3 areas to click/touch, click-and drag: 10 bottom 
+sliders of amplitudes, selecting states at the edges, and the 
+Glauber energy area in the region of the harmonic oscillator potential.<br>
+Single states can also be selected by click on the 0-9 below the corresponding slider.
+
+
+</td></tr></tbody></table>
+</div>
+
+<div id="ParameterView" style="font-family: Helvetica,Arial,sans-serif;">   <!--  ParameterView    -->
+
+       <!--    ENERGY VIEW POSITION  --> 
+	   
+</div> 
+<div id="EventView" style="font-family: Helvetica,Arial,sans-serif;">   <!--  EventView    -->
+</div>
+<!--  
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+          Here starts the actual Javascript program 
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+-->
+
+<script language="JavaScript"> 
+// -------------------------------------------------------------------------------------
+  var TheCanvas;  var BotCanvas;        // *** GENERAL CANVAS PART
+  var ctx;        var botctx;           //   There are two overlapping Canvas objects
+                                        //   Bottom for permanent lines
+   var mouseX=0; var mouseY =0;
+   
+var  Keyboard_func= true;   var  Adjusting=0;  var En=0; var Ebase=0;
+
+
+var mSTARTED=false;
+//////////////////////////////////////////////////////////////////////////////////
+
+
+// *********************************************************** 
+  //  
+  // 
+  //    GEOMETRY of DRAW_AREA
+  //
+// *********************************************************** 
+  var OriginX=width/2;
+  var OriginY=height-240;  
+  var x_canv; var y_canv;
+
+
+  var Xmax=7;   var Ymax=10.5;
+  var Xmin=-7;  var Ymin=(-3.5);
+  
+  OriginY=height+height*(Ymin)/(Ymax-Ymin);
+
+  var Xscale = (Xmax-Xmin)/width; var Yscale =  (Ymax-Ymin)/height;
+  var Xrescale=1.0;
+
+  var XmouseDOWN=0; var YmouseDOWN=0; var XmouseMOVED=0; var YmouseMOVED=0; 
+  var XmouseUP=0; var YmouseUP=0; var BUTTONdown=0;
+  var TheKeyboard=0;
+  //   math coordinate system counterparts of 
+  //  XmouseDOWN   YmouseDOWN ; XmouseMOVED  YmouseMOVED ;  XmouseUP  YmouseUP ;
+  // 
+  var Xdown=0; var Ydown=0; var Xmoved=0;   var Ymoved=0; var Xup=0; var Yup=0;
+  
+  XmouseDOWN=0; YmouseDOWN=0;XmouseMOVED=0; YmouseMOVED=0; 
+  XmouseUP=0;YmouseUP=0;BUTTONdown=0;  
+
+  //  
+  //     x_canv  positions on canvas  
+  //     X_math  positions in Mathematical space
+  //
+  //	 X_math=( x_canv - OriginX ) * Xscale;
+  //	 Y_math=( -y_canv + OriginY ) * Yscale;
+  //
+  //	 X_math / Xscale +  OriginX =  x_canv ;
+  //	 Y_math / Yscale -  OriginY = -y_canv ;  
+  //
+  //	 x_canv =   X_math / Xscale +  OriginX ;
+  //	 y_canv = - Y_math / Yscale +  OriginY  ;
+
+ 
+//  ===================================================
+//
+//    Glauber state animation demo - JavaScript
+//
+//  ===================================================
+//
+
+//  Variables  for Harmonic oscillator
+
+var   Nq=25;    //  Number of H.O. states included
+var   Nx=120;   //  Number of x-points
+var   Nlev=10;  //  Number of H.O. levels in plots
+
+var  xx=[]; var yy=[];    //   xx[2];  xx[2]; arrays
+xx[2]=0; yy[2]=0;
+
+var  Btime;   //   Begin time
+var  pi;
+var           alfa;    // Glauber alpha; 
+var           Energy;  // Energy of the state
+
+var           Tnum;
+
+var running=1;   var delay=20;
+var Nsliders=10;                              //  Slider variables
+var sliders=[];
+var coeffs=[];	   var single=0;
+
+
+// 
+// var           Dens_t[Nx];
+// var  Varr[Nx],xarr[Nlev][2],yarr[Nlev][2];
+
+//    Array of Psi-values to be calculated
+
+var            PSIarr=[];      // [Nq][Nx];           PSIarr[Nq][Nx];
+      for (kin=0;kin<Nq;kin++) { PSIarr[kin]=[]; PSIarr[kin][Nx-1]=0;   }
+var            Dens_t=[];      // var           Dens_t[Nx];        Density to be plotted
+var            CoeffsArr=[];   // var           CoeffsArr[Nq];     Coefficients Nq
+
+//    Plotting of the background parabola/Levels
+
+var  Varr=[]; Varr[Nx]=0;       // Potential - parabola
+var  xarr=[];  //  Level lines x    xarr[Nlev][2];
+     for (kin=0;kin<Nlev;kin++) { xarr[kin]=[]; xarr[kin][1]=0;   }
+var  yarr=[];  //  Level lines y    yarr[Nlev][2];
+     for (kin=0;kin<Nlev;kin++) { yarr[kin]=[]; xarr[kin][1]=0;   }
+	 
+var  x = [];  x[Nx]=0;    //   x - array, x values
+var xmin; var dx; 
+var t_sum ;    // summation variable
+var PSItRe; var PSItIm ;    //   Real and Imaginary part
+var phase ; var PsiL;
+var LconRe=[]; LconRe[Nq]; 
+var LconIm=[]; LconIm[Nq];  //   Real and Imaginary part 
+
+
+//   LINKS to single states - set background
+var idd=[];
+idd[0]=document.getElementById('id0');idd[1]=document.getElementById('id1');idd[2]=document.getElementById('id2');
+idd[3]=document.getElementById('id3');idd[4]=document.getElementById('id4');idd[5]=document.getElementById('id5');
+idd[6]=document.getElementById('id6');idd[7]=document.getElementById('id7');idd[8]=document.getElementById('id8');
+idd[9]=document.getElementById('id9');
+
+// /////////////////////////////////////////////////////////////////////
+
+
+function init () {                         //  Function init:   Initialization sequence.
+   // Find the canvas element.
+     TheCanvas = document.getElementById('DRAW_AREA');
+	 BotCanvas = document.getElementById('BOTTOM');
+   // Get the 2D canvas context.
+     ctx = TheCanvas.getContext('2d');
+	   ctx.lineWidth = 1;
+	 ctx.fillStyle = '#FFFFFF';   
+
+     botctx = BotCanvas.getContext('2d');
+	   botctx.lineWidth = 1;
+	  
+	   botctx.fillStyle = '#FFFFFF';   
+	   botctx.fillRect(0, 0, width, height); 
+	 
+       ctx.clearRect(0, 0, width, OriginY );
+
+	 
+	     // Attach the mousedown, mousemove and mouseup event listeners.
+
+          TheCanvas.addEventListener( 'mousemove', MouseMoveCanvas, false ); 
+          TheCanvas.addEventListener( 'mousedown', MouseClickCanvas, false ); 
+		  TheCanvas.addEventListener( 'mouseup',   MouseUpCanvas, false ); 
+            TheCanvas.addEventListener( 'touchmove', TouchMoveCanvas, false ); 
+            TheCanvas.addEventListener( 'touchstart', TouchStartCanvas, false ); 
+			TheCanvas.addEventListener( 'touchend', TouchEndCanvas, false );     
+
+//    MessageInner   
+// document.getElementById('MessageInner').style.top=(-400);   
+document.getElementById('MessageInner').innerHTML= "Glauber State";     
+   // ******************************************************************** 
+   document.onkeydown = function(event)           //   init:  KEYBOARD EVENTS  KEYBOARD 
+    {
+      var keyCode; 
+      if(event == null){
+        keyCode = window.event.keyCode; }
+      else    {
+        keyCode = event.keyCode;  }
+		Handle_keyboard(keyCode)
+    }
+
+// ***********************************************************   
+// 
+//   CANVAS MOUSE   
+
+
+//   IMPORTED FROM TOUCH KALEIDESCOPE
+
+	
+	
+     function MouseMoveCanvas(event)	 {   //   Mouse Moved    "Mmove"
+	    // event= event || window.event;
+		eventType="Mmove";
+		Pointer_Canvas( event, eventType )	 }
+     function MouseClickCanvas(event)	 {   //   Mouse down     "Mdown"
+	    // event= event || window.event;
+		eventType="Mdown";
+		Pointer_Canvas( event, eventType )	 }
+     function MouseUpCanvas(event)	 {       //   Mouse Up      "Mup"
+	    // event= event || window.event;
+		eventType="Mup";
+		Pointer_Canvas( event, eventType )	 }
+     function TouchMoveCanvas(event)	 {   //   TOUCH     "Tchmove"  
+	    event.preventDefault();
+	    event= event || window.event;
+		eventType="Tchmove";            
+		Pointer_Canvas( event, eventType )	 }
+
+     function TouchStartCanvas(event)	 {    // TOUCH START  "Tchstart"
+	    event.preventDefault();
+	    event= event || window.event;
+		eventType="Tchstart";
+		Pointer_Canvas( event, eventType )	 }
+
+     function TouchEndCanvas(event)	 {        //  TOUCH  END   "Tchend"
+	    // event.preventDefault();
+	    event= event || window.event; Drawing=false;
+		eventType="Tchend";
+		Pointer_Canvas( event, eventType )	 }
+
+
+
+	 
+        function Pointer_Canvas( event, evType )
+        {           
+            
+                var moX = 0
+                var moY = 0			
+				var touch = "";
+			 if  ( event.targetTouches ) 
+			 {
+			      touch = event.targetTouches[ 0 ];
+				  moX = touch.pageX
+                  moY = touch.pageY
+			}
+
+            						
+              var mX=event.pageX;
+              var mY=event.pageY;
+			  
+              //  var mX=event.clientX;
+              //  var mY=event.clientY;
+			  
+ 
+                  mouseX = mX || moX;
+                  mouseY = mY || moY;
+				  mouseX = mouseX -8;
+				  mouseY = mouseY -8;
+
+			if (evType=="Mdown" || evType=="Tchstart")  { fun_mousedown(evType) ;}
+			if (evType=="Mmove" || evType=="Tchmove")  { fun_mousemove(evType); }
+
+            if ( (evType=="Mup") ||(evType=="Tchend") ) { fun_mouseup(evType);}			
+           
+            // event.preventDefault();
+           // event.stopPropagation();
+ 
+				  
+
+//   END OF IMPORTED FROM TOUCH KALEIDESCOPE
+
+//     fun_mousedown(ev)     //   These are from the original schroed.html
+//     fun_mousemove(ev)
+//     fun_mousemove(ev)
+//
+//     position relative to the canvas element.
+
+}     //  Ending    Pointer_Canvas
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ //   These are from the original schroed.html
+
+
+function fun_mousedown(ev) 
+ {                                                 //   MOUSEDOWN   = PEN_DOWN
+	       // ctx.beginPath();    // disabled raw pencil function
+        ctx.moveTo(mouseX, mouseY);
+		XmouseDOWN=mouseX; YmouseDOWN=mouseY; XmouseMOVED=XmouseDOWN; YmouseMOVED=YmouseDOWN;
+        mSTARTED = true; BUTTONdown=1;
+           Handle_Mouseclick(); //  This is the mouse steering
+		   respond_mouse();		//  This is only diagnostics	
+ }
+
+
+function fun_mousemove(ev) 
+  {                                                  //   MOUSEMOVE   = MOVE_TO
+	if (mSTARTED) {
+       // ctx.lineTo(mouseX, mouseY);                      // disabled raw pencil function
+       // ctx.stroke();                                  // disabled raw pencil function
+		XmouseMOVED=mouseX; YmouseMOVED=mouseY; 
+		Handle_Mouseclick();    //  This is the mouse steering
+		   respond_mouse(); 	//  This is only diagnostics
+      }
+
+ }	   
+
+function fun_mouseup(ev) 
+{                                                   //   MOUSEUP   =  PEN_UP
+      if (mSTARTED) {
+       // thistool.mousemove(ev);
+		XmouseUP=mouseX; YmouseUP=mouseY; BUTTONdown=0;
+        mSTARTED = false;
+		   Handle_Mouseclick(); //  This is the mouse steering
+		   respond_mouse();   	//  This is only diagnostics
+      }
+ }
+
+	//    These event variables are treated by   Handle_Mouseclick();
+	//    XmouseMOVED  YmouseMOVED ;  XmouseDOWN   YmouseDOWN ; XmouseUP  YmouseUP ;  BUTTONdown   
+
+
+}   //  This is the whole init function               END OF  INIT  FUNCTION          
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////
+
+init();     //    AND HERE WE JUST CALL THE init()   function ; after defining geometry etc .....
+
+//    plotSquare(0.5, 0.2,  0.5, 0.6);
+//
+//
+//
+////////////////////////////////////////////////////////////////////////////
+//
+//    This defines the help and info functions                                HELP   
+//
+//    A variable part of the page is added -     look for  div id= helpPar
+//    The helpPar changes on clicks
+//
+
+
+//   Activate the Present Energy view   "ParameterView"
+//
+var To_Output="<span style=\"background-color: rgb(255, 255, 55);\">";   
+To_Output=To_Output+"<small>E= "+  12345 + "</small><br></span>";
+
+document.getElementById("ParameterView").innerHTML= To_Output;  
+
+
+
+//    Update_Sliders();
+
+function Update_Sliders()
+   {
+	for (ksl=0;ksl<Nsliders; ksl++)
+	   {
+		coeffs[ksl]=sliders[ksl].value;
+	   }
+	Normalize();
+        Energy = 0.0;
+	for (ksl=0;ksl<Nsliders; ksl++)
+	   {
+		sliders[ksl].setValue(coeffs[ksl]);
+                CoeffsArr[ksl]=coeffs[ksl];
+                Energy = Energy + (0.5+ksl)*coeffs[ksl]*coeffs[ksl];
+	   }
+         for (ksl=Nsliders;ksl<Nq; ksl++)
+               {CoeffsArr[ksl]=0;}
+
+  document.getElementById("EventView").innerHTML="Energy is  " + Energy;
+}
+	
+function Normalize()
+        {   
+		    var sumv=0;
+
+		    for (ksl=0;ksl<Nsliders; ksl++)
+			    {sumv=sumv+coeffs[ksl]*coeffs[ksl];}
+			document.getElementById('MessageInner').innerHTML= "Superposition";  	
+			if(sumv < 0.001){ sumv=1; coeffs[0]=1;}	
+		    for (ksl=0;ksl<Nsliders; ksl++)
+			    {coeffs[ksl]=coeffs[ksl]/Math.sqrt(sumv);}	
+            clearLinksBG(); 
+		    for (ksl=0;ksl<Nsliders; ksl++)
+			    { if (coeffs[ksl] > 0.95 && single==1)
+				   { 
+				     for (lsl=0;lsl<Nsliders; lsl++)
+					     {  coeffs[lsl]=0.0; }
+					 coeffs[ksl] = 1.0;   selectLinkBG(ksl);
+					 single=0;
+					 document.getElementById('MessageInner').innerHTML= "Single State";  
+				   }
+				}
+									
+		}		
+  
+
+
+function Mrect( xs, ys, wi, hi, colstr )      //   rectangle in the Math coordinate system
+    {  var xs_canv; var w_canv;
+	   var ys_canv; var h_canv; 
+
+  	   xs_canv = Math.ceil(   xs / Xscale +  OriginX );
+  	   ys_canv = Math.ceil( - ys / Yscale +  OriginY ); 
+  	   w_canv = Math.ceil(   wi  / Xscale  );
+  	   h_canv = Math.ceil( - hi / Yscale  ); 
+
+		ctx.fillStyle = colstr; 
+		ctx.fillRect(xs_canv, ys_canv, w_canv, h_canv); 	        	   	   
+     }
+function Brect( xs, ys, wi, hi, colstr )      //   rectangle in the Math coordinate system
+    {  var xs_canv; var w_canv;
+	   var ys_canv; var h_canv; 
+
+  	   xs_canv = Math.ceil(   xs / Xscale +  OriginX );
+  	   ys_canv = Math.ceil( - ys / Yscale +  OriginY ); 
+  	   w_canv = Math.ceil(   wi  / Xscale  );
+  	   h_canv = Math.ceil( - hi / Yscale  ); 
+
+		botctx.fillStyle = colstr; 
+		botctx.fillRect(xs_canv, ys_canv, w_canv, h_canv); 	        	   	   
+     }
+
+  
+function Mline( xs, ys, xe, ye)      //   Line drawing in the Math coordinate system
+    {  var xs_canv; var xe_canv;
+	   var ys_canv; var ye_canv; 
+  	   xs_canv = Math.ceil(   xs / Xscale +  OriginX );
+  	   ys_canv = Math.ceil( - ys / Yscale +  OriginY ); 
+  	   xe_canv = Math.ceil(   xe / Xscale +  OriginX );
+  	   ye_canv = Math.ceil( - ye / Yscale +  OriginY ); 
+
+	   ctx.beginPath();	
+	   ctx.moveTo( xs_canv, ys_canv );
+	   ctx.lineTo( xe_canv, ye_canv );
+	   ctx.stroke();	        	   	   
+     }
+
+function Bline( xs, ys, xe, ye)      //  Bottom Canvas Line drawing in the Math coordinate system
+    {  var xs_canv; var xe_canv;
+	   var ys_canv; var ye_canv; 
+  	   xs_canv = Math.ceil(   xs / Xscale +  OriginX );
+  	   ys_canv = Math.ceil( - ys / Yscale +  OriginY ); 
+  	   xe_canv = Math.ceil(   xe / Xscale +  OriginX );
+  	   ye_canv = Math.ceil( - ye / Yscale +  OriginY ); 
+
+	   botctx.beginPath();	
+	   botctx.moveTo( xs_canv, ys_canv );
+	   botctx.lineTo( xe_canv, ye_canv );
+	   botctx.stroke();	        	   	   
+     }
+
+
+//////////////////////////////////////////////////////////////////////////////////
+
+//            The key-press responses - f()  key_h()  keyh_e()     etc .....
+
+//////////////////////////////////////////////////////////////////////////////////
+
+
+
+	function key_e()
+	{       ctx.globalAlpha=0.3;
+	        ctx.fillStyle = '#FFFFFF'; 
+            ctx.fillRect(0, 0, width, originY); 
+			ctx.globalAlpha=1;
+	}			
+	function key_l()
+	{       ctx.globalAlpha=0.3;     
+	        ctx.fillStyle = '#DDDDFF'; 
+            ctx.fillRect(0, 0, width, originY); 
+			ctx.globalAlpha=1; 
+	}
+
+
+
+ 	  
+// -----------------------------------------------------------------------
+// -------------         BEGIN   KEYBOARD RESPONSE FUNCTION   ------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+//
+function Handle_keyboard(keyCode)
+   {
+      Action='none';
+	  // running=0;
+      var TESTING=0;
+	  if ( TESTING ){
+	  Event_Output=Event_Output + " Last pressed key code is " + keyCode +  "<br>";
+	  document.getElementById("EventView").innerHTML= Event_Output+ "</small><br>";  	}  
+
+    if(Keyboard_func)
+	{  		
+      switch(keyCode)
+      {        
+	  //    KEYBOARD handlings
+	  //
+        case 69:            //  e for  erase 
+		  key_e();
+          break; 
+
+			  	  
+        case 76:          //    L  for light blue
+          key_l();
+          break; 
+
+		  
+        default: 		
+          break;  
+      }
+	}    //    if(  Keyboard_func )
+		   
+    }
+// -----------------------------------------------------------------------
+// -------------            END  KEYBOARD RESPONSE FUNCTION   ------------
+// -----------------------------------------------------------------------
+
+// -------------            BEGIN  MOUSE  RESPONSE FUNCTION   ------------
+// -----------------------------------------------------------------------
+    function Handle_Mouseclick()
+	  {  
+	    // running=0;
+
+	    
+	}
+// -----------------------------------------------------------------------
+// -------------            END  MOUSE RESPONSE FUNCTION   ------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+
+
+function vert_slider( xx, yy, wi, hi, tole, colorb, colorf, startval )
+{
+  this.xx=xx; this.yy=yy;
+  this.xs = xx-tole;  this.xe = xx + wi  + tole;
+  this.ys = yy-tole;  this.ye = yy + hi  + tole;
+  this.wi=wi; this.hi=hi;
+  this.col_b=colorb;   this.col_f=colorf;
+  this.value=startval; this.tole=tole;
+  
+  this.start = function()
+    {
+	 Mrect( this.xx,this.yy, this.wi, this.hi, this.col_b);
+	 Mrect( this.xx,this.yy, this.wi, this.hi*this.value, this.col_f);
+	// document.getElementById("EventView").innerHTML=document.getElementById("EventView").innerHTML + " Started slider <br>" ;
+	}
+
+  this.mouse_do = function()
+    {   //  		  Xdown, Ydown, Xmoved, Ymoved
+      if ( (this.yy-this.tole )< Ydown   && Ydown < (this.yy + this.hi + this.tole) )
+          {
+		   this.value=( Ydown - this.yy ) / this.hi ;
+		   if (this.yy < Ymoved   && Ymoved < (this.yy + this.hi) )
+		       {this.value=( Ymoved - this.yy ) / this.hi ;}
+		  if (  Ydown > (this.yy + this.hi) )
+		       {this.value= 1.0 ;  single=1;}	   
+          if (  Ymoved > (this.yy + this.hi) )
+		       {this.value= 1.0 ;  single=1;}		
+           if (this.yy > Ymoved  )
+		       {this.value=0.0 ;}	
+		  if ( this.value > 1.0 ){this.value= 1.0; single=1;}  if ( this.value < 0.0 ){this.value= 0.0;}
+	       Mrect( this.xx,this.yy, this.wi, this.hi, this.col_b);
+	       Mrect( this.xx,this.yy, this.wi, this.hi*this.value, this.col_f);		   
+		  }
+	}
+	this.setValue = function(val )
+	{
+	  this.value= val;
+	       Mrect( this.xx,this.yy, this.wi, this.hi, this.col_b);
+	       Mrect( this.xx,this.yy, this.wi, this.hi*this.value, this.col_f);	  
+	}
+
+}
+
+
+
+
+
+
+function  plotSquare( xxx, yyy, xboxedge, yboxedge)
+    {    
+
+	     Mline(xxx-xboxedge,yyy-yboxedge,xxx+xboxedge,yyy-yboxedge);
+	     Mline(xxx+xboxedge,yyy-yboxedge,xxx+xboxedge,yyy+yboxedge);
+	     Mline(xxx+xboxedge,yyy+yboxedge,xxx-xboxedge,yyy+yboxedge);
+	     Mline(xxx-xboxedge,yyy+yboxedge,xxx-xboxedge,yyy-yboxedge);		 		 	
+	}
+	
+function Canvas_Following()
+    {   
+		  // Event_Output= Adjusting_Edge +" " + Adjusting_Steep +" " +Adjusting +" " + Edge + Xdown  + Ydown;
+          //  document.getElementById("ExtraView").innerHTML= Event_Output + "<br>"; 
+		  
+		  
+		  Xdown= ( XmouseDOWN - OriginX ) * Xscale; 
+		  Ydown=( -YmouseDOWN + OriginY ) * Yscale; 
+		  Xmoved=( XmouseMOVED - OriginX ) * Xscale;    
+		  Ymoved=( -YmouseMOVED + OriginY ) * Yscale;
+		  Xup=( XmouseUP - OriginX ) * Xscale; 
+		  Yup= ( -YmouseUP + OriginY ) * Yscale;
+ 
+        for (ksl=0;ksl<Nsliders; ksl++)    //  Checking clicks in sliders regions
+	 {
+          if ( sliders[ksl].xs<Xdown && Xdown<sliders[ksl].xe && sliders[ksl].ys < Ydown && Ydown < sliders[ksl].ye)
+                 { sliders[ksl].mouse_do(); }  
+	 }
+    
+         var TESTING=1;
+        var Message_Output="<small>  Xdown"+ Xdown.toPrecision(4) +" Ydown "  + 
+                              Ydown.toPrecision(4) + " Xmoved "
+                            + Xmoved.toPrecision(4) + " Ymoved "+ Ymoved.toPrecision(4) + " ---- ";
+     Update_Sliders();
+ 
+/*    var Message_Output="<small>  Sliders  "; 
+    for (ksl=0;ksl<Nsliders; ksl++)
+         { Message_Output=Message_Output + "  " + ksl + "->"+  sliders[ksl].value.toPrecision(2);} */
+ 
+     Message_Output=Message_Output + " ---- ";							
+	  if ( TESTING )
+	  { document.getElementById("ParameterView").innerHTML= Message_Output + "</small><br>"; }
+
+        if (   Ydown >0 )    //   click in the energy region
+         {
+              Energy=Ymoved;  
+           if ( Math.abs(Xmoved) > 5.5 )   //  Assign the single state value 1 
+             {
+                  var Nstate=0;
+                          Nstate=Math.floor(Ymoved-0.35);  
+                          if ( Nstate < 0 ) {Nstate=0; }
+                          Energy=Nstate + 0.5; 
+                               for (ksl=Nsliders;ksl<Nq; ksl++)
+                                              {CoeffsArr[ksl]=0;}
+			for (lsl=0;lsl<Nsliders; lsl++)
+					     {  coeffs[lsl]=0.0; sliders[lsl].setValue(coeffs[lsl]); }
+					 coeffs[Nstate] = 1.0; CoeffsArr[Nstate]=1;
+					 single=0;
+                                         sliders[Nstate].setValue(1.0);
+										  selectLinkBG(Nstate);
+										  document.getElementById('MessageInner').innerHTML= "Single State"; 
+             }                         //  Ended Assign the single state value 1 
+          else
+           {      //  Normal action - middle energy field  
+              if( Energy < 0.5 ) {Energy=0.5; }
+              alfa=Math.sqrt( ( Energy - 0.5 ));
+              clearLinksBG();                        //    selectLinkBG(kstat)
+			  document.getElementById('MessageInner').innerHTML= "Glauber State";  
+              for( iq=0;iq<Nq;iq++)
+                    {
+                      // All CoeffsArr[ ]   Are assigned the Coherent State values
+
+                            CoeffsArr[iq]=GlaubCoeffs(iq,alfa);
+                    }
+
+	  for (ksl=0;ksl<Nsliders; ksl++)
+	   {
+		coeffs[ksl]=CoeffsArr[ksl];
+                sliders[ksl].setValue(coeffs[ksl]);
+	   }
+          }   //  Normal action - middle energy field
+
+         }   //  end selected energy area  ---   Ydown >0
+     	  
+   	if (running<1 || running>1) {Animate();}
+	   
+	}	//  end communication
+
+	
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+function respond_mouse()
+{
+
+Event_Output="<small> mouseDOWN "+ XmouseDOWN+" "+YmouseDOWN + 
+"  mouseUP "+ XmouseUP +" " + YmouseUP + "  mouseMOVED "+ XmouseMOVED +" " + YmouseMOVED + " BUTTON "+BUTTONdown +
+     "</small><br>";
+   var TESTING=1;
+	  if ( TESTING )
+	  { document.getElementById("EventView").innerHTML= Event_Output + "</small><br>"; }
+
+    Canvas_Following();
+}
+
+
+
+function states(Nstat)
+             {
+                 
+                            
+                          if ( Nstat < 0 ) {Nstat=0; } 
+						  if ( Nstat > 9 ) {Nstat=9; }
+						  
+                          Energy=Nstat + 0.5; 
+                               for (ksl=0;ksl<Nq; ksl++)
+                                              {CoeffsArr[ksl]=0;}
+			for (lsl=0;lsl<Nsliders; lsl++)
+					     {  coeffs[lsl]=0.0; sliders[lsl].setValue(coeffs[lsl]); }
+					 coeffs[Nstat] = 1.0; CoeffsArr[Nstat]=1;
+					 single=0;
+					 selectLinkBG(Nstat);
+					 document.getElementById('MessageInner').innerHTML= "Single State"; 
+                                         sliders[Nstat].setValue(1.0);
+             }                         //  Ended Assign the single state value 1  // clearLinksBG(); selectLinkBG(kstat)
+         
+
+
+
+
+
+
+function do_fading(alpha, always)
+    {
+	 ctx.fillStyle = '#FFFFFF'; 
+	 ctx.globalAlpha=alpha;
+         ctx.fillRect(0, 0, width, height); 
+	 ctx.globalAlpha=1.0; 
+    }
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+function tGraph(Npoint, xxarrs, yyarrs )
+    {  
+     for( kkk=1; kkk<Npoint; kkk++)
+      {
+       Mline( xxarrs[kkk-1], yyarrs[kkk-1], xxarrs[kkk], yyarrs[kkk])
+       }
+    }
+
+function bGraph(Npoint, xxarrs, yyarrs )
+    {  
+     for( kkk=1; kkk<Npoint; kkk++)
+      {
+       Bline( xxarrs[kkk-1], yyarrs[kkk-1], xxarrs[kkk], yyarrs[kkk])
+       }
+    }
+
+function bFill(Npoint, xxarrs, yyarrs , fillstring)
+    {  var xs; var ys; var xs_canv; var ys_canv;
+	          
+			  xs=xxarrs[0]; ys=yyarrs[0];
+			  xs_canv = Math.ceil(   xs / Xscale +  OriginX );
+			  ys_canv = Math.ceil( - ys / Yscale +  OriginY ); 
+	          botctx.beginPath();	
+	          botctx.moveTo( xs_canv, ys_canv );	
+			    
+         for(iteri=0;iteri<Npoint;iteri++)
+          {
+              xs=xxarrs[iteri]; ys=yyarrs[iteri];
+			  xs_canv = Math.ceil(   xs / Xscale +  OriginX );
+			  ys_canv = Math.ceil( - ys / Yscale +  OriginY ); 
+		    			 
+    	      botctx.lineTo( xs_canv, ys_canv );			 
+         }
+
+		 botctx.closePath();	
+         botctx.stroke();
+
+		        botctx.fillStyle = fillstring;
+		 
+					  // botctx.globalAlpha=0.32;   
+                botctx.fill();
+					 // botctx.globalAlpha=pr_alpha;	
+	} 		  
+
+
+
+
+init(); 
+
+
+
+function  fan( N)
+ {
+   var d=1; var pi=Math.PI;
+
+   for( n=1; n<=N; n++)
+     {
+       d=d*n;
+     }
+  return(1/(Math.sqrt(d*Math.sqrt(pi)*Math.pow(2.0,N))));
+
+}
+
+//this calculate the coefficient
+function  GlaubCoeffs( i, alfa)
+{
+  var d=1; var f;
+
+   for( n=1; n<=i; n++)
+     {
+       d=d*n;
+     }
+
+     // f=(exp(-alfa*alfa/2)*Math.pow(alfa,n))/Math.sqrt(d);
+
+     return((Math.exp(-alfa*alfa/2.0)*Math.pow(alfa,i))/Math.sqrt(d));
+}
+function H( n,  x)     //   Hermite polynomial
+{ 
+     var h1,h2, hn;
+          h2= 1.0;
+          h1= 2.0*x;
+          hn= 1.0;
+
+          if(n==0)
+              return ( h2);
+          if(n==1)
+              return( h1);
+
+          for( i=2; i<=n;i++)
+             {
+                hn=2*x*h1 - 2*(i-1)*h2;
+                h2=h1;
+                h1=hn;
+              }
+
+      return (hn);   //   Hermite polynomial end
+ }
+
+function Psi_n_form( n,  x)
+  {
+     var PSI=fan(n)*H(n,x)*Math.exp(-x*x/2.0);
+     return(PSI);
+  }
+
+// 
+//  
+
+
+
+
+function BUFirstPlot()
+
+  //  Starting the plotting   //////////////////////////////////////////////
+{
+    Btime=0.0;
+    alfa=2;
+    xmin=-7.0;
+    dx=2.0*Math.abs(xmin)/ (Nx-1);     
+
+    pi = Math.PI;
+
+    xx[0]=-7;    yy[0]=0;
+    xx[1]= 7;    yy[1]=9.50;    
+
+     //    initialized values
+
+     for( i=0;i<Nx;i++)
+     {
+        x[i]=xmin+ i *dx;
+     }
+
+    for( iq=0;iq<Nq;iq++)
+      {
+         for( ix=0;ix<Nx;ix++)
+           {
+              PSIarr[iq][ix]=Psi_n_form(iq,x[ix]);
+              Dens_t[ix] = PSIarr[iq][ix];
+           }
+      }
+
+   t_sum=0.0;
+    for( iq=0;iq<Nq;iq++)
+      {
+
+       // All CoeffsArr[ ]   Are assigned the Coherent State values
+
+        CoeffsArr[iq]=GlaubCoeffs(iq,alfa);
+        t_sum=t_sum+ CoeffsArr[iq]*CoeffsArr[iq];
+     }
+
+    //
+    //    Potential and levels
+    //
+
+     Energy = 0.5 + alfa*alfa;
+    
+     for( i=0;i<Nx;i++)
+     {
+        Varr[i]=0.5*x[i]*x[i];
+        // should be PSIarr[i]=0.5*xarr[i]*xarr[i];
+     }
+//   General Density Evaluation for Btime=0;
+     Btime=0;
+     for ( iq=0;iq<Nq;iq++)
+      {
+         phase=(iq+0.5)*Btime;
+         LconRe[iq]=CoeffsArr[iq]*Math.cos(phase);
+         LconIm[iq]=CoeffsArr[iq]*Math.sin(phase);
+      }
+    for( ix=0;ix<Nx;ix++)
+      {
+         PSItRe=0.0; PSItIm=0.0;
+         for ( iq=0;iq<Nq;iq++)
+         {
+            PsiL=PSIarr[iq][ix];
+            PSItRe = PSItRe + PsiL*LconRe[iq];
+            PSItIm = PSItIm + PsiL*LconIm[iq];
+          }
+          Dens_t[ix]=Energy + 2.0*(PSItRe*PSItRe+  PSItIm*PSItIm);
+       }
+
+     for( i=0;i<Nlev;i++)
+     {
+        xarr[i][0]=xmin;  xarr[i][1]=-xmin; 
+        yarr[i][0]= 0.5+i; yarr[i][1]= 0.5+i;
+     }     
+
+
+//   Actual first plotting   
+
+  Brect( Xmin, 0, Xmax-Xmin, Ymax,  energycol);   //  energies
+
+  Brect( Xmin, Ymin, Xmax-Xmin, -Ymin,  sliderscol ); // sliders
+
+  Brect( Xmin, 0, (-5.5)-Xmin, Ymax, sliderscol);  //  states sliding
+  Brect( 5.5, 0,    Xmax-5.5,  Ymax, sliderscol);  //  states sliding  
+	  
+  bGraph (Nx,x,Varr);
+  bFill (Nx,x,Varr, '#FFFFEE');
+  botctx.strokeStyle=levelcolor;
+   for ( k=0; k<Nlev; k++)
+          { bGraph(2,xarr[k],yarr[k]);  }
+  botctx.strokeStyle='#000000';
+  		  
+
+//   tGraph(Nx,x,  Dens_t);
+}
+
+function BUReplot()
+
+    //  Time step evaluation and plot
+{ 
+  var oscill=0.3;
+  Brect( Xmin, Ymax-oscill, Xmax-Xmin,oscill,  '#CCFFAA' );
+  Brect( 0, Ymax-oscill, Xmax*Math.cos(Btime), oscill,  '#77DD77' );
+  Math.cos(Btime)
+
+     for ( iq=0;iq<Nq;iq++)
+      {
+         phase=(iq+0.5)*Btime;
+         LconRe[iq]=CoeffsArr[iq]*Math.cos(phase);
+         LconIm[iq]=CoeffsArr[iq]*Math.sin(phase);
+
+      }
+
+
+
+     for( ix=0;ix<Nx;ix++)
+      {
+         PSItRe=0.0; PSItIm=0.0;
+         for ( iq=0;iq<Nq;iq++)
+         {
+            PsiL=PSIarr[iq][ix];
+            PSItRe+=PsiL*LconRe[iq];
+            PSItIm+=PsiL*LconIm[iq];
+          }
+          Dens_t[ix]=Energy + 2.0*(PSItRe*PSItRe+  PSItIm*PSItIm);
+       }
+	 //  ctx.fillStyle = '#FFFFFF';   
+         ctx.clearRect(0, 0, width, OriginY );
+	 
+   tGraph(Nx,x,  Dens_t);
+
+}
+
+
+function Animate( )
+{
+
+   if( running>0)  {Btime += 0.05*pi;}
+
+   BUReplot();
+   if( running==1){
+   ttt=setTimeout("Animate()",delay); }
+
+}
+
+BUFirstPlot();
+
+       for (ksl=0;ksl<Nsliders; ksl++) 
+        {
+          sliders[ksl]=new vert_slider( -6.47+ksl*1.33, -3.2, 0.5, 3, 0.15, energycol, '#444444', 0.5 );
+          sliders[ksl].start();
+		}
+		
+
+
+	for (ksl=0;ksl<Nsliders; ksl++)
+	   {
+		coeffs[ksl]=CoeffsArr[ksl];
+                sliders[ksl].setValue(coeffs[ksl]);
+	   }
+
+ ttt=setTimeout("Animate()",20);
+
+
+function doubledelay()  {delay=delay*2; }
+function halfdelay() {delay=delay/2;}
+function runfun() {running=1;Animate();}
+function steps()  {running=2;Animate();}
+function running0() {running=0;}
+
+//    Functions for links to states (table of lonks 0 - 9   // clearLinksBG(); selectLinkBG(kstat)
+function clearLinksBG()
+{
+for (kk=0;kk<10;kk++){
+   idd[kk].style.backgroundColor='#FFFFFF';}
+}
+
+function selectLinkBG(kstat)
+{
+   clearLinksBG();
+   idd[kstat].style.backgroundColor='#AAAAAA';
+}
+
+
+</script>
+</body>
+</html>
+
