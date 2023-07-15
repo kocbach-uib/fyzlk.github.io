@@ -1,0 +1,3914 @@
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+    <title>Schr&ouml;dinger's Toy for Touch 2020</title>
+ <style type="text/css"><!--
+      #container { position: relative; }
+      #DRAW_AREA { border: 1px solid #000; }
+    --></style>
+	<style type="text/css">
+          .drag { position: relative;  
+                cursor: move;}
+
+	</style>
+<script language="JavaScript">
+//
+//
+//                          schroed_ticks.html
+// 
+//                   
+var versionstr  =    "    Version 14.09.2020  at 15:00  Numbers, Scales, Keys    ";   
+//
+//
+
+//             The whole javascript is now collected
+//             behind the HTML - part    at about line 500     look for PROGRAM_START
+
+
+//             The mouse response has been re-written
+//             It is now for both mouse and touch-screen 
+
+</script>
+</head>
+<!--  
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+          Here starts the HTML -arrangement of the actual Schroedinger's Toy
+		              HTMLPART
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+-->
+<body bgcolor = "#202020"    onload="display_size()"  onresize="display_size()"> <!-- bgcolor = "#FFBBCC" -->
+<div id="container"   style="position: relative;" ondblclick="clearSelection()">
+<!--   
+      -------------------------     THE CANVAS             ------------------  
+-->
+<!--RESIZING
+<canvas id="DRAW_AREA" style="position: relative; border: 1px solid #000;" width="480" height="480">-->
+<canvas id="DRAW_AREA" style="position: relative; border: 1px solid #000;" width="700" height="600">
+For ancient internet explorer this does not work<br>
+
+
+</canvas>&nbsp;&nbsp;
+</div>
+
+<div id="TEXTS_PHYS261" style="position: relative;  display:block;  visibility:visible;">
+
+
+
+<!--    2020_EXTENDED  HTML     (  TEXTS_DIV )  -->
+
+
+
+
+
+<br>
+<table width="700" style="font-family: Helvetica,Arial,sans-serif; background-color: rgb(200, 200, 255);">
+<tr><td>
+
+&nbsp; 
+ See historical texts (1990s to 2000s):
+<b>  <a href="https://folk.uib.no/nfylk/AMOS/resonance/">
+folk.uib.no/nfylk/AMOS/resonance/</a>  </b>  
+&nbsp; <a href="javascript:stop_anim()">Stop animations</a>
+<br>
+&nbsp;   and also 
+<b> Schr&ouml;dinger's Toy Gallery <a href="https://folk.uib.no/nfylk/AMOS/schroedgallery/">
+folk.uib.no/nfylk/AMOS/schroedgallery/</a> </b>
+
+</td></tr>
+<tr><td   style="font-family: Helvetica,Arial,sans-serif; background-color: rgb(255, 255, 255);">
+ 
+&nbsp; <a href="javascript:anim_demo();">Animate the solutions for the teacher</a> 
+&nbsp; &nbsp; &nbsp; &nbsp;  
+&nbsp; &nbsp; &nbsp; &nbsp; Stop by <b>Stop animations</b> above
+
+</td></tr>
+<tr><td   style="font-family: Helvetica,Arial,sans-serif; background-color: rgb(255, 255, 200);">
+&nbsp; <a href="javascript:work_bound();">Bound states specialized display</a> 
+&nbsp; &nbsp; <a href="javascript:work_bound2();">or with standard potential shape</a><br>
+&nbsp; <a href="javascript:demo_bound();">Bound states demo </a> 
+&nbsp; &nbsp; &nbsp; 
+or <a href="javascript:demo_b();">demo with narrow deep well</a>
+&nbsp; &nbsp; &nbsp;
+or <a href="javascript:sq_w();">demo with square well</a>
+<br>
+&nbsp; <a href="javascript:key_d();demo_a();">
+                         Demo parameters A: resonances</a> (takes about 3 seconds)<br>
+&nbsp; <a href="javascript:key_d()">Default start conditions</a> 
+
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+<a href="javascript:keys_on()">Re-enable keyboard functions</a>;
+</td></tr>
+<tr><td>&nbsp; 
+<a href="javascript:help_fun()">Help and Information (somewhat updated 2009 version)</a>; </td></tr>
+<tr><td   style="font-family: Helvetica,Arial,sans-serif; background-color: rgb(255, 255, 255);">
+&nbsp;
+  <big>   
+<a href=
+"javascript:{Keyboard_func=true; eval( phys261win.Input261.value );}">
+   
+       Execute lines below </a> </big> &nbsp;  &nbsp; (
+       <a href="javascript:keys_off()">
+       Disable key functions </a> to edit them) &nbsp; 
+       <a href="javascript:to_buffer()">empty the lines</a>   &nbsp;               
+       <a href="javascript:from_buffer()">restore them</a> 
+
+</td></tr>
+</table>
+
+
+
+
+<!--    2020_EXTENDED  EXECUTE LINES    -->
+
+
+
+
+  <form name="phys261win">
+
+  <textarea style="font-family: monospace; font-size: 14pt;" name="Input261" cols="70" rows="22">
+// this is an example; you should change it all 
+// for(m=0.0; m<1.0; m=m+0.05){En=-0.5+m; solveSchroed();}
+  key_r();       //  removes saved energies
+  key_h(); key_h(); 
+  En=-1.3;    
+  key_j();       // solve by javascript
+//   JavascrSchroed('#888888');  // only solves once, no search, draws gray
+//   JavascrSearchesEnergy();    //  if both used, also plots 'upstairs'  
+//              other examples to try  
+//  key_d();       //  these are commented out
+//  En=+1.3;       //  these are commented out
+// solveSchroed();  
+// key_e();     
+ /*           This  comments out multiple lines
+              ends by oposite star slash
+
+    key_r();       //  removes saved energies
+    Ebase=0.5;     //  where the zero E is placed
+    Vpot_depth=2.0;
+    Edge=0.67;    Steep=0.182;   // shape
+    sepp="===================================";
+    Perturb=1;     Vpert=1.55;       // crazy!
+    PertPos=2.77;     PertWidth=1.5555; 
+    sepp="===================================";
+    En=1.4;    // positive energy
+    key_e();    
+*/
+  </textarea>
+  </form>
+
+</div>   <!--    inserting end -->
+
+
+
+
+
+<div id="Introtext"  
+style="display: block; position: relative; color: rgb(0, 0, 0.5); background-color: rgb(255, 255, 100); opacity: 0.5;
+font-family: Helvetica,Arial,sans-serif;  font-size: xx-large; width: 400px;
+left:30; top: -500;">   <!--  Introtext    -->
+<small><small><small>Click/touch the drawing to start  </small></small></small><br>
+<center>
+<b>Schr&ouml;dinger's Toy</b> <br>
+
+Program in browser<br>
+solving 
+<br>
+Schr&ouml;dinger's Equation <br>
+Teaching Version<br>
+<small>
+<b>2019/2020 Large screen version</b><br>
+Landscape format<br>
+works on<br>
+ iPad/iPhone/Android<br>
+Firefox/Chrome/Safari/Opera
+<br>
+<br>
+<small>
+Click/touch the drawing to start 
+</small>
+</small>
+</center>
+</div>
+
+
+<!--      SAVED ENERGIES PART  -->
+<div id="saved_energy_div" class="drag"    style="width: 300px; opacity:0.75;
+ background-color: rgb(255, 255, 100); font-family: Helvetica,Arial,sans-serif;">
+[ DRAG ] SAVED ENERGIES <br>
+&gt;&gt;  <a href="javascript:key_r()"> erase saved energies</a>
+<div id="SavedEnergies" style="font-family: Helvetica,Arial,sans-serif;"> 
+</div> 
+</div> 
+
+<!-- ENDING     SAVED ENERGIES PART  -->
+
+
+
+<div id="EnergyViewOuter"  class="drag"  
+style="color: rgb(180, 180, 0); font-family: Helvetica,Arial,sans-serif; width: 600px;">   <!--  EnergyView    -->
+DRAG  
+       <!--    ENERGY VIEW POSITION  --> 
+<div id="EnergyView"   style="display:inline; opacity:0.75;
+ background-color: rgb(255, 255, 100); color: rgb(0, 0, 0); font-family: Helvetica,Arial,sans-serif; font-size: 14pt;">    
+</div>
+</div> 
+<div id="ParameterView"  class="drag" style="font-family: Helvetica,Arial,sans-serif; color: rgb(180, 180, 0);">   <!--  EventView    -->
+</div>
+<div id="ExtraView"  style="font-family: Helvetica,Arial,sans-serif;">  
+</div>
+
+
+<!--  EventView   
+<span  style="background-color: rgb(255, 255, 255);"> </span>
+
+ -->
+
+   
+
+
+<!--   ---------------------------------------------------------------------------  
+SCREEN: red      rgb(255, 200, 200);
+SOLVE:  blue     rgb(190, 190, 255);
+SAVE:   gray     rgb(220, 220, 220);
+SCALE:  yellow   rgb(255, 255, 50);
+ADJUST: green    rgb(130, 205, 130);
+
+                                 COMMANDS
+  TableDiv   SavedEnergies    DIV_screen   EnergyViewOuter    EnergyView
+      ---------------------------------------------------------------------------  -->
+  
+<div id="TableDiv"  class="drag" style="width: 450px; opacity:0.75; 
+        font-family: Helvetica,Arial,sans-serif; font-size: medium; background-color: rgb(255, 255, 200);">
+[ DRAG ]  &nbsp;&nbsp;                                        <div style="display: inline; background-color: rgb(255, 200, 200);">
+<b><a href="javascript:show_text(V_screen)">       SCREEN   </a></b>  </div>&nbsp;
+                                                          <div style="display: inline; background-color: rgb(190, 190, 255);">
+<b><a href="javascript:show_text(V_solves)">       SOLVE   </a></b>  </div>&nbsp;
+                                                          <div style="display: inline; background-color: rgb(220, 220, 220);">
+<b><a href="javascript:show_text(V_saving)">       SAVE   </a></b>  </div>&nbsp;
+                                                          <div style="display: inline; background-color: rgb(255, 255, 50);">
+<b><a href="javascript:show_text(V_stretches)">    SCALE  </a></b>  </div>&nbsp;
+                                                          <div style="display: inline; background-color: rgb(130, 205, 130);">
+<b><a href="javascript:show_text(V_adjust)">       ADJUST  </a>  </b>
+
+
+
+<table width="100%" style="font-family: Helvetica,Arial,sans-serif;">                          
+<!--    THE HTML COMMANDS ARE ARRANGED IN A TABLE   -->
+<!--   ---------------------------------------------------------------------------  -->
+<tr>
+
+<td valign="top" width="50%">
+
+<!--   ---------------------------------------------------------------------------  -->
+<!--             <b>Control COMMANDS</b>                          -->
+<!--   ---------------------------------------------------------------------------  -->
+
+
+<!--  DIV_screen   -->
+
+<div id="DIV_screen" style="display:none; visibility:visible; font-size: medium;  background-color: rgb(255, 200, 200);">
+<a href="javascript:key_e()">       <b>e</b>  erase screen</a>      <br>
+<a href="javascript:key_l()">       <b>l</b>  light blue screen</a> <br>
+<a href="javascript:key_h()">       <b>h</b>  fade the screen 50%</a><br>
+<span style="background-color: rgb(240, 240, 255);">
+<a href="javascript:key_f()">        <b>f</b>  fading on / off</a>        <br> 
+<a href="javascript:key_z()">       <b>z</b> Movable textfields back</a>  </span><br>
+<a href="javascript:key_k()">       <b>k</b> Switch off keyboard (click on again)</a> <br> 
+<span style="background-color: rgb(250, 250, 255);">
+<a href="javascript:key_a()">      <b>a</b> Execute commands in white window</a></span> <br>
+<a href="javascript:scaleCanvas(1.2)">         larger plot area</a> <br>
+<a href="javascript:scaleCanvas(1/1.2)">      smaller plotarea</a> <br>
+<a href="javascript:resize_text(1)">        larger text</a> <br>
+<a href="javascript:resize_text(-1)">        smaller text</a> <br>
+
+
+<b><a href="javascript:hide_text(V_screen)">        close this command  </a> <br></b>  
+</div>
+
+<!--  DIV_saving   -->
+
+<div id="DIV_saving" style="display:none; visibility:visible;  background-color: rgb(220, 220, 220);">
+<a href="javascript:key_s()">      <b>s</b>  save present energy</a> <br>
+<a href="javascript:key_r()">      <b>r</b>  remove saved energies</a> <br>
+<a href="javascript:key_w()">       <b>w</b>  write parameters</a> <br>
+<a href="javascript:key_d()">       <b>d</b>  default parameters</a> <br>
+<!--
+<a href="javascript:key_o()">       <b>o</b>  old slow browser</a> <br>
+-->
+<a href="javascript:key_k()">       <b>k</b> Switch off keyboard (click on again)</a> <br> 
+<b><a href="javascript:hide_text(V_saving)">        close this command  </a> <br></b> 
+
+
+</div>
+
+
+
+<!--  DIV_adjust   -->
+
+<div id="DIV_adjust" style="display:none; visibility:visible;  background-color: rgb(130, 205, 130);">
+
+<a href="javascript:key_g()">     <b>g</b>  Finish any adjusting, Go on</a><br>
+<!-- <a href="javascript:key_g()">     <b>_</b>  also SPACE BAR</a> when done<br> -->
+<a href="javascript:key_p()">    <b>P</b>  do potential shape V<b>p</b>ot</a><br>
+<a href="javascript:key_b()">    <b>B</b>  do perturbation <b>B</b>arrier</a> <br>
+<a href="javascript:key_m()"> <b>m</b>   adjust Matching Radius</a>  <br>
+<!-- <a href="javascript:key_g()">  <b>g</b>  Finished adjusting R match </a><br> -->
+<a href="javascript:key_k()">       <b>k</b> Switch off keyboard (click on again)</a> <br> 
+
+<b><a href="javascript:hide_text(V_adjust)">        close this command  </a> <br></b>
+</div>
+
+<!--  DIV_stretches   -->   
+
+<div id="DIV_stretches" style="display:none;  visibility:visible; background-color: rgb(255, 255, 50);">
+<a href="javascript:cursor_left()">
+-&gt; arrow: stretch  x</a><br>
+<a href="javascript:cursor_right()">
+&lt;- arrow: shrink x</a><br>
+<a href="javascript:cursor_up()">
+UP arrow: stretch  y - wavefunctions</a><br>
+<a href="javascript:cursor_down()">
+DOWN arrow: shrink y</a><br>
+
+<a href="javascript:key_x()">
+ <b>x</b> x-axis back to original scale</a><br>
+
+<a href="javascript:key_y()">
+ <b>y</b> y-axis to original scale-wavefunctions</a><br>
+ 
+<a href="javascript:wavefunc_posit()">
+Plot wave switch </a><br>
+
+
+<a href="javascript:key_z()">
+ <b>z</b> Movable textfields back</a><br>
+<a href="javascript:key_k()">       <b>k</b> Switch off keyboard (click on again)</a> <br> 
+
+
+ <b><a href="javascript:hide_text(V_stretches)">        close this command  </a> <br></b>
+</div>
+
+
+<!--  DIV_solves   -->      
+
+<div id="DIV_solves" style="display:none; visibility:visible;  background-color: rgb(190, 190, 255);">
+
+<span style="background-color: rgb(255, 255, 55);">
+<a href="javascript:key_j()">    <b>j</b> <b>J</b>avascript      Solves</a>  <br> </span>
+<a href="javascript:key_s()">    <b>s</b>                save present energy</a> <br>
+<span style="background-color: rgb(155, 155, 255);">
+<a href="javascript:key_i()">     <b>i</b>                     Plot J solution </a>  <br>
+
+<a href="javascript:key_t()">      <b>t</b> <b>T</b>otal J replot</a>
+<br> </span>
+<a href="javascript:key_n()">    <b>n</b> <b>N</b>ormal replot</a>  <br> </span>
+<span style="background-color: rgb(250, 250, 255);">
+<a href="javascript:key_a()">      <b>a</b> Execute commands in white window</a></span> <br>
+<b><a href="javascript:hide_text(V_solves)">        close this command  </a> <br></b>
+
+ </div>     
+</td>
+<td  style="width=80px" >
+
+</td>
+<!--           EXPLANATION FROM WEB VERSION
+<small>
+<b>Changing energy: </b>   <br><br>
+    1.    click in the potential  
+       large changes, not precise   <br>
+    2.    click in the right area <br>
+
+       more to the right - finer <br>
+       red - increase <br>
+       blue - decrease <br>
+       smaller changes close to 
+       the middle (red-blue)  
+       larger changes close to 
+       the upper and lower edge<br>
+ <br>
+ 
+ </small> 
+  EXPLANATION FROM WEB VERSION      END   END     -->
+
+         
+
+
+</tr>
+
+
+
+<tr><td style="width=90%">
+<pre>======================================</pre>
+<pre id="window_size"> </pre>
+<pre id="message_div">Messages: </pre>
+
+
+<div id="Message2019">------------------------------</div>
+
+</td>
+<td></td>
+</tr>
+
+
+
+
+
+</table>
+
+
+
+
+</div>    <!--  END OF MOVABLE  TABLE  -->
+</div>
+id="saved_energy_div" class="drag" 
+
+<div id="TEXT_div" class="drag" 
+style="font-family: Helvetica,Arial,sans-serif; font-size: 14pt; width: 800px; background-color: rgb(255, 150, 250);">
+[ DRAG ] &nbsp;&nbsp;   <a href="javascript:show_text(V_texts)">Show program fields</a>    
+        &nbsp;&nbsp;&nbsp;
+                          <a href="javascript:hide_text(V_texts)">Hide program fields</a>
+<br>
+
+<b>  
+    <a href="javascript:keys_off()">Disable</a>
+
+         &nbsp; &nbsp; 
+    <a href="javascript:keys_on()">Enable</a>
+    keyboard commands </b> ( when keyboard present )
+     <hr>
+<div id="version_D">
+---
+</div>
+
+<div id="TEXTS_DIV" style="display:none;  visibility:visible;">
+<!-- 
+
+                                These are the input/output windows 
+-->
+
+<form name="OurInputWindow">
+     <small>
+  <br><b>Program Outputs the parameters:</b>   &nbsp; &nbsp;
+  <a href="javascript:key_w()">Write output here now</a>                   
+     <br></small>    
+   <textarea style="font-family: monospace"  name="Outputs" cols="90" rows="15">
+From here, copy and paste to your computer (use editor, mail, etc)
+All the parameters 
+
+        This area will be filled when adjusting potential
+        or when key_w() is called - press w on keyboard
+        w is under the SAVE menu
+
+   </textarea>
+      <small>
+       <br><b>Executables:</b>
+     
+       &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+       
+       
+   <a href="javascript:execute_commands(1)">Execute the commands below and draw</a> 
+    &nbsp;&nbsp;
+    <a href="javascript:execute_commands(0)">Only execute the commands</a>
+
+
+     
+  <textarea style="font-family: monospace"  name="Executables" cols="90" rows="20">     
+       //   This text area is editable and executable (click one of the above)
+       //   The double slash means comment - not execute; remove the slashes to execute
+       fade_alpha=0.03;  
+     //          OurInputWindow.Examples.value=n9str    
+     //          OurInputWindow.Examples.value=n9str  
+       //  En=(-1.0026555727455);  solveSchroed();  display_Energy();
+     //  En=(-1.499000); JavascrFindsEnergy( 1000 );  // interupt by any key or mouseclick
+       //  Vpot_depth=(0.3);   
+       plotPOTENTIAL(dR)    
+     //  document.getElementById('MoreTexts').innerHTML= "";   
+     //  HTML_of_MoreTexts = document.getElementById('MoreTexts').innerHTML;   
+       //  document.getElementById('MoreTexts').innerHTML= ""; 
+       //  document.getElementById('MoreTexts').innerHTML= HTML_of_MoreTexts ; 
+         
+  </textarea>
+    <br>
+
+   <br><b>Examples:</b>  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+     Copy the text and paste it to Executables; press Only Execute there;
+     <br>
+     or 
+     <a href="javascript:eval(OurInputWindow.Examples.value);">just execute here</a>      
+     <br></small>
+  <textarea style="font-family: monospace"  name="Examples" cols="90" rows="24"> 
+      //    Execute this without draw - draw erases screen
+     key_r();        
+     Vpot_depth=1.5;       Edge=1.4;    Steep=0.15;
+       sepp="===================================";
+       Perturb=1;     Vpert=2.7994545454545454; 
+       PertPos=1.7773333333333334;     PertWidth=0.9424000000000001; 
+       sepp="===================================";
+       Nsaved=5;
+       Energy[0]=-1.4347905102971015;  Energy[1]=-0.98212982166903035;
+       Energy[2]= -0.219480685;        
+       Energy[3]=0.7939763271387807;  Energy[4]=1.98718532688595; 
+       How_solved[0]=javascr; How_solved[1]=javascr; How_solved[2]=javascr;
+       How_solved[3]=manual; How_solved[4]=manual;    
+       for (ks=0; ks< Nsaved; ks=ks+1 ) { Add_Link_Energy( ks );}   
+       key_e();
+       sepp="===================================";
+       for (Enk= 0.777;Enk<0.812;Enk=Enk+(0.812-0.777)/30) {En=Enk;  solveSchroed(); } 
+       for (Enk= 1.91;Enk<2.091;Enk=Enk+(2.091-1.91)/30) {En=Enk;  solveSchroed(); }
+       En=Energy[4]; solveSchroed(); 
+       for (ks=0; ks< Nsaved; ks=ks+1 ) DoSavedEnergy( ks );        
+    </textarea>   
+  </form>   
+
+<!-- This   div  MoreTexts  JAVASCRIPT WINDOWS
+   
+   var HTML_of_MoreTexts = " ";
+   
+   HTML_of_MoreTexts = document.getElementById("MoreTexts").innerHTML;   
+   document.getElementById("MoreTexts").innerHTML= ""; 
+   document.getElementById("MoreTexts").innerHTML= HTML_of_MoreTexts ; 
+   
+-->
+<div id="MoreTexts"  style="font-family: Helvetica,Arial,sans-serif;">  <!-- Can be used diagnostics -->
+
+  <form name="MoreWindow">
+       <a href="javascript:eval(    MoreWindow.Inputs.value   );">Execute lines below</a>
+     <br> 
+  <textarea style="font-family: monospace"  name="Inputs" cols="90" rows="20">
+    key_r();  
+    Vpot_depth=1.5;
+    Edge=0.6696;    Steep=0.18186666666666662;
+    sepp="===================================";
+    Perturb=1;     Vpert=3.4742253139550288; 
+    PertPos=1.7773333333333334;     PertWidth=0.49599999999999955; 
+    sepp="===================================";
+    Nsaved=5;
+    Energy[0]=-1.194861656438558;  Energy[1]=-0.210340770;   
+    Energy[2]=0.418;  Energy[3]=1.23409152;  
+    Energy[4]=2.3436459;  
+    How_solved[0]=javascr; How_solved[1]=javascr; How_solved[2]=manual;
+    How_solved[3]=manual; How_solved[4]=manual;
+    for (ks=0; ks< Nsaved; ks=ks+1 ) { Add_Link_Energy( ks );} 
+    En=Energy[4];
+    key_e();    
+ 
+  </textarea>
+  </form>
+</div>
+
+</div>    <!--   ALL TEXT FIELDS   -->
+
+<hr>
+
+<div style="font-family: Helvetica,Arial,sans-serif;"> 
+<small>
+<b>Schr&ouml;dinger's Toy Revisited 2019 - 2020</b>
+&nbsp; &nbsp; &nbsp;
+<span style="background-color: rgb(180, 180, 255);">
+<br>
+For all browsers, also touch - Android, iPhone ...
+</span>     <br></small>
+
+
+<div id="helpPar" style="font-family: Helvetica,Arial,sans-serif;"> 
+
+       <!--    HELP TEXT   SPACE   --> 
+
+<a href="javascript:help_fun()">Help and Information</a>; &nbsp; 
+ See also <a href="https://folk.uib.no/nfylk/AMOS/resonance/">
+folk.uib.no/nfylk/AMOS/resonance/</a><br>
+and also <b> Schr&ouml;dinger's Toy Gallery <a href="https://folk.uib.no/nfylk/AMOS/schroedgallery/">
+folk.uib.no/nfylk/AMOS/schroedgallery/</a> </b>
+</div>      
+</div>   <!--   the extra fields  -->
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--  
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+   PROGRAM_START       Here starts the actual program of Schroedinger's Toy
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+-->
+
+<script language="JavaScript"> 
+// -------------------        PROGRAM_START        -----------------------------------
+  var TheCanvas;                                     // *** THE VARIABLES, JAVASCRIPT
+  var ctx;
+//   RESIZING
+//  var width=480;  var rwidth=400; var height=480;    // *** GENERAL CANVAS PART
+    var width=700;  var rwidth=width/1.2; var height=600;    // *** GENERAL CANVAS PART
+// -------------------------------------------------------------------------------------
+
+   var FirstIntro=1;  var topshift=0; var topmove=2; 
+var x_sl=[];                                 //   SLIDER POSITIONS - must be adjustable
+    x_sl[0]=5.1;  var w_sl=0.25; var t_sl=0.08;
+    x_sl[1]=5.5;  x_sl[2]=x_sl[1];
+ 
+var W1string;
+var Nsliders=3; var sliders=[0];
+   
+   var plot_wave_base=0;  var plot_energy_base=0;  var plotfact=0.25; 
+   plot_energy_base=1;
+   var Drawing=false;
+   var mouseX=0; var mouseY =0;
+ 
+var X_rescaled=1.0;        // remembers the rescaling of X-axis
+var Y_rescaled=1.0;        // remembers the rescaling of Y-axis
+
+var  Keyboard_func= true;
+
+var HTML_of_MoreTexts = " ";   //    HTML manipulation - the last div-window's contents
+
+var elog=Math.log(10.0);
+// Global energy variables; Moved here in version 0.7
+
+var En=(-1.0026555727455); var E6=1.0/6.0; var Fscale=1.0; var deltaE=0.001; var deltaE_std=0.001;
+var Old_deltaE=3;   var En_old=En;   var deltaEdisp=deltaE;
+var Bscale=1.0;
+var tempEn=(-1.0);  var Energy=[]; var Nsaved=0; var EnergyField=[]; var How_solved=[];  var manual=0; var javascr=1;
+
+                               for (hows=0;hows<100;hows=hows+1){  How_solved[hows]=manual; }
+var  Javascr_used_now=0;   
+							   
+var dE_coeff=  (0.001);   //  coefficient for adjusting the energy step deltaE
+dE_coeff=  (0.002); 
+var Ntot=1 ; 
+var Nmatch=0;       // Javascript finds  energy
+var Rmax= 1;
+var accur_E = 0.0000000000001; 
+var StopFlagg = false; 
+var Rmatch=1;  var Ntot; var Nmatch;
+var DerIn=1;     var DerOut=1;
+var rr=[]; var psi=[];  var pp2=[]; var normint=0; var anorm=0;
+
+var Deltawidth;      //                             These used in ENERGYDELTA
+var Deltafactor=0.3; var Escales=3.8;  var Efact=0.1;
+var Deltaclick;
+//			 Deltaclick = XmouseDOWN - rwidth;	Einc=Efact;		 
+//			 if( Deltaclick > Deltawidth*Deltafactor){
+//		            Einc=Einc*Math.exp( -(Deltaclick-Deltawidth*Deltafactor)/Escales );  }
+  var Mufact=0 ; var Einc=0;    //  Variables for the energy adjustment			 
+ 
+      var adj=-140;   //  adjusting position of moving texts 
+
+var kind=0;         //  For animations in anim_demo()()
+var Num_steps=150;
+
+var locvar=0; 
+var running=0;
+var Ycalc=0;
+var mSTARTED=false; var EnergyPad=0; var HitEnd=0;  var Clickstart=0;
+
+var COMMS_N=[];   var COMMsaved_energy_div="";     var COMMtextsdiv ="";
+var V_screen=0;  var V_saving=1; var V_adjust=2; var V_stretches=3;  var V_solves=4;   
+var  V_TableDiv=5;  var V_SavedEnergies=6;    
+var V_EnergyViewOuter=7;  var  V_EnergyView=8; var  V_texts=9;
+
+var Saved_Top=0; var Saved_Left=0;  var Dragged_before=0; //  Preventing Saved energies pad moving
+ Saved_Top = -100; Saved_Left= 160; 
+   // and placing them at start
+var fsize=3; var fstr=[];  var dwidth=[];  //  Manipulating the text size
+
+ fstr[0]="xx-small";       dwidth[0]="350px";
+ fstr[1]="x-small";        dwidth[1]="400px";
+ fstr[2]="small";          dwidth[2]="450px";
+ fstr[3]="medium";         dwidth[3]="500px";
+ fstr[4]="large";          dwidth[4]="600px";
+ fstr[5]="x-large";        dwidth[5]="750px";
+ fstr[6]="xx-large";       dwidth[6]="800px";
+
+var started_examples = 1; //  this shows the original message about removing saved energies
+
+var output_string="";  var sepp=""; // This is the output string container;
+
+function init () {                         //  Function init:   Initialization sequence.
+   // Find the canvas element.
+     TheCanvas = document.getElementById('DRAW_AREA');
+   // Get the 2D canvas context.
+     ctx = TheCanvas.getContext('2d');
+	   ctx.lineWidth = 1;
+	 ctx.fillStyle = '#FFFFFF';   ctx.fillRect(0, 0, width, height); 
+
+	 //   draw_energy_pad();
+  // Attach the mousedown, mousemove and mouseup event listeners.
+
+          TheCanvas.addEventListener( 'mousemove', MouseMoveCanvas, false ); 
+          TheCanvas.addEventListener( 'mousedown', MouseClickCanvas, false ); 
+		  TheCanvas.addEventListener( 'mouseup',   MouseUpCanvas, false ); 
+            TheCanvas.addEventListener( 'touchmove', TouchMoveCanvas, false ); 
+            TheCanvas.addEventListener( 'touchstart', TouchStartCanvas, false ); 
+			TheCanvas.addEventListener( 'touchend', TouchEndCanvas, false );     
+ 
+     document.getElementById('version_D').innerHTML= versionstr ; 
+    
+   // ******************************************************************** 
+   document.onkeydown = function(event)           //   init:  KEYBOARD EVENTS  KEYBOARD 
+    {
+      var keyCode; 
+      if(event == null){
+        keyCode = window.event.keyCode; }
+      else    {
+        keyCode = event.keyCode;  }
+		Handle_keyboard(keyCode)
+    }
+
+// ***********************************************************   
+// 
+//   CANVAS MOUSE   
+
+
+//   IMPORTED FROM TOUCH KALEIDESCOPE
+
+	
+	
+     function MouseMoveCanvas(event)	 {   //   Mouse Moved    "Mmove"
+	    // event= event || window.event;
+		eventType="Mmove";
+		Pointer_Canvas( event, eventType )	 }
+     function MouseClickCanvas(event)	 {   //   Mouse down     "Mdown"
+	    // event= event || window.event;
+		eventType="Mdown";
+		Pointer_Canvas( event, eventType )	 }
+     function MouseUpCanvas(event)	 {       //   Mouse Up      "Mup"
+	    // event= event || window.event;
+		eventType="Mup";
+		Pointer_Canvas( event, eventType )	 }
+     function TouchMoveCanvas(event)	 {   //   TOUCH     "Tchmove"  
+	    event.preventDefault();
+	    event= event || window.event;
+		eventType="Tchmove";            
+		Pointer_Canvas( event, eventType )	 }
+
+     function TouchStartCanvas(event)	 {    // TOUCH START  "Tchstart"
+	    event.preventDefault();
+	    event= event || window.event;
+		eventType="Tchstart";
+		Pointer_Canvas( event, eventType )	 }
+
+     function TouchEndCanvas(event)	 {        //  TOUCH  END   "Tchend"
+	    // event.preventDefault();
+	    event= event || window.event; Drawing=false;
+		eventType="Tchend";
+		Pointer_Canvas( event, eventType )	 }
+
+
+
+	 
+        function Pointer_Canvas( event, evType )
+        {           
+            
+                var moX = 0
+                var moY = 0			
+				var touch = "";
+				
+	
+				
+			 if  ( event.targetTouches ) 
+			 {
+			      touch = event.targetTouches[ 0 ];
+				  moX = touch.pageX
+                  moY = touch.pageY
+			}
+
+            						
+              var mX=event.clientX;
+              var mY=event.clientY;
+			  
+ 
+                  mouseX = mX || moX;
+                  mouseY = mY || moY;
+				  mouseX = mouseX -8;
+				  mouseY = mouseY -8;
+
+			if (evType=="Mdown" || evType=="Tchstart")  
+			       { if (FirstIntro==1) {FirstIntro=0;}
+			            fun_mousedown(evType) ;}
+			if (evType=="Mmove" || evType=="Tchmove")  { fun_mousemove(evType); }
+
+            if ( (evType=="Mup") ||(evType=="Tchend") ) { fun_mouseup(evType);}			
+           
+            // event.preventDefault();
+           // event.stopPropagation();
+ 
+				  
+
+//   END OF IMPORTED FROM TOUCH KALEIDESCOPE
+
+//     fun_mousedown(ev)     //   These are from the original schroed.html
+//     fun_mousemove(ev)
+//     fun_mousemove(ev)
+//
+//     position relative to the canvas element.
+
+}     //  Ending    Pointer_Canvas
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ //   These are from the original schroed.html
+
+
+function fun_mousedown(ev) 
+ {                                                 //   MOUSEDOWN   = PEN_DOWN
+	       // ctx.beginPath();    // disabled raw pencil function
+        ctx.moveTo(mouseX, mouseY);
+		XmouseDOWN=mouseX; YmouseDOWN=mouseY; XmouseMOVED=XmouseDOWN;YmouseMOVED=YmouseDOWN;
+        mSTARTED = true; BUTTONdown=1;  Clickstart=1;
+		EnergyPad=0; // Because of Apple touches	
+		HitEnd=0; // if (HitEnd==0)  Red screen when changig energy 
+		DO_solving=1;    //  This fixes the energy difference display deltaEdisp
+		if (XmouseDOWN > rwidth )  {EnergyPad=1;}
+           Handle_Mouseclick(); //  This is the mouse steering
+		   respond_mouse();		//  This is only diagnostics	
+ }
+
+
+function fun_mousemove(ev) 
+  {                                                  //   MOUSEMOVE   = MOVE_TO
+	if (mSTARTED) {
+       // ctx.lineTo(mouseX, mouseY);                      // disabled raw pencil function
+       // ctx.stroke();                                  // disabled raw pencil function
+		XmouseMOVED=mouseX; YmouseMOVED=mouseY; Clickstart=0;
+		DO_solving=1;    //  This fixes the energy difference display deltaEdisp		
+		Handle_Mouseclick();    //  This is the mouse steering
+		   respond_mouse(); 	//  This is only diagnostics
+      }
+
+ }	   
+
+function fun_mouseup(ev) 
+{                                                   //   MOUSEUP   =  PEN_UP
+      if (mSTARTED) {
+       // thistool.mousemove(ev);
+		XmouseUP=mouseX; YmouseUP=mouseY; BUTTONdown=0;
+        mSTARTED = false;  Clickstart=0;
+		EnergyPad=0;
+		   Handle_Mouseclick(); //  This is the mouse steering
+		   respond_mouse();   	//  This is only diagnostics
+      }
+ }
+
+	//    These event variables are treated by   Handle_Mouseclick();
+	//    XmouseMOVED  YmouseMOVED ;  XmouseDOWN   YmouseDOWN ; XmouseUP  YmouseUP ;  BUTTONdown   
+
+var  allowanim=1;  
+
+   	if (FirstIntro==1)
+	     {  En=1.0; deltaE=0.1;
+		  ttt=setTimeout("FirstIntroTimeout()",50);	} 
+
+}   //  This is the whole init function               END OF  INIT  FUNCTION          
+//////////////////////////////////////////////////////////////////////////////////
+
+
+// *********************************************************** 
+  //  
+  // 
+  //    GEOMETRY of DRAW_AREA
+  //
+// *********************************************************** 
+  var OriginX=Math.ceil(width/16);
+  OriginY=height/2;  
+  var Xmax=6;   var Ymax=2.5;
+  var Xmin=-(OriginX)*Xmax/(width-OriginX); ; var Ymin=-2.7;
+  var Xdivide=5;  //  will be adjusted below - depends on rwidth
+  var Xscale = (Xmax-Xmin)/width; var Yscale =  (Ymax-Ymin)/height;
+  Xdivide = (rwidth - OriginX ) * Xscale;
+  var Xrescale=1.0;
+
+  var XmouseDOWN=0; var YmouseDOWN=0; var XmouseMOVED=0; var YmouseMOVED=0; 
+  var XmouseUP=0; var YmouseUP=0; var BUTTONdown=0;
+  var TheKeyboard=0;
+  //   math coordinate system counterparts of 
+  //  XmouseDOWN   YmouseDOWN ; XmouseMOVED  YmouseMOVED ;  XmouseUP  YmouseUP ;
+  // 
+  var Xdown=0; var Ydown=0; var Xmoved=0;   var Ymoved=0; var Xup=0; var Yup=0;
+  
+  XmouseDOWN=0; YmouseDOWN=0;XmouseMOVED=0; YmouseMOVED=0; 
+  XmouseUP=0;YmouseUP=0;BUTTONdown=0;  
+
+  //  
+  //     x_canv  positions on canvas  
+  //     X_math  positions in Mathematical space
+  //
+  //	 X_math=( x_canv - OriginX ) * Xscale;
+  //	 Y_math=( -y_canv + OriginY ) * Yscale;
+  //
+  //	 X_math / Xscale +  OriginX =  x_canv ;
+  //	 Y_math / Yscale -  OriginY = -y_canv ;  
+  //
+  //	 x_canv =   X_math / Xscale +  OriginX ;
+  //	 y_canv = - Y_math / Yscale +  OriginY  ;
+
+  //     Xdivide = (rwidth - OriginX ) * Xscale;
+  
+
+var ColorsSaved=[]; 
+ColorsSaved[0]='#00a'; ColorsSaved[1]='#f5c';
+ColorsSaved[2]='#cc0';  ColorsSaved[3]='#090';
+ColorsSaved[4]='#888';  ColorsSaved[5]='#990';
+ColorsSaved[6]='#066';  ColorsSaved[7]='#444';
+ColorsSaved[8]='#5aa';  ColorsSaved[9]='#aa5';
+
+    var fading=1;  var fade_alpha=0.04;  var fade_counter=0; var fading_text="  Fading is on";
+    
+var Event_Output=" ";
+
+//   Variables used in adjusting potential function Vpot
+//	
+var old=0;
+var Adjusting=0;   //  This  is set 1 when adjusting the potentials (and 2 for bump)	  
+var Adjusting_Steep=0; var Adjusting_Edge=0; var StartSteep=0; var StartEdge=0;	  
+
+var Adjusting_width_Left=0;	var Adjusting_width_Right=0;
+var Adjusting_Vpert=0; var Adjusting_Pos=0;	
+
+ var Perturb=0;
+ var Vpert=0;  var PertPos=0; var PertWidth=1; var PertLeft=0; var PertRight=0; var PertPI=1;
+ PertLeft=PertPos-PertWidth/2;  PertRight=PertPos-PertWidth/2; PertPI=Math.PI/PertWidth;
+
+ var Adjusting_Rmatch=0;    var Saved_Top261=0;
+//////////////////////////////////////////////////////////////////////////////////
+
+init();     //    AND HERE WE JUST CALL THE init()   function ; after defining geometry etc .....
+
+Init_Layers();  back_to_startpos();
+
+
+//    <!--  DIV_screen   --><!--  DIV_saving   --> 
+// <!--  DIV_adjust   --> <!--  DIV_stretches   -->   <!--  DIV_solves   --> 
+
+//   WORK WITH COMMANDS 
+
+
+function Init_Layers()
+{
+ COMMS_N[V_screen]     = document.getElementById("DIV_screen");
+ COMMS_N[V_saving]     = document.getElementById("DIV_saving");
+ COMMS_N[V_adjust]  = document.getElementById("DIV_adjust");
+ COMMS_N[V_stretches]  = document.getElementById("DIV_stretches"); 
+ COMMS_N[V_solves]     = document.getElementById("DIV_solves");
+ COMMS_N[V_TableDiv]     = document.getElementById("TableDiv");
+ COMMS_N[V_SavedEnergies]     = document.getElementById("SavedEnergies");
+ COMMS_N[V_EnergyViewOuter]     = document.getElementById("EnergyViewOuter");
+ COMMS_N[V_EnergyView]     = document.getElementById("EnergyView");
+ 
+ COMMsaved_energy_div = document.getElementById("saved_energy_div");  
+ COMMtextsdiv = document.getElementById("TEXT_div");   
+// LADCOMMS
+
+
+  
+ //   
+ COMMS_N[V_texts]     = document.getElementById("TEXTS_DIV");
+ //document.getElementById("textlink").style.zIndex=ZIndex+10;
+ //document.getElementById("explanation").style.zIndex=ZIndex+10;
+
+ //Saved_Top261 = ExtractNumber(document.getElementById("TEXTS_PHYS261").style.top );
+ // document.getElementById("TEXTS_PHYS261").style.top=(0);
+
+
+}
+
+function FirstIntroTimeout()
+ {  
+ topshift=topshift+topmove;
+ if (topshift>70){topmove=-1}
+ if (topshift<0){topmove=1} 
+ 
+  		   COMMsaved_energy_div.style.opacity = 0.65;
+		   COMMS_N[V_TableDiv].style.opacity = 0.95;    
+		   COMMS_N[V_EnergyViewOuter].style.opacity = 0.65; 
+		   
+       document.getElementById("Introtext").style.top=topshift-1100+adj;
+ 
+       COMMsaved_energy_div.style.top =  -500 - 370 - topshift -600+adj;
+          COMMsaved_energy_div.style.left = 900-topshift;              // RESIZING
+ 
+		   COMMS_N[V_TableDiv].style.top = -900 -300+topshift-600+adj;
+		   COMMS_N[V_TableDiv].style.left = 100+4*topshift;    
+		   COMMtextsdiv.style.top = -500 -300+Math.floor(1.2*topshift-600)+adj;
+           COMMtextsdiv.style.left = 600+3*topshift;
+		   
+           COMMS_N[V_EnergyViewOuter].style.top = -500 -930-topshift+adj;
+		   COMMS_N[V_EnergyViewOuter].style.left = 900+topshift; 
+
+             COMMS_N[V_EnergyViewOuter].style.top = -570+adj;
+       COMMS_N[V_EnergyViewOuter].style.left = 800;    
+       Dragged_before=1;   Saved_Top = -100; Saved_Left= 160; 
+
+
+       COMMsaved_energy_div.style.top =   -1200+topshift+adj;
+       COMMsaved_energy_div.style.left = 700 - topshift;   
+       COMMS_N[V_TableDiv].style.top = -950 -500 - topshift+adj;
+       COMMS_N[V_TableDiv].style.left = 800+ topshift; 
+             
+           COMMtextsdiv.style.top =  -950 -500 - topshift+adj;
+           COMMtextsdiv.style.left =  800 + 2*topshift;
+ 
+       COMMS_N[V_EnergyViewOuter].style.top = -1600 + topshift+adj;
+       COMMS_N[V_EnergyViewOuter].style.left = 800 - topshift; 
+
+
+
+		   
+		   En=En+deltaE;
+		   solveSchroed();  
+		   display_Energy();
+		   if (En<(-1.5)) {deltaE=0.1;}
+		   if (En>(3.7)) {deltaE= (-0.1);}		   
+		
+       if (topshift==15){    show_text(V_screen) ;}
+       if (topshift==25){        show_text(V_solves);}
+       if (topshift==35){        show_text(V_saving);}
+       if (topshift==50){        javascript:show_text(V_stretches);}
+       if (topshift==60){       show_text(V_adjust);}
+
+
+
+
+
+
+   	if (FirstIntro==0)
+	    {
+		document.getElementById("Introtext").style.display='none';
+		back_to_startpos();
+    draw_energy_pad();
+ 		   COMMsaved_energy_div.style.opacity = 0.85;
+		   COMMS_N[V_TableDiv].style.opacity = 0.95;    
+		   COMMS_N[V_EnergyViewOuter].style.opacity = 0.85;  
+		   En=1.0; key_e();		
+		}	
+   	if (FirstIntro==1)
+	
+	     { draw_energy_pad();  ttt=setTimeout("FirstIntroTimeout()",50);	} 
+ }
+
+//     WORK WITH HIDING AND SHOWING
+
+
+function hide_text(ntext)
+{
+	 COMMS_N[ntext].style.display='none';	 
+}
+function show_text(ntext)
+{
+		 for (itext=0;itext<5;itext=itext+1)
+		                 {hide_text(itext);}
+     	 COMMS_N[ntext].style.display='block';
+}
+
+
+function resize_text(kplus)
+{
+        fsize=fsize+kplus;     
+		if (fsize>6) {fsize=6;}  if (fsize<0) {fsize=0;}
+		
+		COMMS_N[V_TableDiv].style.width    = dwidth[fsize];
+		 for (itext=0;itext<10;itext=itext+1)
+		                 {  COMMS_N[itext].style.fontSize=fstr[fsize];  }
+}
+
+
+
+
+
+
+
+
+
+
+//
+//
+//
+////////////////////////////////////////////////////////////////////////////
+//
+//    This defines the help and info functions                                HELP   
+//
+//    A variable part of the page is added -     look for  div id= helpPar
+//    The helpPar changes on clicks
+//
+var  Help_String=
+   "<div style=\"width: 600px;  background-color: rgb(225, 180, 225); \">"+
+   "<b>JavaScript Canvas Implementation of Schr&ouml;dinger's Toy; Work: " + 
+   " <a href=\"https://www.uib.no/en/persons/Ladislav.Kocbach\">L. Kocbach</a></b> <br>" + 
+   "<br><b>This version is made for both tablets and traditional computers,</b>"+
+   "<br>but most of this text has been here since the original versions.<br>"+
+   "<br>Soon a detailed instruction page should be prepared.<br>"+
+   "<br><b>Acknowledgement (from the old mouse-only versions):</b> "+
+   "For mouse interaction I have modified basic pencil tricks from <a href=\"http://www.robodesign.ro/\">http://www.robodesign.ro/</a> "+
+    "via Opera development. <br>"+ "I have also taken some tricks from "+
+	"Bj&ouml;rn Lindberg's <a href=\"http://blobsallad.se/\">http://blobsallad.se/</a> <br>"+
+	"<b>Comment (the touch versions):</b> "+
+	"The touch functionality I developed myself - through studying many sources, by Apple, Mozilla, etc.<br><br>" +
+
+      "This is a re-incarnation of 1993 Macintosh Schr&ouml;dinger's Toy<br> <a href=\"https://folk.uib.no/nfylk/AMOS/resonance/\">" + 
+      "https://folk.uib.no/nfylk/AMOS/resonance/</a> "+
+	  "<br>   This time the program is contained in a single web-page - this is all JavaScript. See the <a href=\"https://folk.uib.no/nfylk/PHYSTOYS/schroed/sources.html\">sources.html</a><br>"+
+	  "<br> ..."+
+	  "<br Here is the source of one of the 2020 versions (close to this one)<br>" + 
+      "<a href=\"https://folk.uib.no/nfylk/PHYSTOYS/schroed/2020.txt\"> 2020.txt<a>" +   
+      "added for this 2020 update     <br>...<br>" +
+
+
+
+	  "There is no compilation, no software installation necessary. <br>"+
+	  "Just take the source of the page and change the behaviour to suit your teaching and learning.<br>"+
+	  "The code is moderately well documented - and there are also available older versions - "+
+	  "  <a href=\"https://folk.uib.no/nfylk/PHYSTOYS/schroed/versions.html\">versions.html</a>" +
+	  "<br>"+
+	  "which are somewhat simpler and might be easier to start with if you would change the program. <br>"+
+	  "See also <b> Schr&ouml;dinger's Toy Gallery <a href=\"https://folk.uib.no/nfylk/AMOS/schroedgallery/\">"+
+       "https://folk.uib.no/nfylk/AMOS/schroedgallery/</a> </b> <br>"+
+
+      "<br><b>To play Schr&ouml;dinger's Games </b><br>"+
+	  "<br>Now we start with pre-defined solutions. Remove all that by pressing <br>"+
+	  "'r' followed by 'e'. Key or link 'r' to remove the stored energies, 'e' to erase screen. <br>"+
+	  "Now you can try to find the energies by clicking into the potential area <br>"+
+	  "or do finer and finer changes of energy clicking on the red/blue pads. <br>"+
+	  "The value of energy is shown in the yellowish field above. <br>"+
+	   "You can even enter the energy by text in the 'Executables' field. <br>"+
+	   "Note that there are two ways to execute the 'Executables' field. <br>"+	  
+	   "<tt>En=(-1.0026555727455);  solveSchroed();  display_Energy();</tt> <br>"+
+
+	  
+	    "<br><b>Why are there no proper buttons and no nice round edges and better design?</b> <br>"+
+	"Beacause I am a physicist and not a Google engineer. This should be <br>"+
+	"<i> as simple as possible, but not simpler </i> as Einstein would say.	<br>"+
+	
+	"This is not about <i>user experience</i> but hopefully about <i>user's understanding.</i> <br>"+
+	"<b>Please, notice the list of keyboard commands on the right part of the screen</b><br>"+
+	  
+          "<br><b>What can you do with Schr&ouml;dinger's Toy?</b> <br>"
+          
+         +"The page solves Schr&ouml;dinger Equation.  It is a toy which Schr&ouml;dinger would have loved to have in 1927!<br> "   +  
+     "<br>You can select the energy by mouse-button pressed in the drawing on the scale defined by the potential.;&nbsp; &nbsp; &nbsp; <br>"+
+     "<br>Then it is like a moon-landing game: <br>"+
+	 "you are supposed to find an energy value which makes the wavefunction "+
+	 " go to zero at large distances. <br>Usually it does not. It blows upwards or downwards. "  +
+	 "<br>"+
+	 "This version contains example solutions in saved energies - see the links; try them;<br>"+
+	 "<b>Hint:</b> hit the <b>r</b>-key to remove the example solutions!<br>"+
+	 "<br>The energy reading in the potential area is not sufficiently precise. <br>Therefore we have one more input "+
+	 " of the <b>energy values: the two slider columns</b> to the right.<br>" +
+	 " Clicking in the first <i> (or touching on iPad etc)  </i>changes the value of <i>delta energy</i>. upwards in the red part, downwards in the blue part.</i> <br>" +
+	 "The second <b>red and blue slider </b> responds by solving the equation. <br>"+ 
+
+	 "The dE just added is shown next to the energy close the drawing area (only when relevant)<br>"  + 
+	 "This indicator field can be dragged and placed where useful. (This is iPad etc useful)<br>"  +
+	 "<b>Accidental great functionality improvement</b><br>"+
+	 "I made an error in version 0.4 and so we now have an extra feature: dragging the mouse, <br>" +
+	 "or moving it with button pressed. It keeps the same value of dE, but repeats and repeats.<br>" +
+	 "This respons to 'dragging' is now general. Place the mouse with button down or finger and drag.<br>" +
+     "This works in the potential area, on the sliders, etc. <br>" +
+	 "<br> <b>Two methods of solving the equation</b><br>" +
+	 
+	 "<br>Normally when the energy is selected, the equation is solved from x=0 outwards.  <br>" +
+	 "<br>Such solutions will eventually allways diverge, they allways pick a tiny amplitude  <br>" +	 
+	 "of the unphysical solution, however precise the energy value is. The fun is to find <br>" +
+ 	 "an energy which divergies far to the right. But as we shall see, this is not necessarily  <br>" +
+	 "the correct solution of the bound state problem.  <br>" +	 
+	 "  <br>" +
+	 "The second type of solution is to start both inwards and outwards integrations  <br>" +
+	 "starting from x=0 and x=Rmax. If the energy is correct, the two solutions meet  <br>" +	 
+	 "at the matching Rmatch, with equal derivatives (values are adjusted automatically).  <br>" +
+	 "This method is used in the <i>Javascript Solves</i> option which runs for preselected  <br>" +
+	 "number of iterations (150 in this version) and approaches the correct energy.  <br>" +	 
+	 "To use this, select a random energy by mouse and then the j-option <i>Javascript Solves</i>  <br>" +	 
+	 "Note that sometimes there is a tendency to converge only upwards in energy or downwards.  <br>" +	 
+	 "In the default case, for example, the  ground state can only be obtained when starting <br>" +	 	 
+	 "with as negative as possible energy. <br>" +	 			  
+	 "  <br>" +	 					  
+	 "The same derivative-match method is used also in the i-option called here <i>Plot Iterated</i>  <br>" +	 							  
+	 "It is illustrative to use this method for a general energy - you will see the kink.  <br>" +	 									  
+	 "  <br>" +	 
+	 "There is also the n-key <i>Normal replot </i>, which is simply solving and plotting  <br>" +	
+	 "the solution in the 'normal' outward only solution method. These plots will allways diverge,  <br>" +	
+	 "the other method will allways have a correct 'tail', but might have a kink.  <br>" +	
+	 "<br>" +	
+	 "There is now also a key_t function which does the <i>Plot Iterated</i> for all saved energies,<br>" +
+	 "t - for total replot <br>" +
+	 "<br>" +
+	 "For some potentials (also the standard) it might be difficult to get to the ground state by <br>" +
+	 "the 'j'-key function; Start with mouse-chosen energy at or below the potential deabth.<br>" +	
+	 "By default, the 'j'-key function runs 150 steps. It can be stopped by any click/key action.<br>" + 	 
+	 "<br>" +	
+	//   "<br>  <br>" +	
+	 											  
+													  	 	  
+	  "<a href=\"javascript:close_help_area()\">Close this view</a><br>" +
+		  
+	 "<br><br> <b>Saving - i.e. remembering the 'good energies'</b><br>" +
+	 "When you have found best possible value (there are often small tails left),  <br>" +
+	 "press  <b>s</b> letter key. The value as a link appears to the right. <br>" +
+	  "When you click on it later, only this solution is shown with yellowish background. <br>" +
+	  "Otherwise, all the saved solutions are shown when clear screen or blu screen is used.  <br>" +
+	 " To remove all the saved energies, press letter  <b>r</b>  .<br>" +
+	 
+	 
+	 "<br> <b>Changing the shape of the potential:</b><br>" +
+     "Press the  <b>v</b>letter key on the keyboard. This brings a new screen with the potential<br>"+
+	 " and two small squares. Drag any of the two (with mouse down) and you will see the changes. <br> " +
+	 "  <span style=\"background-color: rgb(255, 255, 55);\"> "  +    //   background color 
+	 " For old and slow browsers and machines: before this, pres <b>o</b> for <b>O</b>ld <br>"+
+	 " </span> " +
+	 " When you are done, press space bar or letter <b>g</b>.<br>"+
+	 
+	 "<br> <b>Adding a peaked peturbation to the shape of the potential:</b><br>" +
+	 "Press letter <b>p</b> to enter this mode. <br>" +
+	 "Basically the same as the potential, but now you have four squares to drag.<br>" +
+	 "Usually, start with the one on the potential and drag it upwards. <br>" +
+	 "The remaining three move the peak and change the width.<br>" +
+	 " When you are done, press again space bar or letter <b>g</b>.<br>"+	
+ 
+	  "<a href=\"javascript:close_help_area()\">Close this view</a><br>" +
+			 
+	 "<br> <b>Study of the resonances</b><br>" +	   
+      "See the description at <a href=\"https://folk.uib.no/nfylk/AMOS/resonance/1996.html\">" + 
+      "https://folk.uib.no/nfylk/AMOS/resonance/1996.html</a> <br>"+
+	  "When you have a barier, you can find positive values of energy when the solution  <br>"+
+	  "behaves nearly as a bound state: it gets small outside of the barrier.  <br>"+
+	 	 
+	"<br><b>Fading and zooming. </b><br>"+ 
+	
+		"Zooming - both x-axis (distance) and y-axis (function normalization) are separately zoomable.<br>"+ 
+		"The cursor keys are used - left - right for x-axis, up - down for y-axis <br>" +
+		"Fading can be nice and it can be annoying. Switch it on and off.<br>"+
+		" Fading state is indicated close to the energy above the diagram. " +		
+		 
+          "<br>Saving the pictures? <br>"+
+          "In Firefox and related browsers - just right-click and save the image.<br>"+
+          "Or take a screen-shot. Easy on Linux and Apple Mac<br>"+
+          "Normal saving of graphics: Perhaps a next version - it needs an external library.<br>"+
+
+"<br> <b>Saving and loading of  'good studies'</b><br><br>" +
+	 "<br>In version 0.85 I have added several inputs and outputs, text arrays below <br>" +  
+	 "the graphics area. The Ouput window reacts to key 'w' and displays all <br>" +  
+	 "the parameters important for the state of the toy. The shape parameters <br>" +  
+	 "of the potential, the extra barrier, and the saved energies. <br>" +  
+	 "<br>Procedure:  <br>" +  
+	 "You worked out a nice example of 4 bound states and one resonance. To keep it, <br>" +  
+	 "together with all the potential parameters and the saved energies,<br>" +	 
+	 "press  'w'  or click on the w-link. In output window below you have<br>" +          
+	 "all the necessary numbers. <br>" + 
+     "Select the whole contant of the window, copy it and save it somewhere <br>" + 
+	 "on your computer (paste it to editor, into an email, mail it to me,  <br>" +  
+	 "save it to a text file. <br>" +  	 	 
+	 "<br>Getting the case back into the Toy: <br>" +  				
+	 "<br>Find the text file or the mail where you have saved that nice example. <br>" +  
+	 "Copy it in your clipboard (ctrl C or command C on Mac <br>" +
+	 "and paste it into the content of the 'Executables' window <br>" +
+	 "Then click on 'Execute the commands below and draw' and you are back.<br>" +
+	 "<br>Pre-programmed cases <br>" +
+	 "<br>By now, there are 3 cases in this file: the default, 'd'-key, 3 levels; <br>" +
+     "second, there is a whole resonance case shown in the window 'Examples'	<br>" +	
+	 "third, there is a very interesting case in the last experimental window 	<br>" +
+	 "<br>Exercise: 	<br>" +
+	 "<br>Modify the text of 'Example' to show the energetically higher resonance, 	<br>" +
+	 "that has a much more visible resonance width. 	<br>" +
+	 "You will need <tt>DoSavedEnergy( 1 );</tt> instead of <tt>DoSavedEnergy( 0 );</tt>	<br>" +
+	 "and you must modify the parameters of the loop over <tt>Enk</tt> 	<br>" +
+	 				              
+   "<br>  You can also modify the whole program - the program is in the page - 	<br>" +
+   " it might be a good start to learn JavaScript - it is quite easy after a while<br>"+
+
+	 "<br><b>The program and the Toy 	</b><br>" +
+   
+	"<br>You might have noticed that I have chosen to use the links instead of buttons, <br> "+
+	"even in the most primitive blue-underline form.  <br> "+
+	"This because the links are much simpler. Simple to program, simple to use.<br><br>"+
+	
+	"The file contains mostly javascript, but also some HTML.  <br>"+
+	"It starts by HTML heading, and the HTML part where whole page layout is made.  <br>"+
+	"Next 'body' gives you the start of the main chunk of JavaScript  <br>"+
+	"You can find some interesting of functions which you might like to try.  <br>"+
+	"In the 'Executables' window. Have fun! (Disable and enable keyboard useful) <br>"+
+	
+	 "<br><b>Copying, re-use, re-distribution.</b><br>" +	
+	 "<br>Please, propagate and copy this, mail it use it for any purpose. <br>" + 
+	 "Instead of copyright, it would be nice if you would keep the links to me <br>" + 
+	 "and also to the people from whom I have copied some of the tricks. <br>" + 
+	 "I will not be happy if you would try to build a business on this <br>" + 
+	 "but then - probably you will not succeed. This is for fun and learning. <br>" + 
+     " <br>" +
+	 "Have fun! For me this toy is addictive, therefore I also make <a href=\"https://folk.uib.no/nfylk/PHYSTOYS/kepler/\" target=\"newwin\"> Kepler's Toy</a> <br>" + 
+	 "and I still have loose plans for Kepler's Game <br>" + 		
+	"<br><b>This help text can be closed   "  + "</b> <br></div>";
+
+     
+var Help_Link=
+        "<a href=\"javascript:help_fun()\">Help and Information</a> &nbsp;</b>"+
+                  "See also <a href=\"https://folk.uib.no/nfylk/AMOS/resonance/\">" + 
+                   "https://folk.uib.no/nfylk/AMOS/resonance/</a> " +
+				   
+              " and also <b> Schr&ouml;dinger's Toy Gallery <a href=\"https://folk.uib.no/nfylk/AMOS/schroedgallery/\">"+
+              "https://folk.uib.no/nfylk/AMOS/schroedgallery/</a> </b>";				   
+				   
+var Help_Output=" ";
+
+
+function help_fun()
+{
+    COMMtextsdiv.style.top =  -1400;
+    COMMtextsdiv.style.left =  100;
+    Help_Output="<br><hr><a href=\"javascript:close_help_area()\">Close this view</a></b>"
+                      +  "<br><br>"+Help_String;
+    Help_Output=Help_Output+"<br><a href=\"javascript:close_help_area()\">Close this view</a><b><hr><b></b>";        
+    document.getElementById("helpPar").innerHTML= Help_Output;                  
+}
+
+
+function close_help_area()
+{
+        COMMtextsdiv.style.top =  -550 -550 +adj;
+        COMMtextsdiv.style.left =  800;
+        document.getElementById("helpPar").innerHTML= Help_Link;  
+}
+
+
+// -------------------------------------------------------------------------------------
+// Variables for Ruku                                      ***   Variables for Ruku
+// Runge Kutta for 2. order ODE - Schroedinger type
+//
+// R are the R-values
+// F are function values   
+// G are 1. derivative values
+//  
+   var Rold=0;  var Fold=0; var Fnew=0; var Gold=0;  var  Gnew=0; 
+   var Rmid=0;  var Gmid=0; var Fmid=0; var Vpotmid=0;   
+   var Akg=[]; var Akf=[]; var Rkf=[];
+   Akg[0]=0;
+   Rkf[1]=1.0;
+   Rkf[2]=0.5;
+   Rkf[3]=0.5;
+   Rkf[4]=1.0;
+   
+   var dR=0.0005;
+   var InvMass = 22.0;   //   WILL NOT BE CHANGED
+   var Edge=1.4; var Steep=0.15;   
+   var Vpot_depth=1.5;      
+   Rmatch=Edge-Steep;  //   WILL BE ADDED TO ADJUSTING 2019
+   Rmatch=dR*Math.floor(Rmatch/dR);
+    var Opd=6;   //   For the old browsers
+    var OdR=dR;
+
+	for(ilk=0;ilk<10.0/dR;ilk++)      {rr[ilk] =  ilk *dR;      psi[ilk] =  0;}	
+
+   
+// -----------------------------------------------------------------------
+   
+  var WaveBase=1.0;              //  Variables for the drawing of functions
+  var Ebase=-1.0;    
+  Ebase=-1.0;    Vpot_depth=1.5;         
+ // Ebase= 0.0;    Vpot_depth=2.5;
+ // Ebase= 0.5;    Vpot_depth=3.0;
+  
+//   Activate the Present Energy view   "EnergyView"
+//
+var To_Output="<span style=\"background-color: rgb(255, 255, 55);\">";   
+To_Output=To_Output+"<small>E= "+  En ;   
+To_Output=To_Output + " &nbsp; &nbsp;  &nbsp; &nbsp;" +fading_text ;
+To_Output=To_Output + // " &nbsp; &nbsp; <b>Hint:</b> hit the <b>r</b>-key to remove the example solutions!"
++ "</small><br></span>";
+
+document.getElementById("EnergyView").innerHTML= To_Output;  
+
+//   Activate the Saved energies view
+//
+         
+var sortlink= "&nbsp;[ <a href=\"javascript:sort_energies()\">sort</a> ]";
+
+var To_Energies="<small><b>Saved energies</b> &nbsp; "+ sortlink;
+document.getElementById("SavedEnergies").innerHTML= To_Energies+"</small>";  
+// -----------------------------------------------------------------------
+
+
+
+
+//   var Edge=2.0; var Steep=0.2;       THIS ACTIVATES THE PROGRAM
+//                                      ALL ELSE RESPONSE TO USER
+
+//     Here is the first solution          
+
+Draw_Plotting();
+plotPOTENTIAL(dR);
+solveSchroed(); 
+
+//    Now we start with solved problem:   3 energies pre-saved 
+//-1.4358655542595054
+// -1.0026555727455
+// -0.359966418603295
+           started_examples = 1;
+           Nsaved=3;  
+           Energy[0]=-1.4359730146932512;  Energy[1]=-1.0043012946807275; 
+           Energy[2]=-0.36606253277111406;
+           Energy[1]=-1.0031056340448812;  
+           Energy[0]=-1.4358612231721375; Energy[2]=-0.36237057551444674;  
+
+           for (ksaved=0; ksaved< Nsaved; ksaved=ksaved+1 ) 
+		   {
+		        How_solved[ksaved]=1;
+                DoSavedEnergy( ksaved );
+				Add_Link_Energy( ksaved );		  
+		   }
+
+
+ Vpert=0;  PertPos=Edge; PertWidth=1; 
+ PertLeft=PertPos-PertWidth/2;  PertRight=PertPos+PertWidth/2; PertPI=Math.PI/PertWidth;
+
+
+
+//      TEST OF EVAL - to be replace later
+
+           
+Defaults_T=             "     En=(-1.0043012946);      Fscale=1.0;      ";
+Defaults_T=Defaults_T + " Ebase=(-1.0);   Vpot_depth=1.5; Edge=1.4;   Steep=0.15;   Rmatch=Edge-Steep; Rmatch=dR*Math.floor(Rmatch/dR);  ";
+Defaults_T=Defaults_T + "     Vpert=0;  PertPos=Edge; PertWidth=1;   Perturb=0;      ";
+Defaults_T=Defaults_T + "             ";
+Defaults_T=Defaults_T + "    ctx.fillStyle = '#FFFFFF';     ctx.fillRect(0, 0, rwidth, height);    ";	
+Defaults_T=Defaults_T + " How_solved[0]=javascr; How_solved[1]=javascr; How_solved[2]=javascr; ";
+Defaults_T=Defaults_T + "     Nsaved=3;      started_examples = 1;               "; 
+Defaults_T=Defaults_T + "     To_Energies=\"<br><b><small>Saved energies</b>\" + sortlink;    ";  
+
+
+Defaults_T=Defaults_T + "   Energy[1]=-1.0031056340448812;  Energy[0]=-1.4358612231721375;"; 
+Defaults_T=Defaults_T + "   Energy[2]=-0.36237057551444674; "; 
+
+Defaults_T=Defaults_T + "  for (ksaved=0; ksaved< Nsaved; ksaved=ksaved+1 ) {  How_solved[ksaved]=javascr;       ";
+Defaults_T=Defaults_T + "    DoSavedEnergy( ksaved );	  ";	 
+Defaults_T=Defaults_T + "	 Add_Link_Energy( ksaved );   }   ";        
+Defaults_T=Defaults_T + "  En=1.0; key_e();  ";
+Defaults_T=Defaults_T + "             ";
+
+                                                                                                                                                                                                                                                                                                                                                                                  
+function Add_Link_Energy(num_e)
+{
+     To_Energies=To_Energies+"<br>"+"<a href=\"javascript:DoSavedEnergy(" + num_e + ")\">(A)</a>  &nbsp;" +
+	 
+					"<a href=\"javascript:goEnergy(" + num_e + ")\">"  +  Energy[num_e]  + "</a> &nbsp;" +
+					"<a href=\"javascript:delete_energy(" + num_e + ")\">[X]</a>  &nbsp;";  	
+
+           document.getElementById("SavedEnergies").innerHTML= To_Energies+"</small>";
+		   
+    // To_Energies=To_Energies+"<br>"+"<a href=\"javascript:goEnergy(" + num_e +
+		    //             ")\">"  +  Energy[num_e]  + "</a> &nbsp;" +	
+			//			 "<a href=\"javascript:DoSavedEnergy(" + num_e + ")\">(A)</a> ";  		   
+		   
+
+}
+
+
+
+
+function draw_energy_pad()
+{
+//                      The energy adjusment red-blue pad drawn   // ENERGYDELTA
+//
+        ctx.fillStyle = '#CCCCCC';   
+        ctx.fillRect(rwidth, 0, width, height); 
+          ctx.fillStyle = '#000000';           // adding TEXT RESIZING
+   ctx.font = "20px Arial";                    // adding TEXT RESIZING
+ 
+   ctx.fillText(" dE", rwidth+0.08*(width-rwidth), 23);       // adding TEXT RESIZING
+     ctx.font = "30px Arial"; 
+         ctx.fillStyle = '#FF1010';
+   ctx.fillText("+", (rwidth+width)/2, 23);       // adding TEXT RESIZING
+        ctx.fillStyle = '#0000FF';
+   ctx.fillText("   -", (rwidth+width)/2, 23);       // adding TEXT RESIZING
+
+// ctx.fillStyle = '#A0A0FF';   
+// ctx.fillRect(rwidth, height/2, width, height); 
+
+//   Mline( 4.9, -2.4,  4.9 ,2.5 );
+		
+          sliders[0]=new vert_slider( x_sl[0], -2.4,  w_sl, 4.8, t_sl, '#AAFF66' , '#889900', 0.75 );
+          sliders[1]=new vert_slider( x_sl[1], -2.4, w_sl,  2.4, t_sl, '#000080',  '#8080FF' , 1 );  // Blue, negative
+          sliders[2]=new vert_slider( x_sl[2],    0, w_sl,  2.4, t_sl,  '#FF8888' , '#B00000', 0.5 );   // Red, positive
+      for (ksl=0;ksl<Nsliders; ksl++) 
+        {
+           sliders[ksl].start();
+		}
+
+
+
+}
+//                               FROM HERE RESPONSE TO USER clicks and keys
+// -----------------------------------------------------------------------
+//
+
+
+function Mrect( xs, ys, wi, hi, colstr )      //   rectangle in the Math coordinate system
+    {  var xs_canv; var w_canv;
+	   var ys_canv; var h_canv; 
+
+  	   xs_canv = Math.ceil(   xs / Xscale +  OriginX );
+  	   ys_canv = Math.ceil( - ys / Yscale +  OriginY ); 
+  	   w_canv = Math.ceil(   wi  / Xscale  );
+  	   h_canv = Math.ceil( - hi / Yscale  ); 
+
+		ctx.fillStyle = colstr; 
+		ctx.fillRect(xs_canv, ys_canv, w_canv, h_canv); 	        	   	   
+     }
+	   
+function Mline( xs, ys, xe, ye)      //   Line drawing in the Math coordinate system
+    {  var xs_canv; var xe_canv;
+	   var ys_canv; var ye_canv; 
+  	   xs_canv = Math.ceil(   xs / Xscale +  OriginX );
+  	   ys_canv = Math.ceil( - ys / Yscale +  OriginY ); 
+  	   xe_canv = Math.ceil(   xe / Xscale +  OriginX );
+  	   ye_canv = Math.ceil( - ye / Yscale +  OriginY ); 
+       // document.write( "<br>");
+       // document.write( xs_canv," &nbsp; &nbsp;", 
+       // ys_canv, " &nbsp; &nbsp;", xe_canv," &nbsp; &nbsp;", ye_canv);
+
+	   ctx.beginPath();	
+	   ctx.moveTo( xs_canv, ys_canv );
+	   ctx.lineTo( xe_canv, ye_canv );
+	   ctx.stroke();	        	   	   
+     }
+
+function Mtext( charstr, xs, ys)      //  Char String print in the Math coordinate system
+    {  var xs_canv; var ys_canv;
+       xs_canv = Math.ceil(   xs / Xscale +  OriginX );
+       ys_canv = Math.ceil( - ys / Yscale +  OriginY ); 
+       ctx.fillText( charstr, xs_canv, ys_canv);                
+ }
+
+// -----------------------------------------------------------------------
+//
+function Draw_Plotting()       //    Draw the basic lines for plotting
+      {  
+        var stri=""; var xs =0; var ys =0;   
+        ctx.fillStyle = '#000000';
+        ctx.font = "20px Arial"; 
+
+        xs=-0.2;        
+        for (m=-4; m<5; m=m+1){
+            ys= m + Ebase-0.08; 
+            stri=""+m;
+            Mtext( stri, xs, ys);
+            Mline(0.0,Ebase+m,0.1,Ebase+m);
+        }
+
+        Mline(0,Ebase,Xdivide,Ebase); 
+		   if (plot_wave_base == 1 || Javascr_used_now==1 ) 
+		             { Mline(0,WaveBase,Xdivide,WaveBase);} 
+		   for ( xtick=1; xtick<Xdivide; xtick=xtick+1)
+		       {
+			     Mline(xtick,Ebase,xtick,Ebase+0.1); 
+           ys= Ebase-0.16;
+           stri=""+xtick;
+           xs=xtick-0.05;
+           Mtext( stri, xs, ys);          
+				 if (plot_wave_base == 1 || Javascr_used_now==1 ) 
+		              { Mline(xtick,WaveBase,xtick,WaveBase+0.1); }
+			   }		   
+           Mline(0,-2.5,0,Ebase+0.5);  Mline(0,WaveBase-1.3,0,WaveBase+1.4);
+           Mline(Xdivide,-3,Xdivide,3);
+      }
+	  
+// -----------------------------------------------------------------------
+
+
+
+//////////////////////////////////////////////////////////////////////////////////
+
+//            The key-press responses - key_f()  key_h()  keyh_e()     etc .....
+
+//////////////////////////////////////////////////////////////////////////////////
+	function keys_off()	  
+	{   Keyboard_func= false; 
+     display_size();        // to restore the display size line
+      windowsize_Line.innerHTML = windowsize_Line.innerHTML + "\n  KEYBOARD OFF";
+ }
+	
+	function keys_on()	  
+	{   Keyboard_func= true;  
+    display_size();        // to restore the display size line
+    windowsize_Line.innerHTML = windowsize_Line.innerHTML + "\n  Keyboard functions on";
+  }
+		
+	function key_f()
+	{	  
+          fading = !fading;
+	  fading_text="  Fading is off";
+	  if (fading) {fading_text="  Fading is on";}
+	  
+	  To_Output="<span style=\"background-color: rgb(255, 255, 55);\">";  
+	  To_Output=To_Output +"<small>E= "+  En ;          
+	  // if (Math.abs(deltaE) > 0.000000000000000001)
+	       {To_Output=To_Output + " &nbsp;  dE=" + deltaEdisp; }
+	  To_Output=To_Output + " &nbsp; &nbsp;  " +fading_text ;
+	  //if (  started_examples == 1 ){
+	  //To_Output=To_Output + " &nbsp; &nbsp; <b>Hint:</b> hit the <b>r</b>-key to remove  example solutions!";}	  
+	      To_Output=To_Output + "</small><br></span>";
+          document.getElementById("EnergyView").innerHTML= To_Output; 	
+	}
+	function key_e()
+	{   
+	        ctx.fillStyle = '#FFFFFF'; 
+            ctx.fillRect(0, 0, rwidth, height); 
+			workspace();
+	}			
+	function key_l()
+	{     
+	        ctx.fillStyle = '#DDDDFF'; 
+            ctx.fillRect(0, 0, rwidth, height);  
+			workspace();
+	}
+			
+	function workspace()
+	{      
+	       Entemp=En;
+           Draw_Plotting();
+           plotPOTENTIAL(dR);    Action='none';  
+		   RedoSavedEnergies();
+		   En=Entemp;
+		   solveSchroed();  
+		   display_Energy();
+	}
+
+	function key_d()
+	{     
+          eval(Defaults_T); 
+          restore_Xscale();
+          //restore_Yscale();  // present in Defaults_T  Fscale=1
+		  key_e();
+	}
+
+	function key_s()
+	{     
+	       //    How_solved[hows]=manual;  Javascr_used_now=0;    manual=0; var javascr=1; 
+		   Energy[Nsaved]=En; 
+
+		   if (Javascr_used_now==1) 
+		                {How_solved[Nsaved] = javascr;}
+			    else
+				       {How_solved[Nsaved] =  manual;}   
+					   			
+           DoSavedEnergy( Nsaved );		 
+		   Add_Link_Energy( Nsaved );
+		   display_Message( "Saved energy type manual/javascr " +  How_solved[Nsaved] );
+		   Nsaved=Nsaved+1;  Action='none'; handle_outputs();	
+	}
+	function key_r()
+	{     
+		   Nsaved=0;            started_examples = 0;
+		   To_Energies="<br><b><small>Saved energies</b>" + sortlink;           
+		   document.getElementById("SavedEnergies").innerHTML= To_Energies+"</small>";
+		   Action='none'; handle_outputs(); 	
+	}
+
+function key_a()
+  {     
+       keys_on();
+       COMMS_N[V_EnergyViewOuter].style.top = -1200+adj; 
+       COMMS_N[V_EnergyViewOuter].style.left = 50;       // move Energy window
+        eval(    phys261win.Input261.value   );
+       // eval(   document.getElementById("Input261").innerHTML );
+  } 
+	function key_b()
+	{     
+       Adjust_perturb();
+	}
+	
+	function key_h()
+	{     
+          do_fading(0.7, true);
+	}
+
+	function key_p()
+	{     
+		  Adjust_potential_Vpot();
+	}
+	function key_w()
+	{     
+          handle_outputs();
+	}	  
+	function key_o()
+	{     
+          old=1;    // switched off 2020
+	}
+	function key_g()
+	{     
+		    Finish_Adjusting();	
+            display_Message("Finished Adjusting");  
+	}
+  function key_m()
+  {     
+          Adjust_Rmatch();
+  }  			  
+
+ function key_z()
+  { back_to_startpos();
+  }
+ function key_y() 
+  {   rescale_y(1.0/Y_rescaled);
+  } 
+ function key_x() 
+  {   rescale_x(1.0/X_rescaled);
+  }    
+
+	function wavefunc_posit()
+	{  
+	//  on/off the wavefunction follows energy   
+	//   plot_wave_base   plot_energy_base   plotfact
+		 if   ( plot_wave_base==1) {plot_wave_base=0; plot_energy_base=1;}	
+		 else                      {plot_wave_base=1; plot_energy_base=0;}
+		 key_e();  
+	}		
+
+function restore_Xscale()
+{     
+      rescale_x(1.0/X_rescaled);  //  remembered the  rescale_x
+}   
+
+function restore_Yscale()
+{     
+      rescale_y(1.0/Y_rescaled);  //  remembered the  rescale_y
+}   
+
+function cursor_left()
+{
+		  rescale_x(1.25);    //  energy_pad()  in rescale_x()
+}
+function cursor_right()
+{
+		  rescale_x(1/1.25);
+}		  
+function cursor_up()
+{
+		  rescale_y(1.25);	draw_energy_pad();
+}
+function cursor_down()
+{
+		  rescale_y(1/1.25); draw_energy_pad();	
+}	
+		  
+				  	  
+// -----------------------------------------------------------------------
+// -------------         BEGIN   KEYBOARD RESPONSE FUNCTION   ------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+//
+function Handle_keyboard(keyCode)
+   {
+      Action='none';
+	  running=0;
+      var TESTING=0;
+	  if ( TESTING ){
+	  Event_Output=Event_Output + " Last pressed key code is " + keyCode +  "<br>";
+	  document.getElementById("EventView").innerHTML= Event_Output+ "</small><br>";  	}  
+
+    if(Keyboard_func)
+	{  		
+      switch(keyCode)
+      {        
+	  //    KEYBOARD handlings
+	  //
+        case 69:            //  e for  erase 
+		  key_e();
+          break; 
+        case 74:            //  j for  JavaScript solves by derivative matching 
+		  key_j();
+          break; 
+        case 75:            //  k for  keyboard function on / off
+		  key_k();
+          break;           	
+        case 73:            //  i for iterative; but means single En by derivative matching 
+		  key_i();
+          break; 			  	  
+        case 76:          //    L  for light blue
+          key_l();
+          break; 
+        case 77:          //    M  for adjust matching radius
+          key_m();
+          break;         
+        case 78:          //    N  for normal forward Schroedinger for current En
+          key_n();
+          break; 		  
+        case 68:          //    d  for defaults
+          key_d();
+          break;  
+        case 70:          //    f   fading
+      key_f();
+          break; 
+        case 72:          //    h half erase
+          key_h();
+          break;  
+        case 83:          //    s   for save
+          key_s();
+          break; 
+        case 84:          //    t   for total  derivative matching replot
+          key_t();
+          break; 		  
+        case 87:          //    w   for write parameters
+          key_w();
+          break; 	
+       case 88:          //    x   rescale x-axis to DEFAULT rescale_x(1.0/X_rescaled); 
+          key_x();
+          break; 
+        case 89:          //    y   rescale y-axis to DEFAULT rescale_y(1.0/Y_rescaled); 
+          key_y();
+          break;           
+       case 90:          //    z   for move textfields to DEFAULT
+          key_z();
+          break;  
+        case 79:          //    o   old browsers
+          key_o();
+          break; 		  
+        case 65:          //    a   execute white text field 
+          key_a();		 
+          break; 
+        case 66:          //    b   for barrier
+          key_b();     
+          break;  		  
+        case 82:          //    r   for remove
+          key_r();
+          break; 
+		  
+        case 80:           //  p for potential
+		  key_p();
+          break; 
+        case 32:            //  space  for leaving potential adjusts key_g()
+		  key_g();
+          break; 
+        case 71:            //  g  for go
+		  key_g();
+          break; 
+        case 37:            //  <-  zoom out x-axis	
+		  cursor_left();	  
+		  break;
+        case 39:            //  ->  zoom in	x-axis
+		  cursor_right();	  
+		  break;
+		case 38:            //   ^ up   arrow  zoom in y-axis
+		  cursor_up();	
+		  break;		
+		case 40:            //   v down arrow  zoom out y-axis
+		  cursor_down();			
+		  break;		  
+        default: 		
+          break;  
+      }
+	}    //    if(  Keyboard_func )
+		   
+    }
+// -----------------------------------------------------------------------
+// -------------            END  KEYBOARD RESPONSE FUNCTION   ------------
+// -----------------------------------------------------------------------
+
+// -------------            BEGIN  MOUSE  RESPONSE FUNCTION   ------------
+// -----------------------------------------------------------------------
+    function Handle_Mouseclick()
+	  {  
+	    running=0;
+		
+				  		  
+		  Xdown= ( XmouseDOWN - OriginX ) * Xscale; 
+		  Ydown=( -YmouseDOWN + OriginY ) * Yscale; 
+		  Xmoved=( XmouseMOVED - OriginX ) * Xscale;    
+		  Ymoved=( -YmouseMOVED + OriginY ) * Yscale;
+		  Xup=( XmouseUP - OriginX ) * Xscale; 
+		  Yup= ( -YmouseUP + OriginY ) * Yscale;
+/////////////////////////////////////////////////////////////////////////  
+ var value=0.03;
+/*                      MESSAGE COORDINATES MOUSE/TOUCH   - used for sliders implementation
+
+ var Message_Output="<small>  Xdown"+ Xdown.toPrecision(4) +" Ydown "  +     
+                              Ydown.toPrecision(4) + " Xmoved "
+                            + Xmoved.toPrecision(4) + " Ymoved "+ Ymoved.toPrecision(4) + " ---- ";		
+		
+  document.getElementById("ParameterView").innerHTML= Message_Output + "</small><br>"; 
+*/ 
+		 if ( (XmouseDOWN > rwidth) && Adjusting==0 && BUTTONdown )  {    Sliders_Steering(); }
+		
+		if ( (XmouseDOWN < rwidth) && Adjusting==0 && mSTARTED && Clickstart== 1)
+		  { 
+		  //	 Y_math=( -y_canv + OriginY ) * Yscale;
+		  Ycalc= ( -YmouseDOWN + OriginY ) * Yscale;   //   Click over potential
+		  //  Ycalc= Ebase+En
+		  En=Ycalc-Ebase;
+		  deltaEdisp = En - En_old;    En_old=En;  deltaE=deltaE_std;      // LADCLICK
+		  
+		  Adjust_sliders();
+ 
+		  solveSchroed();
+		  }
+
+		if ( (XmouseDOWN < rwidth) && Adjusting==0 && BUTTONdown && EnergyPad==0 )
+		  {
+		   if ( (Math.abs(XmouseDOWN-XmouseMOVED)>0) || (Math.abs(YmouseDOWN-YmouseMOVED)>0) )
+		    {			
+		  //	 Y_math=( -y_canv + OriginY ) * Yscale;       //   MOVE over potential
+		  Ycalc= ( -YmouseMOVED + OriginY ) * Yscale;
+		  //  Ycalc= Ebase+En
+		  En=Ycalc-Ebase;
+		  deltaEdisp = En - En_old;    En_old=En;  deltaE=deltaE_std;
+		  //    deltaE=deltaE_std; !!!! changed to real deltaE
+		  Adjust_sliders();
+		  solveSchroed();
+
+		    }
+		  }	
+
+			 
+	//	  Here ends the normal solutions
+	//    Here starts the potential adjustment
+		  
+     //     BUTTONdown 		  	  
+     //   math coordinate system counterparts of 
+	 //  XmouseDOWN   YmouseDOWN ; XmouseMOVED  YmouseMOVED ;  XmouseUP  YmouseUP ; 
+     //   var Xdown=0; var Ydown=0; var Xmoved=0;   var Ymoved=0; var Xup=0; var Yup=0;
+
+	   if (  Adjusting==1 )
+	      {
+		    Mouse_Adjusting_Vpot();  //  These 3 functions are collected with their 'Adjusting' front-functions
+		  }
+
+	   if (  Adjusting==2 )
+	      {
+		    Mouse_Adjust_perturb();  //  These 3 functions are collected with their 'Adjusting' front-functions 
+		  }
+		// Vpert=0;  PertPos=Edge; PertWidth=1; 
+        // PertLeft=PertPos-PertWidth/2;  PertRight=PertPos+PertWidth/2; PertPI=Math.PI/PertWidth;		
+	   if (  Adjusting==3 )
+	      {
+		    Mouse_Adjust_Rmatch();  //  These 3 functions are collected with their 'Adjusting' front-functions 
+		  }
+	   if (  Adjusting==0 )
+	      {
+		    display_Energy();
+		  }		
+	    
+	}
+// -----------------------------------------------------------------------
+// -------------            END  MOUSE RESPONSE FUNCTION   ------------
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+
+function scaleCanvas(plusF)
+{
+ var twidth=width;  var theight=height;
+ twidth=twidth*plusF; theight=theight*plusF; 
+ adjustCanvas(twidth, theight);
+}
+
+function adjustCanvas(nwidth, nheight){
+var lwidth = nwidth;  var lheight= nheight;
+if (lwidth<100){lwidth=100;}  if (lwidth>1200){lwidth=1200;}
+if (lheight<100){lheight=100;}  if (lheight>1200){lheight=1200;}
+document.getElementById("container").innerHTML= 
+"<canvas id=\"DRAW_AREA\" style=\"position: relative; border: 1px solid #000;\" width=\""  + lwidth +
+"\" height=\""  +  lheight +"\"></canvas>";
+
+// <canvas id="DRAW_AREA" style="position: relative; border: 1px solid #000;" width="480" height="480"></canvas>
+
+width=lwidth;  height=lheight;  rwidth=lwidth/1.2;
+
+  OriginX=Math.ceil(width/16);
+  OriginY=height/2;  
+  //   Xmax=6;   Ymax=2.5;  Must not be re-set here - not after arrows
+  Xmin=-(OriginX)*Xmax/(width-OriginX); Ymin=-2.7;
+  Xdivide=5;  //  will be adjusted below - depends on rwidth
+  Xscale = (Xmax-Xmin)/width; Yscale =  (Ymax-Ymin)/height;
+  Xdivide = (rwidth - OriginX ) * Xscale;
+  Xrescale=1.0;
+
+  init();
+  
+  key_e();  
+}
+
+
+function display_Energy()   //  This talks to the yellow area
+{
+	  To_Output="<span style=\"background-color: rgb(255, 255, 55);\">";  
+	  To_Output=To_Output +"<small>E= "+  En ;             
+	  // if (Math.abs(deltaE) > 0.000000000000000001)
+	       { To_Output=To_Output + " &nbsp;   dE=" + deltaEdisp; }
+	  To_Output=To_Output + " &nbsp; &nbsp; " +fading_text;
+	 // if (  started_examples == 1 ){
+	 //      To_Output=To_Output + " &nbsp; &nbsp; <b>Hint:</b> hit the <b>r</b>-key to remove example solutions!";}
+	   To_Output=To_Output +  "</small><br> </span>";
+        document.getElementById("EnergyView").innerHTML= To_Output; 
+}
+
+
+  function rescale_x(xFACT)
+        {
+		    Xrescale=Xrescale*xFACT; 
+        X_rescaled= X_rescaled*xFACT;  // remembers the rescaling of X-axis
+	        ctx.fillStyle = '#FFFFFF'; 
+            ctx.fillRect(0, 0, rwidth, height);
+			
+            Xmax=Xmax * xFACT;  
+			Xmin=-(OriginX)*Xmax/(width-OriginX); 
+			
+			Xscale = (Xmax-Xmin)/width;
+            Xdivide = (rwidth - OriginX ) * Xscale;
+			for (ksl=0;ksl<Nsliders;ksl++)
+			     {x_sl[ksl]=x_sl[ksl]*xFACT; }
+            w_sl=w_sl*xFACT;
+            t_sl=t_sl*xFACT;
+			
+            Draw_Plotting();
+            plotPOTENTIAL(dR);
+			draw_energy_pad();
+		    //   RedoSavedEnergies();			
+            solveSchroed();
+		}
+
+  function rescale_y(yFACT)
+        {
+          Y_rescaled = Y_rescaled*yFACT;  // remembers the rescaling of Y-axis
+	        ctx.fillStyle = '#FFFFFF'; 
+            ctx.fillRect(0, 0, rwidth, height);
+            Draw_Plotting();
+            plotPOTENTIAL(dR);
+			Fscale=Fscale*yFACT;
+		    //  RedoSavedEnergies();			
+            solveSchroed();
+		}
+
+//      Start Adjusting potential    and Adjusting perturbation / Barrier
+//
+//     functions   Adjust_potential_Vpot() 
+//                 Mouse_Adjusting_Vpot()  
+//                 Finish_Adjusting()
+//                 Adjust_perturb()
+//                 Mouse_Adjust_perturb()
+//                 plotSquare( xxx, yyy)        
+
+function  Adjust_potential_Vpot()
+    {  window.scrollTo(0,0);
+	   Adjusting = 1;
+	   oldNsaved=Nsaved; 
+	   Nsaved=0;
+	   display_Message( "Adjusting potential: drag the small squares; When finished press 'g' or SPACE bar" );
+	   ctx.fillStyle = '#4ff'; 
+       ctx.fillRect(0, 0, rwidth, height); 	   
+       Draw_Plotting();   //  var Vpot_depth=1.5;   AND REMAINS CONSTANT
+       OdR=dR; if(old) {OdR=Opd*dR;} ;  ctx.strokeStyle='#f84';plotPOTENTIALV0(OdR); ctx.strokeStyle = '#000';plotPOTENTIAL(OdR); //  plot both potentials  
+	   plotSquare(Edge, Ebase-Vpot_depth/2);
+	   plotSquare(Edge+Steep, Ebase-0.25*Vpot_depth);	    	   
+	}
+
+function Finish_Adjusting() 
+    {  
+	   window.scrollTo(0,0);
+	   ctx.fillStyle = '#FFFFFF'; 
+       ctx.fillRect(0, 0, rwidth, height); 	   
+       Draw_Plotting();   
+       plotPOTENTIAL(dR);  
+	   if (Adjusting<3)
+            {solveSchroed();	
+	            display_Energy();}
+	   if (Adjusting==3)
+            {JavascrFindsEnergy(150);    //  JavascrSchroed( ColorsSaved[2] );
+	            display_Energy();}				
+		Adjusting = 0;	
+               plotPOTENTIAL(dR);		
+	   //    OUTPUTS  
+ 	   handle_outputs();
+	}
+	
+function Adjust_perturb()	
+    {  
+	   window.scrollTo(0,0);
+	   Adjusting = 2; Perturb=1;
+	   oldNsaved=Nsaved; 
+	   Nsaved=0;
+	  display_Message( "Adjust barrier: drag the small squares, middle up; When finished - 'g' or SPACE bar" );
+	   ctx.fillStyle = '#ff4'; 
+       ctx.fillRect(0, 0, rwidth, height); 	   
+       Draw_Plotting();   //  var Vpot_depth=1.5;   AND REMAINS CONSTANT
+       OdR=dR; if(old) {OdR=Opd*dR;} ; plotPOTENTIAL(OdR);   // Original var Edge=2.0; var Steep=0.2;  
+	   plotSquare(PertPos, Ebase-Vpot_depth);
+	   plotSquare(PertLeft, Ebase-Vpot_depth);	 plotSquare(PertRight, Ebase-Vpot_depth); 
+	   plotSquare(PertPos, Ebase+Vpot(PertPos)  );	
+       //var Vpert=0;  var PertPos=0; var PertWidth=1; var PertLeft=0; var PertRight=0; var PertPI=1;
+       //PertLeft=PertPos-PertWidth/2;  PertRight=PertPos-PertWidth/2; PertPI=Math.PI/PertWidth;
+	}
+
+
+function  Adjust_Rmatch()
+    {  window.scrollTo(0,0);
+	   Adjusting = 3; Adjusting_Rmatch = 1;
+
+	   display_Message( "Adjusting Rmatch: drag the small squares; When finished press 'g' or SPACE bar" );
+	   ctx.fillStyle = '#fbb'; 
+       ctx.fillRect(0, 0, rwidth, height); 	   
+       Draw_Plotting();   //  
+       plotPOTENTIAL(dR);   // Original var Edge=2.0; var Steep=0.2;  
+	   plotSquare(Rmatch, Ebase-Vpot_depth*0.8);
+	   plotSquare(Rmatch, Ebase+Vpot_depth*0.8);	
+	   Mline(Rmatch,Ebase-Vpot_depth*0.8,Rmatch,Ebase+Vpot_depth*0.8);    	   
+	}
+
+
+
+	
+function  plotSquare( xxx, yyy)
+    {    
+	    var boxedge=0.05;
+	     Mline(xxx-boxedge,yyy-boxedge,xxx+boxedge,yyy-boxedge);
+	     Mline(xxx+boxedge,yyy-boxedge,xxx+boxedge,yyy+boxedge);
+	     Mline(xxx+boxedge,yyy+boxedge,xxx-boxedge,yyy+boxedge);
+	     Mline(xxx-boxedge,yyy+boxedge,xxx-boxedge,yyy-boxedge);		 		 	
+	}
+	
+function Mouse_Adjusting_Vpot()
+    {   
+		  // Event_Output= Adjusting_Edge +" " + Adjusting_Steep +" " +Adjusting +" " + Edge + Xdown  + Ydown;
+          //  document.getElementById("ExtraView").innerHTML= Event_Output + "<br>"; 
+		  
+		  
+		  Xdown= ( XmouseDOWN - OriginX ) * Xscale; 
+		  Ydown=( -YmouseDOWN + OriginY ) * Yscale; 
+		  Xmoved=( XmouseMOVED - OriginX ) * Xscale;    
+		  Ymoved=( -YmouseMOVED + OriginY ) * Yscale;
+		  Xup=( XmouseUP - OriginX ) * Xscale; 
+		  Yup= ( -YmouseUP + OriginY ) * Yscale;
+
+		  if ( BUTTONdown==1 && Math.abs(Xdown-(Edge+Steep))<0.3 
+		        && Math.abs(Ydown-(Ebase-0.25*Vpot_depth)) < 0.3  )
+				{
+				 Adjusting_Steep=1;Adjusting_Edge=0; StartSteep=Steep; StartEdge=Edge;
+				}
+		  if ( BUTTONdown==1 && Math.abs(Xdown-(Edge))<0.3 
+		        && Math.abs(Ydown-(Ebase-Vpot_depth/2)) < 0.3  )   //  LADPOTENTIAL
+				{
+				 Adjusting_Edge=1;Adjusting_Steep=0; StartSteep=Steep; StartEdge=Edge;
+				}
+		  
+		  
+          if (  BUTTONdown==1 && Adjusting_Steep==1 )
+		      {
+			   // set color to background;
+			   ctx.strokeStyle = '#4ff';			   
+			   OdR=dR; if(old) {OdR=Opd*dR;} ;  plotPOTENTIALV0(OdR); plotPOTENTIAL(OdR);
+			   plotSquare(Edge, Ebase-Vpot_depth/2);  plotSquare(Edge+Steep, Ebase-0.25*Vpot_depth);
+			   // set color to foreground
+			   ctx.strokeStyle = '#000';			   
+			   Steep= Xmoved - Edge;          //   Xdown-(Edge+Steep)=0
+               if (Steep < 0.0001) {Steep=0.0001;}	
+               if (Steep > 2.5) {Steep=2.5;}				
+               Rmatch=Edge-Steep;  Rmatch=dR*Math.floor(Rmatch/dR);  // ADDED TO ADJUSTING 2019	
+			   OdR=dR; if(old) {OdR=Opd*dR;} ;ctx.strokeStyle='#f84';plotPOTENTIALV0(OdR); ctx.strokeStyle = '#000';plotPOTENTIAL(OdR);
+			   plotSquare(Edge, Ebase-Vpot_depth/2);  plotSquare(Edge+Steep, Ebase-0.25*Vpot_depth);			   			   	   
+			  }
+          if (  BUTTONdown==1 && Adjusting_Edge==1 )
+		      {
+			   // set color to background;
+			   ctx.strokeStyle = '#4ff';
+			   OdR=dR; if(old) {OdR=Opd*dR;} ;  plotPOTENTIALV0(OdR); plotPOTENTIAL(OdR);
+			   plotSquare(Edge, Ebase-Vpot_depth/2);  plotSquare(Edge+Steep, Ebase-0.25*Vpot_depth);
+			   // set color to foreground
+			   ctx.strokeStyle = '#000';
+			   Edge= Xmoved;               //   Xdown-(Edge)=0
+               if (Edge < 0.3) {Edge = 0.3;}	
+               if (Edge > 4.5) {Edge = 4.5;}				   	
+			   OdR=dR; if(old) {OdR=Opd*dR;} ;ctx.strokeStyle='#f84';plotPOTENTIALV0(OdR); ctx.strokeStyle = '#000';plotPOTENTIAL(OdR);
+			   plotSquare(Edge, Ebase-Vpot_depth/2);  plotSquare(Edge+Steep, Ebase-0.25*Vpot_depth);			   			   	   
+			   Rmatch=Edge-Steep; Rmatch=dR*Math.floor(Rmatch/dR);//   ADDED TO ADJUSTING 2019
+              }
+			  
+				
+				
+		//   when button released, we are done for the moment
+			  
+        //  if ( BUTTONdown==0 ) 
+		 //     { 
+	     //      ctx.fillStyle = '#4ff'; 
+         //      ctx.fillRect(0, 0, rwidth, height); 
+		//	   Draw_Plotting();  			   
+		//	   plotPOTENTIAL(dR);				   	  			  
+		//	  Adjusting_Edge=0; Adjusting_Steep=0; 
+	    //      plotSquare(Edge, Ebase-Vpot_depth/2);
+	    //      plotSquare(Edge+Steep, Ebase-0.25*Vpot_depth);				  
+			  
+			  
+								  		  		  
+	}	
+	
+function Mouse_Adjust_perturb()
+	      {   
+		  Xdown= ( XmouseDOWN - OriginX ) * Xscale; 
+		  Ydown=( -YmouseDOWN + OriginY ) * Yscale; 
+		  Xmoved=( XmouseMOVED - OriginX ) * Xscale;    
+		  Ymoved=( -YmouseMOVED + OriginY ) * Yscale;
+		  Xup=( XmouseUP - OriginX ) * Xscale; 
+		  Yup= ( -YmouseUP + OriginY ) * Yscale;
+
+       if (  BUTTONdown==1  &&  Clickstart==1)
+		 {    //   LADBARRIER
+		  Adjusting_width_Left=0; Adjusting_width_Right=0; Adjusting_Pos=0; Adjusting_Vpert=0;
+
+		  if (  Math.abs(Xdown-PertPos)<0.12                      // Here we are chosing by TOUCH
+		        && Math.abs(Ydown-(Ebase-Vpot_depth)) < 0.25  )   // one of the four squares
+				{ Adjusting_Pos=1; }                              // lower middle - not important, the top duplicates
+				                                                  //      the function
+				
+		  if (  Math.abs(Xdown-PertPos)<0.25                //   roughly close to the curve in y-direction
+		        && (    Ydown>(Ebase+Vpot(PertPos) ) ||   (Ebase+Vpot(PertPos) - Ydown)  < 0.12  ) )      
+				{ Adjusting_Vpert=1; }		
+
+		  if (  (Xdown-(PertLeft) )<0.3 && Xdown < PertLeft+0.08
+		        && Math.abs(Ydown-(Ebase-Vpot_depth)) < 0.25  )
+				{ Adjusting_width_Left=1; }
+		  if (  Math.abs(Xdown-(PertRight) )<0.3 && ( Xdown > PertRight-0.08 )
+		        && Math.abs(Ydown-(Ebase-Vpot_depth)) < 0.25  )
+				{ Adjusting_width_Right=1; }				
+				
+			   ctx.strokeStyle = '#00f';			    
+			   ctx.lineWidth = 3;
+			   plotPOTENTIAL(dR);				
+	           plotSquare(PertPos, Ebase-Vpot_depth);
+	           plotSquare(PertLeft, Ebase-Vpot_depth);	 plotSquare(PertRight, Ebase-Vpot_depth); 
+	           plotSquare(PertPos, Ebase+Vpot(PertPos)  );
+			   ctx.strokeStyle = '#000';			    
+			   ctx.lineWidth = 1;							
+		 }			
+      if (  BUTTONdown==1)
+	    {		  
+			   // set color to background;
+			   ctx.strokeStyle = '#ff4';			   
+			   OdR=dR; if(old) {OdR=Opd*dR;} ; plotPOTENTIAL(OdR); 
+			   ctx.lineWidth = 3;
+	           plotSquare(PertPos, Ebase-Vpot_depth);
+	           plotSquare(PertLeft, Ebase-Vpot_depth);	 plotSquare(PertRight, Ebase-Vpot_depth); 
+	           plotSquare(PertPos, Ebase+Vpot(PertPos)  );			   
+			   ctx.lineWidth = 1;
+			   // set color to foreground
+			   ctx.strokeStyle = '#000';
+			   			   
+           if (  Adjusting_width_Left==1 )
+		      {			   
+			   PertWidth = 2* ( PertPos-Xmoved);
+			   PertLeft=PertPos-PertWidth/2;  PertRight=PertPos+PertWidth/2; PertPI=Math.PI/PertWidth;          
+               if (PertWidth < 0.1) {PertWidth=0.1;}	
+               if (PertWidth > 2.5) {PertWidth=2.5;}				   	
+			   OdR=dR; if(old) {OdR=Opd*dR;} ;			   			   	   
+			  }
+          if (    Adjusting_width_Right==1 )
+		      {			   
+			   PertWidth = 2*( Xmoved-PertPos);
+			   PertLeft=PertPos-PertWidth/2;  PertRight=PertPos+PertWidth/2; PertPI=Math.PI/PertWidth;          
+               if (PertWidth < 0.15) {PertWidth=0.15;}	
+               if (PertWidth > 2.5) {PertWidth=2.5;}				   				   			   	   
+			  }
+
+          if (   Adjusting_Pos==1 || Adjusting_Vpert )
+		      {
+			   PertPos= Xmoved;  
+			   PertLeft=PertPos-PertWidth/2;  PertRight=PertPos+PertWidth/2; PertPI=Math.PI/PertWidth;             
+               if (PertPos < 0.1) {PertPos = 0.1;}	
+               if (PertPos > 4.5) {PertPos = 4.5;}				   			   			   	   
+			  }
+	       if (   Adjusting_Vpert==1 )
+		      {
+			   Vpert= Ymoved - (Ebase+Vpot0(PertPos));               
+               if (PertPos < 0.1) {PertPos = 0.1;}	
+               if (PertPos > 4.5) {PertPos = 4.5;}				   				   			   	   
+			  }
+			   Draw_Plotting();  			   
+			   plotPOTENTIAL(dR);				  
+	           plotSquare(PertPos, Ebase-Vpot_depth);
+	           plotSquare(PertLeft, Ebase-Vpot_depth);	 plotSquare(PertRight, Ebase-Vpot_depth); 
+	           plotSquare(PertPos, Ebase+Vpot(PertPos)  );							  
+	}
+			  		  
+		//   when button released, we are done for the moment
+/*			  
+          if ( BUTTONdown==0 ) 
+		      { 
+	           ctx.fillStyle = '#ff4'; 
+               ctx.fillRect(0, 0, rwidth, height); 
+			   Draw_Plotting();  			   
+			   plotPOTENTIAL(dR);				   	  			  
+               Adjusting_width_Left=0;	Adjusting_width_Right=0;
+               Adjusting_Vpert=0; Adjusting_Pos=0;	
+ 
+	           plotSquare(PertPos, Ebase-Vpot_depth);
+	           plotSquare(PertLeft, Ebase-Vpot_depth);	 plotSquare(PertRight, Ebase-Vpot_depth); 
+	           plotSquare(PertPos, Ebase+Vpot(PertPos)  );				  
+			  }
+*/
+	  }	
+	  
+function Mouse_Adjust_Rmatch()
+    {   
+		  // Event_Output= Adjusting_Edge +" " + Adjusting_Steep +" " +Adjusting +" " + Edge + Xdown  + Ydown;
+          //  document.getElementById("ExtraView").innerHTML= Event_Output + "<br>"; 
+		  		  
+		  Xdown= ( XmouseDOWN - OriginX ) * Xscale; 
+		  Ydown=( -YmouseDOWN + OriginY ) * Yscale; 
+		  Xmoved=( XmouseMOVED - OriginX ) * Xscale;    
+		  Ymoved=( -YmouseMOVED + OriginY ) * Yscale;
+		  Xup=( XmouseUP - OriginX ) * Xscale; 
+		  Yup= ( -YmouseUP + OriginY ) * Yscale;
+/////////////////////////////////////////////////////////////////////////  
+ var Message_Output="<small>  Xdown"+ Xdown.toPrecision(4) +" Ydown "  +     
+                              Ydown.toPrecision(4) + " Xmoved "
+                            + Xmoved.toPrecision(4) + " Ymoved "+ Ymoved.toPrecision(4) + " ---- ";		
+		
+  document.getElementById("ParameterView").innerHTML= Message_Output + "</small><br>"; 
+ 
+          if (  BUTTONdown==1 && Adjusting_Rmatch==1 )
+		      {
+			   // set color to background;
+			   ctx.strokeStyle = '#fbb';ctx.lineWidth = 3;
+			   ORmatch=Rmatch;  
+			   Mline(ORmatch,Ebase-Vpot_depth*0.8,ORmatch,Ebase+Vpot_depth*0.8); // plotPOTENTIAL(dR); 
+			   plotSquare(Rmatch, Ebase-Vpot_depth*0.8);plotSquare(Rmatch, Ebase+Vpot_depth*0.8);
+			   // set color to foreground
+			   ctx.strokeStyle = '#000';ctx.lineWidth = 1;
+			   Rmatch= Xmoved;               
+               if (Rmatch < 0.3) {Rmatch = 0.3;}	 Rmatch=dR*Math.floor(Rmatch/dR);
+               if (Rmatch > 4.5) {Rmatch = 4.5;}				   	
+			   Mline(Rmatch,Ebase-Vpot_depth*0.8,Rmatch,Ebase+Vpot_depth*0.8);  plotPOTENTIAL(dR); 	Draw_Plotting();
+			   plotSquare(Rmatch, Ebase-Vpot_depth*0.8);plotSquare(Rmatch, Ebase+Vpot_depth*0.8);	   			   	   
+			  }
+			  
+		//   when button released, we are done for the moment
+/*			  
+          if ( BUTTONdown==0 ) 
+		      { 			  
+				  ctx.fillStyle = '#fbb'; 
+				  ctx.fillRect(0, 0, rwidth, height); 	   
+				  Draw_Plotting();   //  
+				  plotPOTENTIAL(dR);   //   
+				  plotSquare(Rmatch, Ebase-Vpot_depth*0.8);plotSquare(Rmatch, Ebase+Vpot_depth*0.8);	 									
+			  }
+*/			  
+
+	}	
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+function display_Message( message_text )
+{
+	  To_Output="<span style=\"background-color: rgb(255, 255, 255);\">";  
+	  To_Output=To_Output +"<small>";             
+	  To_Output=To_Output + message_text;
+	   To_Output=To_Output +  "</small><br> </span>";
+        document.getElementById("Message2019").innerHTML= To_Output; 
+}
+	  
+
+//      End Adjusting potential    and Adjusting perturbation / Barrier
+
+// // // // // // // // // // // // // // // // // // // // // // // // // // // // 
+
+
+//   show_text(V_screen);show_text(V_saving);show_text(V_adjust);
+//   show_text(V_stretches);show_text(V_solves);
+
+
+function  goEnergy(  Inum )    //   SHOWING ONE OF THE SAVED ENERGIES
+{          window.scrollTo(0,0);
+	        ctx.fillStyle = '#FFFFCC'; 
+            ctx.fillRect(0, 0, rwidth, height);  
+	        ctx.lineWidth = 1;ctx.strokeStyle = '#000';
+				
+           OdR=dR; if(old) {OdR=Opd*dR;} ; Draw_Plotting(); plotPOTENTIAL(OdR);   
+		   
+		   En=Energy[Inum];
+	       ctx.lineWidth = 3;  
+		   
+	        if (How_solved[Inum] ==  manual	)
+			   {
+			     ctx.strokeStyle = ColorsSaved[Inum];		   
+			     solveSchroed();}
+	        if (How_solved[Inum] ==   javascr	)
+			   { 
+		           JavascrSchroed(ColorsSaved[Inum] );}
+				   
+	       ctx.lineWidth = 1;ctx.strokeStyle = '#000';		
+		  // display_Energy();
+		   display_Message( "Saved energy type manual/javascr " +  How_solved[Inum] );
+}
+
+// -----------------------------------------------------------------------
+function DoSavedEnergy( Inum )   //  SOLVING FOR Inum-th SAVED ENERGY VALUE
+{
+          //   tempEn=En;   This kept the energy unchanged
+		   En=Energy[Inum];
+			ctx.lineWidth = 3;  
+	        if (How_solved[Inum] ==  manual	)
+			   {
+			     ctx.strokeStyle = ColorsSaved[Inum];		   
+			     solveSchroed();}
+	        if (How_solved[Inum] ==   javascr	)
+			   { 
+		           JavascrSchroed(ColorsSaved[Inum] );}
+				   
+	       ctx.lineWidth = 1;ctx.strokeStyle = '#000';	
+		   display_Energy();		   	   
+         //  En=tempEn;     This kept the energy unchanged 
+}
+
+// -----------------------------------------------------------------------
+function RedoSavedEnergies()    //   SHOWING ALL THE THE SAVED ENERGIES
+{  var inum=0;                  //   USED WHEN CLEANING THE SCREEN
+   temEn=En;
+   window.scrollTo(0,0);
+   for (inum=0;inum<Nsaved;inum++)
+   {
+        DoSavedEnergy( inum );
+   }
+}
+
+
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+function respond_mouse()
+{
+//   XmouseDOWN=0; YmouseDOWN=0;XmouseMOVED=0; YmouseMOVED=0; 
+//   XmouseUP=0;YmouseUP=0;BUTTONdown=0; 
+Event_Output="<small> mouseDOWN "+ XmouseDOWN+" "+YmouseDOWN + 
+"  mouseUP "+ XmouseUP +" " + YmouseUP + "  mouseMOVED "+ XmouseMOVED +" " + YmouseMOVED + " BUTTON "+BUTTONdown;  //+"  EXP "+
+   // (-0.5*(1.0/(1.0+Math.exp((1.0-Edge)/Steep))))+ 
+   "</small><br>";
+   var TESTING=0;
+	  if ( TESTING )
+	  { document.getElementById("EventView").innerHTML= Event_Output + "</small><br>"; }
+}
+
+//  Saved energies
+
+
+
+//-1.4358655542595054
+// -1.0026555727455
+// -0.359966418603295
+
+function do_fading(alpha, always)
+    {
+	 window.scrollTo(0,0);
+	 ctx.fillStyle = '#FFFFFF'; 
+	 ctx.globalAlpha=alpha;
+         ctx.fillRect(0, 0, rwidth, height); 
+	 ctx.globalAlpha=1.0; 
+	 fade_counter=fade_counter+1;
+	 if (fade_counter>8 || always)
+	 {   Draw_Plotting();
+             plotPOTENTIAL(dR);	fade_counter=0; }
+    }
+
+function execute_commands(draw_yes)
+{
+ var TheCommandString = OurInputWindow.Executables.value;
+ eval( TheCommandString );
+ if ( draw_yes ) 
+ {
+ 	    ctx.fillStyle = '#FFFFFF'; 
+        ctx.fillRect(0, 0, rwidth, height);
+		Draw_Plotting();
+		plotPOTENTIAL(dR);    
+		//  RedoSavedEnergies();
+		solveSchroed();  
+		//    draw_energy_pad();
+		for (ksaved=0; ksaved< Nsaved; ksaved=ksaved+1 ) 
+		       {       Add_Link_Energy( ksaved );   }      
+ }
+}
+function handle_outputs()     //   key_w()  writes parameters to textarea
+{
+     output_string="";
+     output_string=output_string+"Vpot_depth=" + Vpot_depth + ";\n";
+     output_string=output_string+"Edge=" + Edge + ";    ";
+     output_string=output_string+"Steep=" + Steep + ";\n";
+ 
+     output_string=output_string+"sepp=\"===================================\";\n";
+ 
+     output_string=output_string+
+              "Perturb=" + Perturb + ";    " +" Vpert=" + Vpert + "; \n";
+     output_string=output_string+
+              "PertPos=" + PertPos + ";    " +" PertWidth=" + PertWidth + "; \n";  
+   
+     output_string=output_string+"sepp=\"===================================\";\n";
+
+     output_string=output_string+"Rmatch="  + Rmatch + ";\n";
+     output_string=output_string+"sepp=\"===================================\";\n";
+
+     output_string=output_string+"Nsaved=" + Nsaved + ";\n"; 
+     var lcounter=0;
+     for (var kk=0;kk<Nsaved;kk=kk+1)
+      {
+       output_string=output_string+"Energy["+kk+"]=" + Energy[kk] + ";  ";
+       lcounter=lcounter+1; 
+       if(lcounter==2){output_string=output_string+"\n"; lcounter=0; } 
+      }
+     output_string=output_string+"\n";
+     lcounter=0;
+     for (var kk=0;kk<Nsaved;kk=kk+1)
+     {
+       output_string=output_string+"How_solved["+kk+"]=" + How_solved[kk] + ";  ";
+       lcounter=lcounter+1; 
+       if(lcounter==2){output_string=output_string+"\n"; lcounter=0; } 
+     }
+     OurInputWindow.Outputs.value=output_string;
+}
+
+// Double Hump Potential
+// Vpot_depth=1.5;
+// Edge=0.5621333333333334;    Steep=0.4298666666666666;
+// sepp="===================================";
+// Perturb=1;     Vpert=-1.0497584723456739; 
+// PertPos=2.1245333333333334;     PertWidth=2.5; 
+// sepp="===================================";
+// Nsaved=4;
+// Energy[0]=-0.8911887350659337;  Energy[1]=-0.8460780040519326;  
+// Energy[2]=-0.43358182144314333;  Energy[3]=-0.19483480062434275;  
+
+// Double Hump Potential   with sharp edge - funny second energy
+// Vpot_depth=1.5;
+// Edge=0.6696;    Steep=0.0001;
+// sepp="===================================";
+// Perturb=1;     Vpert=-1.533818181818182; 
+// PertPos=1.7773333333333334;     PertWidth=1.9279999999999984; 
+// sepp="===================================";
+// Nsaved=4;
+// Energy[0]=-1.344209577848208;  Energy[1]=-1.1364228303874895;  
+// Energy[2]=-0.438067215429842;  Energy[3]=-0.21067969197718409;  
+
+
+
+
+function Energy_Set(Ener, TypeSol)
+   { this.Energy=Ener; this.TypeSol=TypeSol;  }
+       
+
+
+function sort_energies()    //  Sorting EnergyField array of objects
+{
+    EnergyField=[];
+    for (kk=0;kk<Nsaved;kk=kk+1)
+          { EnergyField[kk]=new Energy_Set(Energy[kk],How_solved[kk] );}
+
+   EnergyField.sort(function(a,b){return (a.Energy-b.Energy)});
+  
+   for (kk=0;kk<Nsaved;kk=kk+1)
+   {
+      Energy[kk]=EnergyField[kk].Energy;
+	  How_solved[kk]=EnergyField[kk].TypeSol;
+   }    
+   To_Energies="<br><small><b>Saved energies</b>" + sortlink;
+   for (ks=0; ks< Nsaved; ks=ks+1 ) { Add_Link_Energy( ks );}  
+}
+
+function delete_energy(isaved)
+{
+   for (ks=isaved; ks< Nsaved-1; ks=ks+1 ) { Energy[ks] = Energy[ks+1]; How_solved[ks]=How_solved[ks+1];} 
+   Nsaved = Nsaved-1;
+   To_Energies="<br><small><b>Saved energies</b>" + sortlink;
+   document.getElementById("SavedEnergies").innerHTML= To_Energies+"</small>";
+   for (ks=0; ks< Nsaved; ks=ks+1 ) { Add_Link_Energy( ks );}    
+}
+
+// -----------------------------------------------------------------------
+
+
+// -----------------------------------------------------------------------
+//
+function Vpot(R)                   //   Potential energy function
+{ var Q=0; var T=0; 
+  Q=-Vpot_depth*(1.0/(1.0+Math.exp((R-Edge)/Steep)));
+  PertLeft=PertPos-PertWidth/2;  PertRight=PertPos+PertWidth/2; PertPI=Math.PI/PertWidth;
+  if( ( R>PertLeft ) && ( R<PertRight ) && Perturb )
+  {
+    T = Math.cos( ( R - PertPos) * PertPI );
+    Q=Q + Vpert* T * T;
+  }
+  return( Q );
+}   
+function Vpot0(R)                   //   Potential energy function without perturbation peak
+{ var Q=0; var T=0; 
+  Q=-Vpot_depth*(1.0/(1.0+Math.exp((R-Edge)/Steep)));
+  return( Q );
+}    
+
+
+function plotPOTENTIAL(ddR)
+{  
+       var xs_canv; var xs;
+  	   var ys_canv; var ys;     
+       var iteri=0;
+    	 var Ro=0; var Rn=0;
+       var Fo=0;  var Fn=0; var donep=0;
+	 
+       xs=Ro;  ys=Ymin; //  ys=Ebase-1.6;    MODIFYING
+
+  	   xs_canv = Math.ceil(   xs / Xscale +  OriginX );
+  	   ys_canv = Math.ceil( - ys / Yscale +  OriginY ); 
+	   
+	   ctx.beginPath();	
+	   ctx.moveTo( xs_canv, ys_canv );	   
+	   ys=Ebase+Vpot(Ro);
+  	   ys_canv = Math.ceil( - ys / Yscale +  OriginY ); 
+	   
+	   ctx.lineTo( xs_canv, ys_canv );
+	   
+         for(iteri=0;iteri<100000;iteri++)
+          {
+             Rn=Ro+ddR; xs=Rn;
+             ys=Ebase+Vpot(Rn);
+             //  Mline(Ro,Ebase+Fo,Rn,Ebase+Fn);
+		    	  xs_canv = Math.ceil(   xs / Xscale +  OriginX );
+		    	  ys_canv = Math.ceil( - ys / Yscale +  OriginY ); 
+			      if (xs_canv>rwidth)
+			                {xs_canv=rwidth; donep=1;}			 
+    	      ctx.lineTo( xs_canv, ys_canv );			 
+			      Ro=Rn;
+			      Fo=Fn;
+                      
+           if ( donep==1 )  break;
+         }
+		     ys=Ymin; //  ys=Ebase-1.6;    MODIFYING   ys=Ebase-1.6;
+  	     ys_canv = Math.ceil( - ys / Yscale +  OriginY );	
+		     ctx.lineTo( xs_canv, ys_canv );
+		     ctx.closePath();	
+         ctx.stroke();
+		 
+      	 pr_alpha=ctx.globalAlpha;
+    
+		 if (Adjusting==0)   {		 
+		        ctx.fillStyle = '#888';
+		 
+					  ctx.globalAlpha=0.32;   
+                ctx.fill();
+					  ctx.globalAlpha=pr_alpha;		} 	
+
+}    // end   plotPOTENTIAL(ddR)
+
+function plotPOTENTIALV0(ddR)
+
+{  
+       var xs_canv; var xs;
+	   var ys_canv; var ys;     
+       var iteri=0;
+	 var Ro=0; var Rn=0;
+     var Fo=0;  var Fn=0; var donep=0;
+	 
+       xs=Ro;  	   ys=Ebase+Vpot0(Ro);
+
+  	   xs_canv = Math.ceil(   xs / Xscale +  OriginX );
+  	   ys_canv = Math.ceil( - ys / Yscale +  OriginY ); 
+	   
+	   ctx.beginPath();	
+	   ctx.moveTo( xs_canv, ys_canv );	
+   
+         for(iteri=0;iteri<100000;iteri++)
+          {
+             Rn=Ro+ddR; xs=Rn;
+             ys=Ebase+Vpot0(Rn);
+             //  Mline(Ro,Ebase+Fo,Rn,Ebase+Fn);
+			  xs_canv = Math.ceil(   xs / Xscale +  OriginX );
+			  ys_canv = Math.ceil( - ys / Yscale +  OriginY ); 
+			  if (xs_canv>rwidth)
+			     {xs_canv=rwidth; donep=1;}			 
+    	      ctx.lineTo( xs_canv, ys_canv );			 
+			 Ro=Rn;
+			 Fo=Fn;
+                      
+           if ( donep==1 )  break;
+         }
+
+         ctx.stroke();
+ 
+}      //    end  plotPOTENTIALV0(ddR)
+
+
+// -----------------------------------------------------------------------
+//
+//         COMPUTATION
+//
+// -----------------------------------------------------------------------
+//
+//
+//
+// -----------------------------------------------------------------------
+function Ruku()    //   One step in differential equation Runge-Kutta solution
+{ 
+// Variables for Ruku
+//
+// Runge Kutta for 2. order ODE - Schroedinger type
+//
+// R are the R-values
+// F are function values   
+// G are 1. derivative values
+//  
+// VARIABLES ALREADY DEFINED:
+// var Rold=0;  var Fold=0; var Fnew=0; var Gold=0;  var  Gnew=0; 
+// var Rmid=0;  var Gmid=0; var Fmid=0; var Vpotmid=0;   
+  
+  Rmid=Rold;
+  Gmid=Gold;
+  Fmid=Fold;
+  Fnew=Fold;
+  Gnew=Gold;
+  Vpotmid=Vpot(Rmid);
+  
+  Akg[1]=dR*(Vpotmid-En)*InvMass*Fmid;
+  Akf[1]=dR*Gmid;
+  Fnew=Fnew+E6*Akf[1];
+  Gnew=Gnew+E6*Akg[1];
+
+  for (K=2; K< 5; K++)
+   {
+ 
+    Gmid=Gold+Akg[K-1]*Rkf[K];
+    Fmid=Fold+Akf[K-1]*Rkf[K];
+    Vpotmid=Vpot(Rmid);
+    Akg[K]=dR*(Vpotmid-En)*InvMass*Fmid;
+    Akf[K]=dR*Gmid;
+    Rmid=Rold+dR*Rkf[K];
+    Ah6=E6/Rkf[K];
+    Gnew=Gnew+Ah6*Akg[K];
+    Fnew=Fnew+Ah6*Akf[K]; 
+   }
+   Rnew=Rold+dR;
+}
+// -----------------------------------------------------------------------
+//
+//         COMPUTATION
+//
+// -----------------------------------------------------------------------
+//
+function solveSchroed()
+{ 
+         Javascr_used_now=0;
+
+if (fading==1) do_fading(fade_alpha, false);
+/*   //   Edge+5*Steep;   Edge+3*Steep;
+Mline(0,Ebase+En,Edge+5*Steep,Ebase+En); - old version  */
+var localedge=Edge+5*Steep; if (localedge>Xdivide-0.2){localedge=Xdivide-0.1;}
+var localcolor=ctx.strokeStyle;
+ctx.strokeStyle = '#006';
+Mline(0,Ebase+En,localedge,Ebase+En);
+ctx.strokeStyle = '#aaf';
+Mline(localedge,Ebase+En,Xdivide,Ebase+En);
+ctx.strokeStyle = localcolor;
+
+var iteri=0;
+Fold=Fscale*(1.0-dR*dR);
+//  Fold=0;
+Rold=0;
+Gold=0;
+         for(iteri=0;iteri<100000;iteri++)
+          {
+             Ruku();
+			 //  Clipping:      //   plot_wave_base   plot_energy_base   plotfact
+			 if (Fnew < (-1.4) ) {ctx.globalAlpha=0.3;} else {ctx.globalAlpha=1;}
+			 if (plot_wave_base==1)
+			    { Mline(Rold,WaveBase+Fold,Rold+dR,WaveBase+Fnew);}
+             if (plot_energy_base==1)
+			    { Mline(Rold,Ebase+En+Fold*plotfact,Rold+dR,Ebase+En+Fnew*plotfact);}				
+             Rold=Rold+dR;
+             Fold=Fnew;
+             Gold=Gnew;
+
+		   if ( Rold > Xdivide || (Math.abs(Fnew) > 4.0  ) )  break;
+         }
+		ctx.globalAlpha=1; 
+}
+
+// -----------------------------------------------------------------------
+
+//also
+//         JavaScript finds energy  functions
+//
+//   JavascrSchroed(colorstring)   //  This function solves, does not SEARCH
+//   sumd(vec,m1,m2,xh)         //    simpson rule,  from  m1-th  to  m2-th  point
+//   JavascrFindsEnergy(N_steps)  //  This function does administration of SEARCH
+//   JavascrSearchesEnergy()    //  This function solves and performs SEARCH
+//   display_searched_Energy()    //  Light Blue energy display for Javasr_ functions
+
+function JavascrSchroed(colorstring)   //  This function solves, does not SEARCH
+{	
+    if (En < 0.0 )
+	{
+    //  if ( Xrescale > 1.26 ) {rescale_x(1.25/Xrescale);   }
+    //  if ( Xrescale < 1/(1.26*1.25*1.25) ) {rescale_x(1/(Xrescale*1.25));   }
+
+    //   Rmatch=Edge-Steep;   //  ELSEWHERE  ADDED TO ADJUSTING 2019
+    Ntot= Math.floor(1.3*Xdivide/dR) +1 ; 
+    Nmatch=Math.floor((Rmatch+0.0001)/dR);
+    Rmax=  (Ntot-1)*dR;
+
+    //
+    //	    outward integration
+    // 
+	    
+    	  Fold=Fscale*(1.0-dR*dR);     //  Fold=0;
+    	  Rold=0;
+    	  Gold=0;
+    	  psi[0]=Fscale*(1.0);
+    	  rr[0]=0;
+    	  kpoints=0;
+        for(dum=0;dum<100000;dum++) // forever
+    	      {
+    		 Ruku();
+    		 Rold=Rnew;
+    		 Fold=Fnew;
+    		 Gold=Gnew;
+			 
+    		 kpoints++;
+    
+    		 psi[kpoints]=Fnew;
+    		 rr[kpoints]=Rnew;     
+    		if ( Rnew > Rmatch-0.1*dR )  break;   
+    	     }
+    	  DerOut=Gnew/Fnew;   /*  logarithmic derivative  */
+		  
+		  var FnewA=Math.abs(Fnew)
+		  var DirF=Fnew/FnewA;
+    	 for(kg=0;kg<kpoints+1;kg++  )   { psi[kg]=0.25*psi[kg]/FnewA;}															
+    //
+    //	 inward integration
+    // 
+    	  dRsave = dR;
+    	  dR=(-dR);
+    	 
+    	    Rold =  rr[Ntot] ;
+    	    kpoints=Ntot+1;
+    	    Fold=0.000001;
+    	    Gold = Fold*(-Math.exp(-Rold*Math.sqrt(-En)) );
+    
+    	    for(bum=0;bum<100000;bum++)  // forever
+    	      {
+    		 Ruku();
+    		 Rold=Rnew; 
+    		 Fold=Fnew;
+    		 Gold=Gnew;
+    
+    		 kpoints--; 
+    	  
+    		 psi[kpoints]=Fnew;
+    		if ( Rnew < Rmatch+dR )  break;  
+		}
+    	 for(kg=kpoints;kg<Ntot+1;kg++  )  {  psi[kg]=DirF*0.25*psi[kg]/Fnew; }
+
+			  
+    	  dR=dRsave;
+ 
+		  anorm=1/psi[1]*Fscale; 	
+    	  for(kst=0;kst<Ntot-3;kst++  )  { psi[kst]=psi[kst]*anorm;  } 
+
+         ctx.lineWidth = 3;ctx.strokeStyle = colorstring;     
+    	  for(kst=0;kst<Nmatch+Math.floor((Ntot-Nmatch)*0.95);kst++  )
+    	   { 
+ 	
+		    if (plot_wave_base==1)      //   JAVASCR PLOTTING   JavascrSchroed PLOTTING
+			    { Mline(rr[kst],WaveBase+psi[kst],rr[kst+1],WaveBase+psi[kst+1]);}
+			if (plot_energy_base==1)
+			    { Mline(rr[kst],Ebase+En+psi[kst]*plotfact,rr[kst+1],Ebase+En+psi[kst+1]*plotfact);}				
+			
+    	     if ( rr[kst+1]>Xdivide  ) {break;}
+    	   }	
+	}    //   only redraw the line; no positive energy solutions	   
+	else
+	{
+	   ctx.fillStyle = '#ff4'; 
+           ctx.globalAlpha=0.2;   fading=1;
+           ctx.fillRect(0, 0, rwidth, height);   
+           ctx.globalAlpha=fade_alpha;   fading=1;		
+	}
+	ctx.lineWidth = 2;  
+ 
+                  /*   Mline(0,Ebase+En,Edge+3*Steep,Ebase+En);   
+                     	 //   Edge+5*Steep;   Edge+3*Steep;
+                     Mline(0,Ebase+En,Edge+5*Steep,Ebase+En); - old version  */
+                     var localedge=Edge+5*Steep; if (localedge>Xdivide-0.2){localedge=Xdivide-0.1;}
+                     var localcolor=ctx.strokeStyle;
+                     // ctx.strokeStyle = '#006';
+                     Mline(0,Ebase+En,localedge,Ebase+En);
+                     ctx.strokeStyle = '#aaf';
+					 ctx.lineWidth = 1;
+                     Mline(localedge,Ebase+En,Xdivide,Ebase+En);
+                     ctx.strokeStyle = localcolor;				
+				
+				
+				
+ 	ctx.lineWidth = 1;ctx.strokeStyle = '#000';       
+    display_Energy();  	 	 
+	
+
+} //  end of Javascript Schroedinger 
+
+
+//  var tst1=sumd(Energy,1 , 2, dR);  //  test of Simpson integration
+
+
+function sumd(vec,m1,m2,xh)    // double *vec, xh; int m1,m2;
+       //
+       //     simpson rule,  from  m1-th  to  m2-th  point
+       //
+ {     var summl; var m3; var m4; var kst; 
+      
+      summl=vec[m1]+vec[m2];
+      m3=m2+1;
+      m4=m1+1;
+      for(kst=m4;kst<m2;   kst+=2  )
+             summl=summl+4.0*vec[kst];
+   if( (m2-m1) > 2 ) 
+    {  
+      m3=m1+2;
+      m4=m2-1;   
+      for(kst=m3;kst<m4;   kst+=2  )
+          summl=summl+2.0*vec[kst];
+    }
+   summl=summl*xh*0.333333333;
+   return (summl);
+ }
+//  var tst1=sumd(Energy,1 , 2, dR);
+
+function JavascrFindsEnergy(N_steps)  //  This function does administration of SEARCH
+    {			
+    //  if ( Xrescale > 1.26 ) {rescale_x(1.25/Xrescale);   }    //   RESCALE_WORK
+    //  if ( Xrescale < 1/(1.26*1.25*1.25) ) {rescale_x(1/(Xrescale*1.25));   }
+
+	Javascr_used_now=1;
+	
+    accur_E = 0.00000001; 
+    //  Rmatch=Edge-Steep;            //   2019 CHANGES
+    Ntot= Math.floor(2.0*Xdivide/dR) +1 ;    // Was 1.3
+    Nmatch=Math.floor(Rmatch/dR);
+    Rmax=  (Ntot-1)*dR;
+      
+	Event_Output="<br><small>";    
+	if (En > 0.0 ) {En=-0.01; deltaE=0.0001;}
+        display_Energy();  
+
+	Bscale=Fscale;	
+	running=1;
+    Num_steps=N_steps;
+	
+	if (Math.abs(deltaE) > accur_E )
+	{
+         locvar=0;
+         JavascrSearchesEnergy();
+
+   }
+   else
+   {       
+	        ctx.fillStyle = '#FF0000'; 
+            ctx.globalAlpha=0.2;   fading=1;
+            ctx.fillRect(0, 0, rwidth, height);   
+            ctx.globalAlpha=fade_alpha;   fading=1;			   
+   }	
+}
+
+			//  START  of SEARCH_function  - for timeout 
+
+function JavascrSearchesEnergy()    //  This function solves and performs SEARCH
+{			
+if (En<0.01)
+{    // Solve only if En<0 gives  bound state
+    //
+    //	                                                  outward integration
+    // 
+	Javascr_used_now=1;
+    //
+    //	 outward integration
+    // 
+	    
+    	  Fold=Bscale*(1.0-dR*dR);     //  Fold=0;
+    	  Rold=0;
+    	  Gold=0;
+    	  psi[0]=Bscale*(1.0);
+    	  rr[0]=0;
+    	  kpoints=0;
+        for(dum=0;dum<100000;dum++) // forever
+    	      {
+    		 Ruku();
+    		 Rold=Rnew;
+    		 Fold=Fnew;
+    		 Gold=Gnew;
+                  //              Mline(Rold,WaveBase+Fold,Rold+dR,WaveBase+Fnew);
+    		 kpoints++;
+    
+    		 psi[kpoints]=Fnew;
+    		 rr[kpoints]=Rnew;     
+    		if ( Rnew > (Rmatch- 0.1*dR )    )  break;   if(  running==0 )   { break; }  
+    	     }
+    	  DerOut=Gnew/Fnew;   /*  logarithmic derivative  */
+		  
+		  var FnewA=Math.abs(Fnew)
+		  var DirF=Fnew/FnewA;
+    	 for(kg=0;kg<kpoints+1;kg++  )   { psi[kg]=0.25*psi[kg]/FnewA*Fscale;}															
+    //
+    //	 inward integration
+    // 
+    	  dRsave = dR;
+    	  dR=(-dR);
+    	 
+    	    Rold =  rr[Ntot] ;
+    	    kpoints=Ntot+1;
+    	    Fold=0.000001;
+    	    Gold = Fold*(-Math.exp(-Rold*Math.sqrt(-En)) );
+    
+    	    for(bum=0;bum<100000;bum++)  // forever
+    	      {
+    		 Ruku();
+    		 Rold=Rnew; 
+    		 Fold=Fnew;
+    		 Gold=Gnew;
+    
+    		 kpoints--; 
+    	  
+    		 psi[kpoints]=Fnew;
+    		if ( Rnew < Rmatch+dR )  break;  if(  running==0 )   { break; }
+		}
+        // One more step to reach the same point:
+        Ruku();
+        DerIn=Gnew/Fnew;  /*  logarithmic derivative  */
+
+   	 for(kg=kpoints;kg<Ntot+1;kg++  )  {  psi[kg]=DirF*0.25*psi[kg]/Fnew*Fscale; }
+			  
+    	  dR=dRsave;
+    	  for(kst=0;kst<Ntot-1;kst++  )  
+		     { pp2[kst]=psi[kst]*psi[kst];    } 		
+
+		 normint=sumd(pp2,0,Nmatch+Math.floor((Ntot-Nmatch)*0.95),dR);
+    	     anorm=Math.sqrt(normint);   anorm=1.0/anorm;
+ 	
+    	  for(kst=0;kst<Ntot-3;kst++  )  { psi[kst]=psi[kst]*anorm*Fscale;  } 
+
+         ctx.lineWidth = 1;ctx.strokeStyle = '#aa0';     
+    	  for(kst=0;kst<Nmatch+Math.floor((Ntot-Nmatch)*0.95);kst++  )
+    	   { 
+    	    Mline(rr[kst],WaveBase+psi[kst],rr[kst+1],WaveBase+psi[kst+1]);
+			 if(  running==0 )   { break; }
+    	     if ( rr[kst+1]>Xdivide  ) {break;}
+    	   }	
+	ctx.lineWidth = 1;ctx.strokeStyle = '#000';   
+    //
+    //	   estimate of new energy after Hartree's book
+    //  
+
+
+    if (fading==1) do_fading(fade_alpha/2, false);
+         /*       Mline(0,Ebase+En,Edge+3*Steep,Ebase+En); 
+           //   Edge+5*Steep;   Edge+3*Steep;
+                     Mline(0,Ebase+En,Edge+5*Steep,Ebase+En); - old version  */
+                     var localedge=Edge+5*Steep; if (localedge>Xdivide-0.2){localedge=Xdivide-0.1;}
+                     var localcolor=ctx.strokeStyle;
+                     ctx.strokeStyle = '#006';
+                     Mline(0,Ebase+En,localedge,Ebase+En);
+                     ctx.strokeStyle = '#aaf';
+					 ctx.lineWidth = 1;
+                     Mline(localedge,Ebase+En,Xdivide,Ebase+En);
+                     ctx.strokeStyle = localcolor;				
+				
+				
+				    
+ 
+    //     ENERGY SEARCH TRICKS   deltaE= (DerOut-DerIn) / 100.0  ;
+     
+     if (running==1)
+	      {     deltaE= (DerOut-DerIn) / 100.0  ; 
+		             //  deltaE=deltaE *	(En+Vpot_depth) / Vpot_depth ;
+			  if (    (En+Vpot_depth) / Vpot_depth   < 0.1 )
+			      { deltaE= (DerOut-DerIn) / 1000.0  ; }			  			  
+			  if (    (En+Vpot_depth) / Vpot_depth   < 0.05 )
+			      { deltaE= (DerOut-DerIn) / 1000.0  ; }
+			  if (    (En+Vpot_depth) / Vpot_depth   < 0.01)
+			      { deltaE= (DerOut-DerIn) / 10000.0  ; }				  
+			  if (    En < (-Vpot_depth) )
+			      { deltaE= (-En -Vpot_depth)*1.0001 ; }				  
+
+           //  if (   Math.abs( DerOut-DerIn ) > Math.abs( Old_deltaE )    ) 
+	            //  {  deltaE =  -deltaE*0.9; }
+      }
+	 if(  Math.abs(DerOut-DerIn)/100 > accur_E     ) { 
+			   En=En+deltaE;    Old_deltaE  =  DerOut-DerIn; }
+
+	 if(  Math.abs(DerOut-DerIn)/100 < accur_E    ) { running=0;}    	  
+	                       
+     
+	 display_searched_Energy();  	 	 
+	 var TESTING=0; Event_Output="<small> "
+	  if ( TESTING==2 ){
+	  Event_Output=Event_Output + "DerOut  " + DerOut +  "       DerIn  " + DerIn + "     dE "  + deltaE;
+	  document.getElementById("EventView").innerHTML= Event_Output+ "</small><br>";  	}  
+					 							   
+	locvar=locvar+1;
+	if (locvar> Num_steps ) { running=0; }
+	if (running==1)
+	     {   t=setTimeout("JavascrSearchesEnergy()",100);	}    //    TIMEOUT FUNCTION  
+	if (running==0)
+	 {	
+      ctx.lineWidth = 3;ctx.strokeStyle = '#00f'; 
+      for(kul=0;kul<Ntot-50;kul++  )
+     	   { 
+		   
+          //   SHOWING THE FINAL SOLUTION IN BLUE AND THICK       JavascrSearchesEnergy
+		  
+		  //  if (plot_wave_base==1)      //   JAVASCR PLOTTING   JavascrSchroed PLOTTING
+			    { Mline(rr[kul],WaveBase+psi[kul],rr[kul+1],WaveBase+psi[kul+1]);}
+		 //	if (plot_energy_base==1)
+			    { Mline(rr[kul],Ebase+En+psi[kul]*plotfact,rr[kul+1],Ebase+En+psi[kul+1]*plotfact);}				
+			
+		Javascr_used_now=1;		  
+			  
+			if (rr[kul+1]>Xdivide  ) {break;}
+     	   }  
+	  ctx.lineWidth = 1;ctx.strokeStyle = '#000';    	 
+    }
+}    //   only redraw the line; no positive energy solutions	   
+else
+{      running=0;   // if En>0 - no bound state - yellow bckgr
+	   ctx.fillStyle = '#ff4'; 
+           ctx.globalAlpha=0.2;   fading=1;
+           ctx.fillRect(0, 0, rwidth, height);   
+           ctx.globalAlpha=fade_alpha;   fading=1;		
+}
+	
+} //  end of SEARCH_function 
+
+function display_searched_Energy()    //  Light Blue energy display for Javasr_ functions
+{
+
+	  To_Output="<span style=\"background-color: rgb(255, 255, 255);\">";  
+	  To_Output=To_Output +"<small>E= "+  En ; 
+	  To_Output=To_Output + " &nbsp;  DerOut-DerIn   " + (DerOut-DerIn); 
+	  To_Output=To_Output + " &nbsp; &nbsp; " +fading_text;
+	  To_Output=To_Output + " &nbsp; &nbsp; <b>Hint:</b> Any action stops search";
+	   To_Output=To_Output +  "</small><br> </span>";
+        document.getElementById("EnergyView").innerHTML= To_Output; 
+}
+
+// --------------------------------------------------------------	  
+	function key_j()
+	{    window.scrollTo(0,0);JavascrFindsEnergy( 150 ); } 
+	
+	function key_i()
+	{   window.scrollTo(0,0); JavascrSchroed('#f00'); } 
+	
+	function key_k()      //   switch off / on  the Keyboard functions
+	{   
+              if (Keyboard_func==true) { keys_off(); } 
+              else { keys_on();  }
+	} 
+	
+         
+
+function key_t()        //   like key_e()   but with Javascr functions - Matchpoint solutions
+	{   
+	     window.scrollTo(0,0);
+	        ctx.fillStyle = '#FFFFFF'; 
+                ctx.fillRect(0, 0, rwidth, height); 
+	   Entemp=En;
+           Draw_Plotting();
+           plotPOTENTIAL(dR);   
+	   for (inum=0;inum<Nsaved;inum++)
+			 {        
+			    if (How_solved[inum] ==   javascr	)
+				{ key_u( inum ); } 
+			  }// Matchpoint plot inum-th Energy[ inum ] 
+	   En=Entemp; 
+	   display_Energy();
+	   //    draw_energy_pad();
+
+	}
+
+function key_u(energy_i)  //  Matchpoint plot energy_i-th
+	{   
+
+		   En=Energy[energy_i];
+	           ctx.lineWidth = 3;  
+            
+		   JavascrSchroed( ColorsSaved[energy_i] );
+	           ctx.lineWidth = 1;ctx.strokeStyle = '#000';	
+		   display_Energy();		   	   
+
+     }
+
+	function key_n()
+	{    solveSchroed(); } 
+//
+//                                END OF      JavaScript finds energy  functions
+//
+
+/////////////////////////////////////////////////////////////////////////////////////////////////	
+
+// Vpot_depth=2;
+// Edge=1.4;    Steep=1.286666666666667;
+// sepp="===================================";
+// Perturb=0;     Vpert=0; 
+// PertPos=1.4;     PertWidth=1; 
+// sepp="===================================";
+// Nsaved=5;
+// Energy[0]=-1.3257780989121744;  Energy[1]=-0.9238597302578533;  
+// Energy[2]=-0.6328779389212541;  Energy[3]=-0.4022066395067013;  
+// Energy[4]=-0.2241395602264294;  
+
+
+// Vpot_depth=1.5;
+// Edge=1.6202666666666667;    Steep=0.7906666666666666;
+// sepp="===================================";
+// Perturb=0;     Vpert=0; 
+// PertPos=1.4;     PertWidth=1; 
+// sepp="===================================";
+// Nsaved=6;
+// Energy[0]=-0.7823654038947154;  Energy[1]=-1.1835994092287752;  
+// Energy[2]=-0.458750568787413;  Energy[3]=-0.2072480276479842;  
+// Energy[4]=-0.04635345533811561;  Energy[5]=-0.04512484436425636;  
+
+
+
+var n8str=" ";
+n8str=n8str+" // Execute without draw      \n"; 
+n8str=n8str+" // Six bound states in broad potential      \n"; 
+n8str=n8str+" key_r();    \n";
+n8str=n8str+"Vpot_depth=1.5;                                                         \n"; 
+n8str=n8str+"Edge=2.909866666666667;    Steep=0.15;                                  \n"; 
+n8str=n8str+" sepp=\"===================================\";                          \n ";
+n8str=n8str+"Perturb=0;     Vpert=0;                                                 \n"; 
+n8str=n8str+"PertPos=1.4;     PertWidth=1;                                           \n"; 
+n8str=n8str+" sepp=\"===================================\";                          \n ";
+n8str=n8str+"Nsaved=6;                                                               \n"; 
+n8str=n8str+"Energy[0]=-1.4858817102652204;  Energy[1]=-1.375701378251843;           \n"; 
+n8str=n8str+"Energy[2]=-1.1667982113598556;  Energy[3]=-0.8747628275872112;          \n"; 
+n8str=n8str+"Energy[4]=-0.5192531683876007;  Energy[5]=-0.13956881033344307;         \n"; 
+n8str=n8str+"       \n"; 
+n8str=n8str+" key_t(); key_h();      \n"; 
+
+var n7str=" ";       //      FOR FUTURE USE
+n7str=n7str+"       \n"; 
+n7str=n7str+"       \n"; 
+n7str=n7str+"       \n"; 
+n7str=n7str+"       \n"; 
+n7str=n7str+"       \n"; 
+n7str=n7str+"       \n"; 
+n7str=n7str+"       \n"; 
+n7str=n7str+"       \n"; 
+n7str=n7str+"       \n"; 
+n7str=n7str+"       \n"; 
+n7str=n7str+"       \n"; 
+n7str=n7str+"       \n"; 
+n7str=n7str+"       \n"; 
+n7str=n7str+"       \n"; 
+n7str=n7str+"       \n"; 
+n7str=n7str+"       \n"; 
+
+var n9str=" ";
+n9str=n9str+"//    Execute this without draw - draw erases screen \n";
+n9str=n9str+"//    Airy-like potential - linear  with exp. \n";
+n9str=n9str+" key_r();    \n";
+n9str=n9str+" Edge=0.842258333333334;    Steep=0.6674500000000005;\n ";
+n9str=n9str+" sepp=\"===================================\";\n ";
+n9str=n9str+" Perturb=1;     Vpert=2.5124995967506742;  \n";
+n9str=n9str+" PertPos=4.0364833333333365;     PertWidth=1;  \n";
+n9str=n9str+" sepp=\"===================================\"; \n";
+n9str=n9str+"Nsaved=9;    \n";
+n9str=n9str+"Energy[0]=-0.9539715664472312;  Energy[1]=-0.4377541026382217;  \n ";
+n9str=n9str+"Energy[2]=0.053572744178218126;  Energy[3]=0.5488428216932681;  \n ";
+n9str=n9str+"Energy[4]=0.8930099675785406;  Energy[5]=1.2921591245081239;  \n ";
+n9str=n9str+"Energy[6]=1.7375927260575048;  \n ";
+n9str=n9str+"Energy[7]=2.2278185047622476;  Energy[8]=2.7388439310343684;  \n ";
+n9str=n9str+"for (ks=0; ks< Nsaved; ks=ks+1 ) { Add_Link_Energy( ks );}   \n ";
+n9str=n9str+"key_e();key_h();    \n  ";
+
+//          OurInputWindow.Examples.value=n9str     
+  
+var TouchI=0;  
+var Mouse_down_grab_X = 0;			// mouse starting positions
+var Mouse_down_grab_Y = 0;
+var Object_Orig_X = 0;			// current element offset
+var Object_Orig_Y = 0;
+
+var Dragged_Object;			// needs to be passed from OnMouseDown to OnMouseMove
+var  oldZIndex = 0;			// we increase the z-index for drag
+
+var Message_Line = refer_to_ID('message_div');	//    convert the id into a variable
+var windowsize_Line = refer_to_ID('window_size');	//    convert the id into a variable   
+var IncIndex = 3;
+	
+
+function display_size()
+{
+		windowsize_Line.innerHTML = 
+        "Browser: screen width "+
+         window.innerWidth+" height " +  window.innerHeight+ "<br> xsl=" + x_sl[0];
+
+}
+
+InitDragDrop();
+
+
+function InitDragDrop()
+{
+	document.onmousedown = OnMouseDown;      // mousemove  mousedown  mouseup
+	document.onmouseup = OnMouseUp;
+	document.ontouchstart = OnTouchStart;
+	document.ontouchend  =  OnMouseUp;
+}
+
+function OnTouchStart(eve)
+{
+   FirstIntro=0;   TouchI=1;      OnMouseDown(eve);    
+}
+
+function OnMouseDown(e)
+{
+	// IE is retarded and doesn't pass the event object
+//	if (e == null) 
+//		e = window.event; 
+	
+	// IE uses srcElement, others use target
+//	var target = e.target != null ? e.target : e.srcElement;
+    var target = e.target;
+	
+		FirstIntro=0;
+			
+	Message_Line.innerHTML = target.className == 'drag' 
+		? 'draggable element clicked' 
+		: 'NON-draggable element clicked';
+
+	// for IE, left click == 1
+	// for Firefox, left click == 0
+//	if ((e.button == 1 && window.event != null || 
+//		e.button == 0) && 
+//		(target.className == 'drag' || target.className == 'dragimg'))
+
+   if(   target.className == 'drag' || target.className == 'dragimg' )
+	{
+	    if (TouchI==1) {   e.preventDefault();		}
+		// grab the mouse position
+       if (TouchI==0) { 
+		Mouse_down_grab_X = e.clientX;
+		Mouse_down_grab_Y = e.clientY; }
+	  else {
+				var touch = e.targetTouches[ 0 ];
+				  Mouse_down_grab_X = touch.pageX;
+                  Mouse_down_grab_Y = touch.pageY;   }	  
+		
+		// grab the clicked element's position
+		Object_Orig_X = ExtractNumber(target.style.left);
+		Object_Orig_Y = ExtractNumber(target.style.top);
+		
+        
+		
+		// bring the clicked element to the front while it is being dragged
+		//    oldZIndex = target.style.zIndex;
+		target.style.zIndex =  oldZIndex + IncIndex;    //  target.style.zIndex = 10000;
+       IncIndex = IncIndex +1;		
+		// we need to access the element in OnMouseMove
+		Dragged_Object = target;
+		// display_Message("TARGET: " + target.id);  // LADTARGET
+        
+		 //  KEEP SAVED ENERGIES IN ONE POSITION part 1
+		 
+		   Saved_Top = ExtractNumber(COMMsaved_energy_div.style.top );
+		   Saved_Left= ExtractNumber(COMMsaved_energy_div.style.left);
+
+		// tell our code to start moving the element with the mouse
+		document.onmousemove = OnMouseMove;
+		document.ontouchmove = OnTouchMove;		
+		// cancel out any text selections
+		document.body.focus();
+		
+		// prevent text selection in IE
+		document.onselectstart = function () { return false; };
+		// prevent IE from trying to drag an image
+		target.ondragstart = function() { return false; };
+		
+		// prevent text selection (except IE)
+		return false;
+	}
+	//    else {}
+}
+
+
+
+function to_buffer()
+ {  
+     W1string= phys261win.Input261.value ;
+     phys261win.Input261.value = "      ";
+   }
+
+function from_buffer() 
+  {  
+      phys261win.Input261.value = W1string;
+  }
+
+
+//    convert the id into a variable
+function refer_to_ID(idname)                    //    convert the id into a variable
+{
+	return document.getElementById(idname);
+}
+
+
+function ExtractNumber(value)    //  This is used to read the position
+{
+	var n = parseInt(value);
+	
+	return n == null || isNaN(n) ? 0 : n;
+}
+function OnTouchMove(e)
+{
+
+   OnMove(e);
+}
+
+function OnMouseMove(e)
+{
+   OnMove(e);
+}
+function OnMove(e)
+{
+
+        Mouse_Moved_To_X = e.clientX;
+		Mouse_Moved_To_Y = e.clientY;
+       if (TouchI==0) { 
+		Mouse_Moved_To_X = e.clientX;
+		Mouse_Moved_To_Y = e.clientY; }
+	  else {
+				var touch = e.targetTouches[ 0 ];
+				  Mouse_Moved_To_X = touch.pageX;
+                  Mouse_Moved_To_Y = touch.pageY;   }	  
+    
+	    if (Dragged_Object!=COMMS_N[V_TableDiv])  {
+		   Saved_Top = ExtractNumber(COMMsaved_energy_div.style.top );
+		   Saved_Left= ExtractNumber(COMMsaved_energy_div.style.left);
+         }
+		
+	// this is the actual "drag code"
+	Dragged_Object.style.left = (Object_Orig_X + Mouse_Moved_To_X - Mouse_down_grab_X) + 'px';
+	Dragged_Object.style.top =  (Object_Orig_Y + Mouse_Moved_To_Y - Mouse_down_grab_Y) + 'px';
+	
+	// Message_Line.innerHTML = '(' + Dragged_Object.style.left + ', ' + Dragged_Object.style.top + ')';	
+	
+	// 
+    //    HERE WE ADJUSTED THE SAVED ENERGIES TO MOVEMENT OF THE MAIN TABLE
+    //    NOT RELEVANT IN "=!) VERSION
+    //
+	 if (Dragged_Object==COMMS_N[V_TableDiv])    //  KEEP SAVED ENERGIES IN ONE POSITION part 2
+		{  
+		   		// COMMsaved_energy_div   COMMS_N[V_TableDiv]
+
+         //  if (Dragged_before==0){  
+		  //     Saved_Top = -100; Saved_Left= 160;  
+		  //     COMMsaved_energy_div.style.top = Saved_Top ;
+		   //    COMMsaved_energy_div.style.left = Saved_Left ;
+		 // 	 Dragged_before=1;		   
+			//    display_Message("TARGET: " + Dragged_Object.id + "  "+ Saved_Top +"  "+ Saved_Left);  // LADTARGET	
+		  //   }           
+		 // else             //if (Dragged_before==1)
+		 //    { 
+		 //      COMMsaved_energy_div.style.top = Saved_Top - ( Mouse_Moved_To_Y - Mouse_down_grab_Y );
+		 //      COMMsaved_energy_div.style.left = Saved_Left - ( Mouse_Moved_To_X - Mouse_down_grab_X );
+		  // //  //      Dragged_before=1;	
+		  //   }	  	
+		}
+
+        display_Message("TARGET: " + Dragged_Object.id + "  "+ Saved_Top +"  "+ Saved_Left);  // LADTARGET	
+	 if (Dragged_Object==COMMsaved_energy_div)   
+		{  
+		   		           // COMMsaved_energy_div   COMMS_N[V_TableDiv]
+		   Dragged_before=1;
+		} 
+		
+}
+function back_to_startpos()
+{
+       // RESIZING
+       COMMsaved_energy_div.style.top = -590 -550+adj;   // Saved energy view
+       COMMsaved_energy_div.style.left = 800;   
+ 
+       COMMS_N[V_TableDiv].style.top = -550 -550+adj;     //  Menus
+       COMMS_N[V_TableDiv].style.left = 800; 
+             
+           COMMtextsdiv.style.top =  -550 -550+adj;       //  Text fields
+           COMMtextsdiv.style.left =  800;
+ 
+       COMMS_N[V_EnergyViewOuter].style.top = -570 -550+adj;  //  Energy line
+       COMMS_N[V_EnergyViewOuter].style.left = 800;    
+       Dragged_before=1;   Saved_Top = -100; Saved_Left= 160; 
+}
+
+function OnMouseUp(e)
+{
+	if (Dragged_Object != null)
+	{
+		//  Dragged_Object.style.zIndex =  oldZIndex;
+		Dragged_Object.ondragstart = null;	
+		Dragged_Object = null;
+
+		TouchI=0;  
+		Message_Line.innerHTML = 'mouse up';
+        display_Message("no drag")
+							
+        IncIndex = IncIndex +1;
+		// we're done with these events until the next OnMouseDown
+		document.onmousemove = null;
+		document.onselectstart = null;
+
+        document.ontouchmove = function(e){ return true; }
+		// this is how we know we're not dragging
+
+
+
+	}
+}
+
+
+function clearSelection()
+{
+//   Double click in safari;
+//   preventDefault();
+// if(document.selection || document.selection.empty)
+ {
+//    document.selection.empty() ;   
+ }  
+}
+
+// sliders[0]=new vert_slider( x_sl[0], -2.4,  w_sl, 4.8, t_sl, '#AAFF66' , '#889900', 0
+function vert_slider( xx, yy, wi, hi, tole, colorb, colorf, startval )
+{
+  this.xx=xx; this.yy=yy;
+  this.xs = xx-tole;  this.xe = xx + wi  + tole;
+  this.ys = yy-tole;  this.ye = yy + hi  + tole;
+  this.wi=wi; this.hi=hi;
+  this.col_b=colorb;   this.col_f=colorf;
+  this.value=startval; this.tole=tole;
+  
+  this.start = function()
+    {
+	 Mrect( this.xx,this.yy, this.wi, this.hi, this.col_b);
+	 Mrect( this.xx,this.yy, this.wi, this.hi*this.value, this.col_f);
+	// document.getElementById("EventView").innerHTML=document.getElementById("EventView").innerHTML + " Started slider <br>" ;
+	}
+
+  this.mouse_do = function()
+    {   //  		  Xdown, Ydown, Xmoved, Ymoved
+      if ( (this.yy-this.tole )< Ydown   && Ydown < (this.yy + this.hi + this.tole) )
+          {
+		   this.value=( Ydown - this.yy ) / this.hi ;
+		   if (this.yy < Ymoved   && Ymoved < (this.yy + this.hi) )
+		       {this.value=( Ymoved - this.yy ) / this.hi ;}
+		  if (  Ydown > (this.yy + this.hi) )
+		       {this.value= 1.0 ;  single=1;}	   
+          if (  Ymoved > (this.yy + this.hi) )
+		       {this.value= 1.0 ;  single=1;}		
+           if (this.yy > Ymoved  )
+		       {this.value=0.0 ;}	
+		  if ( this.value > 1.0 ){this.value= 1.0; single=1;}  if ( this.value < 0.0 ){this.value= 0.0;}
+	       Mrect( this.xx,this.yy, this.wi, this.hi, this.col_b);
+	       Mrect( this.xx,this.yy, this.wi, this.hi*this.value, this.col_f);		   
+		  }
+	}
+	this.setValue = function(val )
+	{
+	  this.value= val;
+	       Mrect( this.xx,this.yy, this.wi, this.hi, this.col_b);
+	       Mrect( this.xx,this.yy, this.wi, this.hi*this.value, this.col_f);	  
+	}
+
+}
+
+
+function Sliders_Steering()
+    {   
+	  
+		  Xdown= ( XmouseDOWN - OriginX ) * Xscale; 
+		  Ydown=( -YmouseDOWN + OriginY ) * Yscale; 
+		  Xmoved=( XmouseMOVED - OriginX ) * Xscale;    
+		  Ymoved=( -YmouseMOVED + OriginY ) * Yscale;
+		  Xup=( XmouseUP - OriginX ) * Xscale; 
+		  Yup= ( -YmouseUP + OriginY ) * Yscale;
+ 
+        for (ksl=0;ksl<Nsliders; ksl++)    //  Checking clicks in sliders regions
+	       {
+          if ( sliders[ksl].xs<Xdown && Xdown<sliders[ksl].xe && sliders[ksl].ys < Ydown && Ydown < sliders[ksl].ye)
+                 { 
+				    sliders[ksl].mouse_do(); 
+					
+				       //  if (ksl==0 )   actually allways
+					    { deltaE= Math.exp(-10.0* elog* (1-    sliders[0].value   ));  }
+				  
+				       if (ksl >0 ) 
+					     { 
+					          if(ksl==1) 
+							  { 
+							        sliders[2].setValue(0);
+									if (sliders[1].value<0.05) {sliders[1].setValue(0.95)}
+									if (sliders[1].value>0.98) {sliders[1].setValue(0.05)}
+							  }
+							  if(ksl==2) 
+							  { 
+							       sliders[1].setValue(1);
+									if (sliders[2].value<0.05) {sliders[2].setValue(0.95)}
+									if (sliders[2].value>0.98) {sliders[2].setValue(0.05)}								   
+							  }
+					          Respond_to_Sliders(-1+2*(ksl-1));    //  ksl:  1 -> -1  2 -> +1
+                          }
+                      deltaEdisp=deltaE;
+					  display_Energy();
+
+				 }  
+	       
+		}
+//     
+}	//  end communication
+
+
+function Respond_to_Sliders(signE)
+		
+{		     
+									
+			En=En + signE * deltaE;
+									
+			 if (En > 3.85)
+			   { En=3.85; 
+			      if (HitEnd==0)			   
+			      {    deltaEdisp=0;
+					  pr_alpha=ctx.globalAlpha;
+					  ctx.fillStyle = '#FF0000'; 
+					  ctx.globalAlpha=0.2;   
+					  ctx.fillRect(0, 0, rwidth, height);   
+					  ctx.globalAlpha=pr_alpha; HitEnd=1;		   
+			      }	
+			    }
+			 if (En < (-Vpot_depth-0.1))     //WORKLAD    Vpot
+			   { En=(-Vpot_depth-0.1);  
+			      if (HitEnd==0) 
+			      {    deltaEdisp=0;
+					  pr_alpha=ctx.globalAlpha;
+					  ctx.fillStyle = '#FF0000'; 
+					  ctx.globalAlpha=0.2;   
+					  ctx.fillRect(0, 0, rwidth, height);   
+					  ctx.globalAlpha=pr_alpha; HitEnd=1;		   
+			      }				   
+			   }			   
+		     solveSchroed();
+
+}	
+         
+function Adjust_sliders()
+	{
+		  if (deltaEdisp > 0 )
+		        {  sliders[1].setValue( 1 ); sliders[2].setValue( 0.7 ); } // blue empty, red full
+		  if (deltaEdisp < 0 )
+		        {  sliders[1].setValue( 0.3 ); sliders[2].setValue( 0 ); } // blue full, red empty
+				
+		  //  deltaE= Math.exp(-10.0* elog* (1-    sliders[0].value   ));
+		  //    value= 1 + log (delta) / (10.0* elog)
+
+		  if ( Math.abs(deltaEdisp) > 0.000000000001 ) 
+		    {
+		         value=1+Math.log(Math.abs(deltaEdisp))/(10*elog) ;
+				 if (value > 1 ){value=0.97;}
+				 if (value < 0.03 ){value=0.03;}
+		         sliders[0].setValue( value );
+			}	
+   }
+
+
+function demo_a()
+{
+     key_h();key_h();key_h();key_h();key_l();
+      key_r();        
+     Vpot_depth=1.5;       Edge=1.4;    Steep=0.15;
+       sepp="===================================";
+       Perturb=1;     Vpert=2.7994545454545454; 
+       PertPos=1.7773333333333334;     PertWidth=0.9424000000000001; 
+       sepp="===================================";
+       Nsaved=5;
+       Energy[0]=-1.4347905102971015;  Energy[1]=-0.98212982166903035;
+       Energy[2]= -0.219480685;        
+       Energy[3]=0.7939763271387807;  Energy[4]=1.98718532688595; 
+       How_solved[0]=javascr; How_solved[1]=javascr; How_solved[2]=javascr;
+       How_solved[3]=manual; How_solved[4]=manual;    
+       for (ks=0; ks< Nsaved; ks=ks+1 ) { Add_Link_Energy( ks );}   
+       key_e();
+       sepp="===================================";
+       for (Enk= 0.777;Enk<0.812;Enk=Enk+(0.812-0.777)/30) {En=Enk;  solveSchroed(); } 
+       for (Enk= 1.91;Enk<2.091;Enk=Enk+(2.091-1.91)/30) {En=Enk;  solveSchroed(); }
+ 
+       for (ks=0; ks< Nsaved; ks=ks+1 ) DoSavedEnergy( ks );        
+       En=Energy[4]; DoSavedEnergy( 4);  
+}
+
+function demo_b()
+{
+//  schroed_narrow_well_4state
+key_r();
+Ebase=2.5;
+Vpot_depth=5;
+Edge=0.9;    Steep=0.1;
+sepp="===================================";
+Perturb=0;     Vpert=0; 
+PertPos=1.4;     PertWidth=1; 
+sepp="===================================";
+Rmatch=0.6125;
+sepp="===================================";
+Nsaved=4;
+Energy[0]=-4.826383075032646;  Energy[1]=-3.671545265611734;  
+Energy[2]=-1.9120848503397057;  Energy[3]=-0.189944983574947;  
+En=3.0;
+for (ks=0; ks< Nsaved; ks=ks+1 ) {How_solved[ks]=javascr;}  
+for (ks=0; ks< Nsaved; ks=ks+1 ) { Add_Link_Energy( ks );} 
+
+cursor_right();cursor_right();  // adjusts the X-axis scaling
+key_e();  
+}
+
+
+
+function demo_bound()
+{
+key_r();
+Ebase=0.5;
+Vpot_depth=3;
+Edge=0.9146341463414633;    Steep=0.5762195121951219;
+sepp="===================================";
+Perturb=1;     Vpert=-0.003821728752037512; 
+PertPos=4.152439024390244;     PertWidth=0.75; 
+sepp="===================================";
+Nsaved=4;
+Energy[0]=-2.152308379904215;  Energy[1]=-1.2687209870778526;  
+Energy[2]=-0.6577245974471098;  Energy[3]=-0.22617688083960236;  
+How_solved[0]=javascr; How_solved[1]=javascr; How_solved[2]=javascr;
+How_solved[3]=javascr;
+Rmatch=0.40;
+
+for (ks=0; ks< Nsaved; ks=ks+1 ) { Add_Link_Energy( ks );} 
+for (ks=0; ks< Nsaved; ks=ks+1 ) DoSavedEnergy( ks );  
+    En=1.0;   solveSchroed();   
+key_e();    
+    En=1.0;   solveSchroed(); 
+
+}
+
+
+function work_bound()
+{
+key_r();
+Ebase=0.5;
+Vpot_depth=3;
+Edge=0.9146341463414633;    Steep=0.5762195121951219;
+sepp="===================================";
+Perturb=1;     Vpert=-0.0000000; 
+PertPos=4.152439024390244;     PertWidth=0.75; 
+sepp="===================================";
+Nsaved=0;
+
+Rmatch=0.40;
+  
+key_e();    
+    En=1.0;   solveSchroed(); 
+
+}
+
+function work_bound2()
+{
+key_r();
+Ebase=0.5;
+Vpot_depth=3;
+Edge=1.9; Steep=0.15;  
+sepp="===================================";
+Perturb=1;     Vpert=-0.0000000; 
+PertPos=4.152439024390244;     PertWidth=0.75; 
+sepp="===================================";
+Nsaved=0;
+Rmatch=1.216;
+key_e();    
+    En=1.0;   solveSchroed(); 
+}
+
+function sq_w()      //  square well states
+{
+//     Place the energy display
+
+       COMMS_N[V_EnergyViewOuter].style.top = -1270+adj;
+       COMMS_N[V_EnergyViewOuter].style.left = 50;    
+
+     key_r();       //  removes saved energies
+     key_h(); key_h();
+     Ebase=0.5; 
+     Vpot_depth=3;
+     Edge=1.9;    Steep=0.0001;
+     sepp="===================================";
+     Perturb=0;     Vpert=0; 
+     PertPos=4.1;     PertWidth=0.75; 
+     sepp="===================================";
+     Rmatch=1.8995;
+     sepp="===================================";
+     Nsaved=5;
+     Energy[0]=-2.9726265204555378;  Energy[1]=-2.754017851084839;  
+     Energy[2]=-2.319045192166905;  Energy[3]=-1.6736499627385701;  
+     Energy[4]=-0.8340233069152053;  
+     En=3.0;
+     for (ks=0; ks< Nsaved; ks=ks+1 ) {How_solved[ks]=javascr;}  
+     for (ks=0; ks< Nsaved; ks=ks+1 ) { Add_Link_Energy( ks );}   
+     key_e();  
+}    //  End sq_w()
+
+
+function anim_demo(){
+	//     Place the energy display
+
+	 	   COMMS_N[V_EnergyViewOuter].style.top = -1270+adj;
+		   COMMS_N[V_EnergyViewOuter].style.left = 50;    
+
+//  6 states of standard
+key_r();
+Ebase=0.5;
+Vpot_depth=3;
+Edge=1.9;    Steep=0.15;
+Rmatch=1.216;
+sepp="===================================";
+Perturb=1;     Vpert=0; 
+PertPos=4.152439024390244;     PertWidth=0.75; 
+sepp="===================================";
+Nsaved=6;
+Energy[0]=-2.9609545307656973;  Energy[1]=-2.6726229768464855;  
+Energy[2]=-2.165385614488696;  Energy[3]=-1.500320395750157;  
+Energy[4]=-0.7459710920903452;  Energy[5]=-0.06688979056300898;  
+ 
+for (ks=0; ks< Nsaved; ks=ks+1 ) How_solved[ks]=javascr;
+
+for (ks=0; ks< Nsaved; ks=ks+1 ) { Add_Link_Energy( ks );} 
+for (ks=0; ks< Nsaved; ks=ks+1 ) DoSavedEnergy( ks );  
+    En=1.0;   solveSchroed(); 
+key_e();    
+kind=0;
+allowanim=1; handle_outputs();
+
+ttt=setTimeout("ShowOne()",1800);
+
+}   //   end of anim_demo();
+
+function ShowOne()
+{   key_h(); kwait=500;
+    if (kind < 2) {key_h(); key_h(); kwait=1200;}
+
+    DoSavedEnergy( kind );
+    kind=kind+1;
+    if(allowanim){
+    if (kind < Nsaved) ttt=setTimeout("ShowOne()",kwait);
+    if (kind == Nsaved) ttt=setTimeout("anim_demo()()",kwait);
+   }
+} 
+function stop_anim() {allowanim=0;}
+</script>
+</body>
+</html>
+
+
+

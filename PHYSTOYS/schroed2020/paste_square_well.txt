@@ -1,0 +1,44 @@
+//  Paste this into the white window 
+//  (first empty it)
+//  press key a  - or "Execute lines below"
+key_r();       //  removes saved energies
+key_h(); key_h(); 
+Vpot_depth=3;
+Edge=1.9;    Steep=0.0001;
+sepp="===================================";
+Perturb=0;     Vpert=0; 
+PertPos=4.1;     PertWidth=0.75; 
+sepp="===================================";
+Rmatch=1.8995;
+sepp="===================================";
+Nsaved=5;
+Energy[0]=-2.9726265204555378;  Energy[1]=-2.754017851084839;  
+Energy[2]=-2.319045192166905;  Energy[3]=-1.6736499627385701;  
+Energy[4]=-0.8340233069152053;  
+En=3.0;
+for (ks=0; ks< Nsaved; ks=ks+1 ) {How_solved[ks]=javascr;}  
+for (ks=0; ks< Nsaved; ks=ks+1 ) { Add_Link_Energy( ks );}   
+key_e();  
+
+
+//  schroed_narrow_well_4stC.png
+Ebase=2.5;
+Vpot_depth=5;
+Edge=0.9;    Steep=0.1;
+sepp="===================================";
+Perturb=0;     Vpert=0; 
+PertPos=1.4;     PertWidth=1; 
+sepp="===================================";
+Rmatch=0.6125;
+sepp="===================================";
+Nsaved=4;
+Energy[0]=-4.826383075032646;  Energy[1]=-3.671545265611734;  
+Energy[2]=-1.9120848503397057;  Energy[3]=-0.189944983574947;  
+En=3.0;
+for (ks=0; ks< Nsaved; ks=ks+1 ) {How_solved[ks]=javascr;}  
+for (ks=0; ks< Nsaved; ks=ks+1 ) { Add_Link_Energy( ks );} 
+
+cursor_right();cursor_right();  // adjusts the X-axis scaling
+key_e();  
+
+
