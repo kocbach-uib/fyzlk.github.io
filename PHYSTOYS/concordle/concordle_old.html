@@ -1,0 +1,601 @@
+<html>
+<head>
+  <meta content="text/html;charset=ISO-8859-1" http-equiv="Content-Type">
+  <title> (Baby) Concordle - Not so pretty cousin of Wordle</title>
+
+<script type="text/javascript">
+
+var SnippLen=7;    // This is half the snippet length
+// Definitions of control characters in the text
+var Big="<big>"; var DBig="</big>"; var NL="<br>"; 
+var Small="<small>"; var DSmall="</small>"; 
+var Bold="<b>"; var DBold="</b>";
+
+var Small="<small>"; var DSmall="</small>"; 
+function FBig(n) {var big1=Big; for (k=0;k<n;k++){big1=big1+Big;} return big1;}
+function FDBig(n) {var big1=DBig; for (k=0;k<n;k++){big1=big1+DBig;} return big1;}
+
+// Color1="0, 153, 153";
+// Color2="153, 100,0";
+// var TColor1="<div style=\"font-family: Helvetica,Arial,sans-serif; color: rgb(";
+// var TColor2=");\">";
+// function FColor(Strin) {var col1=TColor1 + Strin + TColor2;return col1;}
+// var DColor="</div>";
+
+
+function compareNum( a,  b) { return (a - b);}                   // for Numbers    - Sorting
+function num2dat(a){stringr="A"+a; return stringr.substring(1);} //  For hashing - Backpointers
+
+var To_Output="";  var Saved_Output="";
+var OriginalString=""; var orig_sentence=""; var orig_words=[];  
+var standard_sentence="";  
+var standard_words=[];
+var sorted_words=[]; var unique_words=[]; var multiples=[]; // these are the unique words alphabetically  
+var sorted_uniq_words=[]; var  sorted_multip=[];  // these are the unique words order by frequency
+var numpointer=[];             //    needed only in concordance function  (was written fro "fog", not cloud)
+function analyze_text()
+{
+   OriginalString =  myInputWindow.theInsertedText.value;
+ 
+   //  The lines containing innerHTML attribute correspond to the document.write()
+   //  But this is so much more flexible
+   //  First we collect a big string of HTML into To_Output 
+   //  And than we add it to the innerHTML of the identified areas
+   //  In here they are called "firstPar"  and  "secondPar"
+   //  These areas are defined in the body of the text
+   //  by:  <div id="firstPar">   etc
+ 
+     // Regular expressions:  A '\' 
+    // following meaning: n=newline, 
+    // t=tab, 
+    // v=vertical tab, 
+    // b=backspace, 
+    // r=carriage return, 
+    // f=form feed, 
+    // 0= the null character.
+    
+    orig_sentence=OriginalString.replace(/\n/g, "  ");   //  remove newlines
+    orig_sentence=OriginalString.replace(/\t/g, "  ");   //  remove tabs
+    orig_sentence=OriginalString.replace(/\v/g, "  ");   //  remove tabs
+    orig_sentence=OriginalString.replace(/\r/g, "  ");   //  remove tabs
+    orig_sentence=OriginalString.replace(/\f/g, "  ");   //  remove tabs
+    orig_sentence=OriginalString.replace(/\f/g, "  ");   //  remove tabs
+    orig_sentence=OriginalString.replace(/\x0a/g, "  ");   //  remove controls
+    orig_sentence=OriginalString.replace(/\x0b/g, "  ");   //  remove controls
+    orig_sentence=OriginalString.replace(/\x0c/g, "  ");   //  remove controls
+    orig_sentence=OriginalString.replace(/\x0d/g, "  ");   //  remove controls
+    orig_sentence=OriginalString.replace(/\x0e/g, "  ");   //  remove controls
+    
+    
+   for (k=0;k<20;k++) 
+    {
+    orig_sentence=orig_sentence.replace(/  /gi, " ");    // repeat removing double dots
+    orig_sentence=orig_sentence.replace(/\.\./gi, ".");
+    orig_sentence=orig_sentence.replace(/--/gi, "-");
+     }  
+    orig_sentence=orig_sentence.replace(/-/g, " "); 
+    orig_sentence=orig_sentence.replace(/ :/g, ":"); 
+    orig_sentence=orig_sentence.replace(/:/g, ": "); 
+    orig_sentence=orig_sentence.replace(/ ;/g, ";"); 
+    orig_sentence=orig_sentence.replace(/;/g, "; "); 
+    orig_sentence=orig_sentence.replace(/ !/g, "!"); 
+    orig_sentence=orig_sentence.replace(/!/g, "! "); 
+    orig_sentence=orig_sentence.replace(/ \?/g, "\?"); 
+    orig_sentence=orig_sentence.replace(/\?/g, "\? "); 
+    
+    
+    orig_sentence=orig_sentence.replace(/-/gi, " "); 
+    orig_sentence=orig_sentence.replace(/ \)/g, ") ");     // replace "word )" by "word) "
+    orig_sentence=orig_sentence.replace(/\( /gi," (");     // replace "( word" by " (word" 
+         
+    orig_sentence=orig_sentence.replace(/ \./gi, ".");
+    orig_sentence=orig_sentence.replace(/ ,/gi, ",");
+    orig_sentence=orig_sentence.replace(/\./gi, ". ");
+    
+    orig_sentence=orig_sentence.replace(/,/gi, ", ");
+    orig_sentence=orig_sentence.replace(/\"/gi, " ");
+    orig_sentence=orig_sentence.replace(/\//gi, " ");
+    orig_sentence=orig_sentence.replace(/ \)/g, ") ");     // replace "word )" by "word) "
+    orig_sentence=orig_sentence.replace(/\( /gi, " (");    // replace "( word" by " (word"    
+    
+   for (k=0;k<20;k++) 
+   {
+    orig_sentence=orig_sentence.replace(/  /gi, " ");
+    }
+    orig_sentence=orig_sentence.replace(/\( \)/gi, "");
+    orig_sentence=orig_sentence.replace(/\(\)/gi, "");
+    
+    orig_words=orig_sentence.split(" ");
+    
+    standard_sentence=orig_sentence;   
+    standard_sentence=standard_sentence.replace(/\./gi, "");
+    standard_sentence=standard_sentence.replace(/,/gi, "");
+    standard_sentence=standard_sentence.replace(/:/gi, "");  
+    standard_sentence=standard_sentence.replace(/\?/gi, "");
+    standard_sentence=standard_sentence.replace(/!/gi, "");
+    standard_sentence=standard_sentence.replace(/\(/gi, "");    // remove ( )
+    standard_sentence=standard_sentence.replace(/\)/gi, "");    
+    standard_sentence=standard_sentence.replace(/'s/gi, "");   // remove in John's 's  
+    standard_sentence=standard_sentence.replace(/s'/gi, "s");  // remove in Smits' ' 
+   // standard_sentence=standard_sentence.replace(/'/gi, "");    // OPTIONAL: remove ' alltogether 
+    standard_sentence=standard_sentence.toLowerCase();
+    standard_words=standard_sentence.split(" ");
+    
+   
+    
+// ==============================================================  
+
+  //  Here we start sorting 
+   
+  sorted_words=[];  //  The arrays must be emptied if you want to restart
+  klen=0;
+  for(i = 0; i < standard_words.length; i++) 
+     {  if (standard_words[i].length > 2  )           //  exclude funny strings and short words 
+        {sorted_words[klen]=standard_words[i];  klen=klen+1;} }
+	
+        sorted_words.sort();    //  Here the words are alphabetically sorted
+ 
+// ==============================================================  
+
+   //  And here we count the sorted    - Alphabetic sorting
+   
+   unique_words=[];     //  The arrays must be emptied if you want to restart
+   multiples=[];
+   var Number_of_unique=0;
+   unique_words[Number_of_unique]=sorted_words[0];
+   multiples[Number_of_unique]=1;
+   Number_of_unique=1;
+
+  for(i = 1; i < sorted_words.length; i++)
+    {
+        if (sorted_words[i] != sorted_words[i-1] )
+          {
+          unique_words[Number_of_unique]=sorted_words[i];
+          multiples[Number_of_unique]=1*0+1;    
+          Number_of_unique=Number_of_unique+1;
+           }
+         else
+         {  multiples[Number_of_unique-1]=multiples[Number_of_unique-1]+1; }
+    }
+
+// ==============================================================  
+
+   //  And here we arrange by frequency, i.e by how many times     
+
+   var hashcoef=10; var hash_numbers=[]; var backpointer=[];
+
+   for(i = 0; i < 6; i++){ if(multiples.length>hashcoef){hashcoef =hashcoef*10;}  }
+   for(i = 0; i < multiples.length; i++)
+     {
+       hash_numbers[i]=multiples[i]+i/hashcoef;
+       backpointer[num2dat(hash_numbers[i])]=i;
+     }
+     
+   hash_numbers.sort( compareNum );  //  Hashnumbers:  value + position/hashcoef
+                                     // backpointers are a hash made of strings num2dat
+       for(i = 0; i < hash_numbers.length; i++)
+       {
+         sorted_multip[i]= multiples[backpointer[num2dat(hash_numbers[i])]];
+         sorted_uniq_words[i] =  unique_words[backpointer[num2dat(hash_numbers[i])]];
+	 numpointer[i]=backpointer[num2dat(hash_numbers[i])];
+        }
+  
+   
+//                     sorted_uniq_words[]
+//                     sorted_multip[]
+
+}   //============     Here ends analyze_text()  ==================
+
+function analyze_to_arrow(){
+   analyze_text();
+   All_words_arrow();    // Ascending frquency 
+}
+  
+function analyze_to_fog(){
+   analyze_text();
+   All_words_fog();  // No cloud; only fog
+}  
+  
+ function analyze_to_cloud(){
+   analyze_text();
+   All_words_cloud();  // Wordle family likenes
+}  
+ 
+analyze_to_arrow()
+analyze_to_fog()
+analyze_to_cloud()
+   
+
+
+
+
+
+function All_words_arrow()
+{
+  // ============================================================== 
+  document.getElementById("firstPar").innerHTML=" ";
+
+  To_Output="<table style=\"text-align: left; vertical-align:top; "+
+                  " width: 900px;\" border=\"0\" "+
+                  " cellpadding=\"2\" cellspacing=\"2\" bgcolor=\"#FFFFFF\"> <tbody><tr> "
+		  +"<td style=\"text-align: center; vertical-align:top;\">"; 
+  
+  for( i=0;i<unique_words.length; i++)
+      {    //   Taking each unique word and its count; print Big or Bold
+        the_word=sorted_uniq_words[i];  the_multi=sorted_multip[i];
+	if (the_multi==1){To_Output=To_Output+Small;}
+        if (the_multi>2){To_Output=To_Output+Bold;}
+	if (the_multi>3){To_Output=To_Output+Big;}
+	To_Output=To_Output+"<a href=\"javascript:concorder_text(" + numpointer[i] +")\" "+
+	         " style=\"text-decoration:none; color: rgb(70,70,0)\">" +
+	          the_word +" ("+the_multi+")</a> ";    //  Link to concorder_text(i)
+	if (the_multi>2){To_Output=To_Output+DBig;}      
+        if (the_multi>1){To_Output=To_Output+DBold;}
+	if (the_multi==1){To_Output=To_Output+DSmall;}	         
+      }
+  	To_Output=To_Output+"</td> </tr>";  
+	To_Output=To_Output+" </tbody></table>"; 
+   
+   document.getElementById("firstPar").innerHTML=
+   document.getElementById("firstPar").innerHTML  +To_Output+"<br>";
+   
+  // ==============================================================
+}
+
+
+
+
+
+
+
+
+function All_words_cloud()
+{
+  // ============================================================== 
+  document.getElementById("firstPar").innerHTML=" ";
+  
+  
+  var startval=0;
+  if (unique_words.length > 120 ){startval=unique_words.length-119;}
+  
+  To_Output="<table style=\"text-align: left; vertical-align:top; "+
+                  " width: 900px;\" border=\"0\" "+
+                  " cellpadding=\"2\" cellspacing=\"2\" bgcolor=\"#FFFFFF\"> <tbody><tr> "
+		  +"<td style=\"text-align: center; vertical-align:top;\">"; 
+  var Top_i=startval;  var stepper=0;
+  var offset=sorted_multip[startval]
+  for( i=startval;i<unique_words.length; i=i+2)
+      {    //   Taking each unique word; print Big or Bold
+        stepper++;
+	if (stepper==5){To_Output=To_Output+NL;}
+	if (stepper==12){To_Output=To_Output+NL;}
+	if (stepper==28){To_Output=To_Output+NL;}
+	if (stepper==40){To_Output=To_Output+NL;}
+        the_word=sorted_uniq_words[i];  the_multi=sorted_multip[i];
+	To_Output=To_Output+Small+Small;
+	var nBig=Math.floor((the_multi-offset)/2); if (nBig > 5){nBig=5;}
+	To_Output=To_Output+FBig(nBig);
+        
+        if ((the_multi-offset)-2*Math.floor((the_multi-offset)/2)!=0){To_Output=To_Output+Bold;}
+
+	To_Output=To_Output+"<a href=\"javascript:concorder_text(" + numpointer[i] +")\" "+
+	         " style=\"text-decoration:none; color: rgb(70,70,0)\">" +
+	          the_word +"</a> ";    //  Link to concorder_text(i)
+       if ((the_multi-offset)-2*Math.floor((the_multi-offset)/2)!=0){To_Output=To_Output+DBold;}
+	To_Output=To_Output+FDBig(nBig)+DSmall+DSmall;
+	Top_i=i;         
+      }
+      
+      Top_i=Top_i+1; if (Top_i==unique_words.length){Top_i=Top_i-2;}
+      
+  for( i=Top_i;i>(startval-1); i=i-2)
+      {    //   Taking each unique word; print Big or Bold
+              stepper--;
+	if (stepper==5){To_Output=To_Output+NL;}
+	if (stepper==12){To_Output=To_Output+NL;}
+	if (stepper==28){To_Output=To_Output+NL;}
+	if (stepper==40){To_Output=To_Output+NL;}
+        the_word=sorted_uniq_words[i];  the_multi=sorted_multip[i];
+	To_Output=To_Output+Small+Small;
+	var nBig=Math.floor((the_multi-offset)/2); if (nBig > 5){nBig=5;}
+	To_Output=To_Output+FBig(nBig);
+        
+        if ((the_multi-offset)-2*Math.floor((the_multi-offset)/2)!=0){To_Output=To_Output+Bold;}
+
+	To_Output=To_Output+"<a href=\"javascript:concorder_text(" + numpointer[i] +")\" "+
+	         " style=\"text-decoration:none; color: rgb(70,70,0)\">" +
+	          the_word +"</a> ";    //  Link to concorder_text(i)
+       if ((the_multi-offset)-2*Math.floor((the_multi-offset)/2)!=0){To_Output=To_Output+DBold;}
+	To_Output=To_Output+FDBig(nBig)+DSmall+DSmall;        
+      }
+      
+      
+      
+  	To_Output=To_Output+"</td> </tr>";  
+	To_Output=To_Output+" </tbody></table>"; 
+   
+   document.getElementById("firstPar").innerHTML=
+   document.getElementById("firstPar").innerHTML  +To_Output+"<br>";
+   
+  // ==============================================================
+}
+
+
+
+
+
+
+
+function All_words_fog()
+{
+  // ============================================================== 
+  document.getElementById("firstPar").innerHTML=" ";
+
+  To_Output="<table style=\"text-align: left; vertical-align:top; "+
+                  " width: 900px;\" border=\"0\" "+
+                  " cellpadding=\"2\" cellspacing=\"2\" bgcolor=\"#FFFFFF\"> <tbody><tr> "
+		  +"<td style=\"text-align: center; vertical-align:top;\">"; 
+  
+  for( i=0;i<unique_words.length; i++)
+      {    //   Taking each unique word and its count; print Big or Bold
+        the_word=unique_words[i];  the_multi=multiples[i];
+	if (the_multi==1){To_Output=To_Output+Small;}
+        if (the_multi>2){To_Output=To_Output+Bold;}
+	if (the_multi>3){To_Output=To_Output+Big;}
+	To_Output=To_Output+"<a href=\"javascript:concorder_text(" + i +")\" "+
+	         " style=\"text-decoration:none; color: rgb(70,70,0)\">" +
+	          the_word +" ("+the_multi+")</a> ";    //  Link to concorder_text(i)
+	if (the_multi>2){To_Output=To_Output+DBig;}      
+        if (the_multi>1){To_Output=To_Output+DBold;}
+	if (the_multi==1){To_Output=To_Output+DSmall;}	         
+      }
+  	To_Output=To_Output+"</td> </tr>";  
+	To_Output=To_Output+" </tbody></table>"; 
+   
+   document.getElementById("firstPar").innerHTML=
+   document.getElementById("firstPar").innerHTML  +To_Output+"<br>";
+   
+  // ==============================================================
+}
+
+ 
+function clean_input()
+{
+   myInputWindow.theInsertedText.value="";
+}
+function clean_output()
+{
+	To_Output="<table style=\"text-align: left; vertical-align:top; width: 900px;\" border=\"0\" "+
+                  " cellpadding=\"2\" cellspacing=\"2\" bgcolor=\"#EEEEEE\"> ";
+       To_Output=To_Output+" <tbody><tr> " +
+         "<td style=\"text-align: center; vertical-align:top;\">" +
+            "<br> &nbsp;<br> &nbsp;<br> &nbsp; <br>" +
+	    "In this area will appear the word cloud when you click on <br>" +
+	    "<b>Concordle-analyze text</b>" +
+            "<br> &nbsp;<br> &nbsp;<br> &nbsp;	 </td> </tr>  ";		  
+		  
+	To_Output=To_Output+" </tbody><br> </table>"; 
+   document.getElementById("firstPar").innerHTML=To_Output;   
+}
+function clean_concord()
+{
+	To_Output="<table style=\"text-align: left; vertical-align:top; width: 900px;\" border=\"0\" "+
+                  " cellpadding=\"2\" cellspacing=\"2\" bgcolor=\"#EEEEEE\"> ";
+	 To_Output=To_Output+" <tbody><tr> " +
+       "<td style=\"text-align: center; vertical-align:top;\">" +
+	 "<br> &nbsp;<br>" +
+	    "In this area appear <b>snippets</b> arround words <br>" +
+	    "clicked on in the  cloud in the above area. This is the concordance area." +
+            "<br> &nbsp;<br> &nbsp; 	 </td> </tr>  ";	  		  
+	To_Output=To_Output+" </tbody><br> </table>"; 
+   document.getElementById("secondPar").innerHTML=To_Output;
+}
+
+function concorder_text(ival)
+  {    
+  //  This makes the concordance snippets
+        var the_word=unique_words[ival];  the_multi=multiples[ival];
+	To_Output="<table style=\"text-align: left; vertical-align:top; width: 900px;\" border=\"0\" "+
+                  " cellpadding=\"2\" cellspacing=\"2\" bgcolor=\"#EEEEEE\"> ";
+	for(i = 0; i < standard_words.length; i++) 
+	{
+         if(the_word == standard_words[i])
+	 {   var start_i=i-SnippLen;  if (start_i<0) {start_i=0;}
+	     
+	     To_Output=To_Output+" <tr>  <td style=\"text-align: right; vertical-align:top;  width: 400px;\">";
+       	     To_Output=To_Output+Small;
+	     for(k=start_i;k<i;k++){To_Output=To_Output+orig_words[k]+" ";}
+	     To_Output=To_Output+DSmall+
+	     "</td> <td style=\"text-align: center; vertical-align:top;  width: 100px;\" bgcolor=\"#FFCCBB\">";
+	     To_Output=To_Output+ Small +Bold+orig_words[i]+" "+DBold 
+	     + DSmall +
+	          "</td><td style=\"text-align: left; vertical-align:top;\">" +Small;
+	     var stop_i=i+1+SnippLen;  
+	     if (stop_i>standard_words.length) {stop_i=standard_words.length;}
+	     for(k=i+1;k<stop_i;k++){To_Output=To_Output+orig_words[k]+" ";}
+	     To_Output=To_Output+DSmall+"</td> </tr>";
+	 }
+        }  
+	To_Output=To_Output+" </tbody><br> </table>"; 
+        document.getElementById("secondPar").innerHTML= To_Output
+			  + document.getElementById("secondPar").innerHTML;                  
+  }
+function demo()
+ {       //    used onLoad for example files
+  // analyze_to_cloud();
+  analyze_to_fog();
+  concorder_text(1);
+  concorder_text(2);
+  concorder_text(5);
+  concorder_text(8);   
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+</head>
+<body bgcolor = "#CCCCCC" onLoad="demo()">
+<div style="font-family: Helvetica,Arial,sans-serif;">
+<center>
+<table style="text-align: center; vertical-align:top;  width: 900px;" border="0" 
+ " cellpadding="2" cellspacing="2" bgcolor="#EEEEEE"> 
+ <tbody><tr> 
+ <td style="text-align: center; vertical-align:top;">
+ 
+<h3> (Baby)  <a href="http://www.uib.no/people/nfylk/concordle/" style="color: red;">Concordle</a> - 
+Not so pretty cousin of <a href="http://wordle.net" style="color: red;">Wordle</a></h3>
+
+<!-- INPUT WINDOW  -->
+   
+<small>
+Here you can experiment:  &nbsp; &nbsp; &nbsp;
+<a href="javascript:clean_input()">Clear the input </a> &nbsp; &nbsp; &nbsp;
+<a href="javascript:clean_output()">Clear the output </a> &nbsp; &nbsp; &nbsp;
+<a href="javascript:clean_concord()">Clear concordances</a> &nbsp; &nbsp; &nbsp;
+</small>
+<br>
+
+<form name="myInputWindow">
+<!--   rgb(203,203, 51);  -->
+<textarea style=""  name="theInsertedText" cols="90" rows="12" style="color: red; background-color: yellow;">
+  Who is Concordle? She is a not so pretty cousin of Wordle, who recently became very popular. 
+  Wordle is a Java application (available as an applet)
+  who makes beautiful word clouds. Such a cloud is made according to a rule 
+  that a more frequent word gets a bigger type (or font). Alo colors can be used 
+  for various coding, or just for beauty's sake. 
+  
+  Wordle makes beautiful clouds with beautiful fonts and many colors, and you 
+  can play with it, possibly even produce a useful presentation or analysis.
+  Several people mentioned the potential of Wordle for research or teaching, 
+  even at elementary schools. Wordle is beautiful, fascinating to play with, 
+ Wordle makes beautiful clouds. But that is the end - beautiful pictures of a text.
+
+  Concordle has one point common with Wordle: it makes word clouds. But these 
+  are only text, and in a browser in general the choice of fonts is limited, 
+  so the clouds are not so very pretty. But it is much more clever: 
+  All the words in the cloud ar clickble, i.e. links to concordancer function. 
+   Wikipedia will tell you what a concordancer is, in case that you do not from before. 
+  So Concordle is a little concordancer which can be really used in research and 
+  for some types of teaching. Thus it has 
+  a wastly broader capabilities than Wordle.
+  
+  If your text contains 10 times the word "concordance", you might like to see why. 
+  So you click on the big CONCORDANCE and all 10 the snippets of text arround the 
+  ten occurrences of concordance in the text.
+  
+  A real concordancer program can be used in linguistic studies, and also as a 
+  tool for other types of analysis. A real free corcondancer is available, as 
+  a Wikipedia page tells us. A real concordancer program makes the whole 
+  concordance available at once, possibly on texts of tens of thousands of words. 
+  Concordle works with texts of several thousands words without problems, 
+  but as well as Wordle, Concordle is basically an educational toy, 
+  not strong enough for heavy duty analysis of whole books or even sets of books. 
+
+  Why have I written Concordle? The idea came naturally from Wordle. Besides, it is 
+  a little tribute to my friend prof. Ralph Jewell of University of Bergen, who introduced me 
+  to his use of concordance in philosophical analysis some 20 years ago. Further, I have 
+  a long time talked about how useful JavaScript can be for general programming, 
+  not only for AJAX and Gmail. So now I have written sort of large program.
+
+  Many people asked the author of Wordle for the source code. 
+  Wordle is based on proprietary IBM libraries and thus not of open source. 
+  In contrast, Concordle is based on my learning to program in JavaScript, 
+  so the source is not only free, but documented and inviting for improvements.
+   
+ If you are going to use Concordle, a little link and a mention of the 
+ author would be greatly appreciated. Become friends with Concordle!
+
+</textarea>
+</form>
+<small>
+<a href="javascript:analyze_to_cloud()">(Baby) Concordle-Cloud</a> &nbsp; &nbsp; &nbsp;
+ 
+<a href="javascript:analyze_to_arrow()">Concordle-Ordered</a> &nbsp; &nbsp; &nbsp;
+
+<a href="javascript:analyze_to_fog()">Concordle-Foggy cloud</a> &nbsp; &nbsp; &nbsp;
+</small>
+
+
+<br>
+
+
+</td> </tr>  
+</tbody></table> 
+<br>   
+
+    <div id="firstPar" style="font-family: Helvetica,Arial,sans-serif;">
+    
+       <!--    LINKS - CLOUD SPACE  -->
+      <table style="text-align: center; vertical-align:top;  width: 900px;" border="0" 
+       " cellpadding="2" cellspacing="2" bgcolor="#EEEEEE"> 
+        <tbody><tr> 
+       <td style="text-align: center; vertical-align:top;">
+            <br> &nbsp;<br> &nbsp;<br> &nbsp;
+	    <br>
+	    In this area will appear the word cloud when you click on
+	    <br>
+	    <b>Concordle-analyze text</b>
+            <br> &nbsp;<br> &nbsp;<br> &nbsp;	    
+       </td> </tr>  
+     </tbody></table> 
+
+    </div>
+   <br>
+    <div id="secondPar" style="font-family: Helvetica,Arial,sans-serif;">
+
+       <!--    CONCORDANCE SNIPPETS  SPACE  -->
+       
+       <table style="text-align: center; vertical-align:top;  width: 900px;" border="0" 
+       " cellpadding="2" cellspacing="2" bgcolor="#EEEEEE"> 
+        <tbody><tr> 
+       <td style="text-align: center; vertical-align:top;">
+            <br> &nbsp;<br>
+	    In this area appear <b>snippets</b> arround words <br>
+	    clicked on in the  cloud in the above area. This is the concordance area.
+            <br> &nbsp;<br> &nbsp;	    
+       </td> </tr>  
+     </tbody></table> 
+     <br>   
+
+</div>
+<br>
+<div id="storyPar" style="font-family: Helvetica,Arial,sans-serif;">
+
+<table style="text-align: center; vertical-align:top;  width: 900px;" border="0" 
+ " cellpadding="2" cellspacing="2" bgcolor="#EEEEEE"> 
+ <tbody><tr> 
+ <td style="text-align: left; vertical-align:top;">
+ <small> 
+ Concordle is written entirely in simple JavaScript <br>
+ and the whole code is inside of this document. <br>
+ In addition to this final code, there are also <br>
+ versions of various steps in the development.<br>
+ These are (or rather will be) available at the 
+  <a href="http://www.uib.no/people/nfylk/concordle/" style="color: red;">
+  Concordle home page</a>.<br>
+  The author is no expert in JavaScript. Suggestions for  <br> 
+  understandable improvements are very welcome. <br> 
+  At this stage, the example text explains some aspects of Concordle.
+  </small> 
+ </td>
+ <td style="text-align: right; vertical-align:bottom;"> 
+ <small> 
+ <a href="http://web.ift.uib.no/~ladi/" style="color: red;">
+ Ladislav Kocbach</a><br>
+  <a href="http://www.ift.uib.no/" style="color: red;">Institutt for fysikk og Teknologi</a> )<br>
+ ( <a href="http://ifteng.iportal.uib.no/" style="color: black;">Department of Physics and Technology</a> )<br> 
+ University of Bergen,<br>
+ Bergen, Norway<br></small> 
+ </td>
+ </div>
+ </center>     
+ </div>  
+</body>
+</html>
