@@ -1,0 +1,933 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+ 
+    <title>v1: Electron CONFIGURATIONS</title>
+
+<script language="JavaScript"> 
+//
+//    Program by Ladislav Kocbach, University of Bergen, Norway; Ladislav.Kocbach@uib.no
+//    Based on John Taylor's idea at http://fscj.me/e-1Spectroscopic/pc.html   
+//            (see also my slightly modified copy at https://folk.uib.no/nfylk/SPECT/)
+//
+//        element symbols    "Uut";    "Uup";    "Uus";  "Uuo";
+//        shortened to       "Ut";     "Up";     "Us";   "Uo";  to fit the table
+//
+// control of the periodic table, the buttons
+// The table defined by HTML
+// The buttons and their functions assigned in init()
+//         LOOK FOR  cells[kk][ll]>0   to find the assignment loop in init()
+
+var COMMND=[];  //    Commands     The drawing sequencies of configurations
+                //              obtained by editing directly from conf table
+var SYMB=[];    //    Symbols      H, He, Ne etc
+var NAME=[];    //    Names        names of elements
+var ids=[];     //    2-dim array of <td> in the periodic table (assigned by javascript)
+//
+var Z_ids=[];                // ids  refered to by atomic number Z (assigned by javascript)
+var Z_row=[]; var Z_col=[];  // the row and column in the table  
+//
+// Matrix of cells  -> Z   and      Z -> Matrix of Periodic table
+//          Z=cells[kk][ll];         Z_row[Z]=kk; Z_col[Z]=ll;
+//
+Z_ids[0]="";    //   function of Z
+ids[0]=[];      
+var cells=[];    //  Z-value in each cell of the table; zero when no button/empty space
+var kk; var ll;
+var strr=""; var Z=0;   
+var selected =28;       //   selected button  - see doit()   and Z_ids[0]
+var prevselec =28;      //   the last selected
+
+//   VARIABLES TO INITIALIZE CANVAS 
+
+  var botctx;   var BotCanvas;     //  Possibility of bottom and upper canvas; not used
+  var width=600;   var height=400;  
+    var xe=200;var yye=200;
+  var OriginX=0;
+  var OriginY=height;  
+  var Xmax=13; var Xmin=0;  var Ymin=0.7; var Ymax=12;
+  var Xscale = 1; var Yscale =  1;
+separ=Xmax/22; wcell=separ; var alen=0.5;  var awid=alen/7.0;
+// wcell - each L,M  separ - between L,M areas;  alen, awid size/width of arrows (darrow())
+// Keyboard control
+var KeyRight=39;  var KeyLeft=37;  var KeyUp=38;   var KeyDown=40;
+
+var epos=[];  
+for(kk=0;kk<8;kk++){epos[kk]=[];for(ll=0;ll<4;ll++){ epos[kk][ll]=(-2);} }
+var spchsr=[]; spchsr[0]="s";spchsr[1]="p";spchsr[2]="d";spchsr[3]="f";
+var Lcolor=[]; Lcolor[0]='#8888FF'; Lcolor[1]='#BBBB00'; Lcolor[2]='#888888'; Lcolor[3]='#FF8888';
+
+//  confstr=orbstr;   //  contains all the orbitals in [Ne) etc...
+//  orbstr=symbstr;   //  will contain only the orbitals outside [Ne] etc
+var orbstr="";
+var confstr="";
+// ******************************************************************** 
+document.onkeydown = function(event)           //   init:  KEYBOARD EVENTS  KEYBOARD 
+    {
+      var keyCode; 
+      if(event == null){
+        keyCode = window.event.keyCode; }
+      else    {
+        keyCode = event.keyCode;  }
+    Handle_keyboard(keyCode)
+    }
+function refer_to_ID(idname)                    //    convert the id into a variable
+{
+    return document.getElementById(idname);
+}
+//      IMPORTANT:   refer_to_ID
+
+function Handle_keyboard(keyCode)
+   {
+    // var KeyRight=39;  var KeyLeft=37;  var KeyUp=38;   var KeyDown=40;
+    var KeyWord="";
+    if(keyCode==KeyDown) KeyWord="Arrow Down";
+    if(keyCode==KeyUp)   KeyWord="Arrow Up";
+    if(keyCode==KeyLeft) KeyWord="Arrow Left";
+    if(keyCode==KeyRight) KeyWord="Arrow Right";
+
+    Event_Output=" Last pressed key code is " + keyCode +"    "+KeyWord;
+   // document.getElementById("EventView").innerHTML= Event_Output+ "<br>";   
+    if(keyCode==KeyRight &&  selected<118) {
+           prevselec=selected;
+           selected=selected+1;
+           eval( COMMND[selected]); Tconf();
+           doit(selected); 
+    }
+    if(keyCode==KeyLeft &&  selected>1) {
+           prevselec=selected;
+           selected=selected-1;
+           eval( COMMND[selected]); Tconf();
+           doit(selected); 
+   }
+    // Matrix of cells  -> Z   and      Z -> Matrix of Periodic table
+    //          Z=cells[kk][ll];         Z_row[Z]=kk; Z_col[Z]=ll;
+
+   if(keyCode==KeyUp ||  keyCode==KeyDown) {  // Move in table
+         var row; var column; var Zt;
+         row=Z_row[selected];  column=Z_col[selected];
+         if(keyCode==KeyUp )   row=row-1;
+         if(keyCode==KeyDown)  row=row+1;
+         Zt=cells[row][column];
+         if(Zt>0){
+            prevselec=selected;
+            selected=Zt;
+            eval( COMMND[selected]);  Tconf();
+            doit(selected);          
+         }
+    }    
+}
+// ***********************************************************   
+// 
+
+function init(){
+
+//   INITIALIZE CANVAS   
+  BotCanvas = document.getElementById('BOTTOM');
+  botctx = BotCanvas.getContext('2d');
+  var LocEnergy = 0.0;    //  FIX: 10 first states vs clicked energy      
+  botctx.fillStyle = '#FFFFFF';  
+  botctx.fillRect(0, 0, width, height); 
+  Xscale = (Xmax-Xmin)/width; Yscale =  (Ymax-Ymin)/height;
+
+
+var numstr="";
+for(kk=0;kk<11;kk++){ids[kk]=[];for(ll=0;ll<19;ll++){ ids[kk][ll]="r"+kk+"c"+ll;} }
+for(kk=0;kk<11;kk++){cells[kk]=[];for(ll=0;ll<19;ll++){ cells[kk][ll]=0;} }
+
+elements_data();
+table_cells();
+
+for(kk=1;kk<11;kk++){for(ll=1;ll<19;ll++){
+if( cells[kk][ll]>0 ){  strr="("+cells[kk][ll]+")";  
+       numstr=""+cells[kk][ll]; 
+       Z=cells[kk][ll];        //  Z=cells[kk][ll];  Z_row[Z]=kk; Z_col[Z]=ll;
+       Z_ids[Z]=ids[kk][ll];
+       Z_row[Z]=kk; Z_col[Z]=ll;
+       if((Z==1) || (Z>4 && Z<10 )  ) numstr="&nbsp;"+cells[kk][ll];
+       if(Z<100){
+        // " onclick=\"javascript:doit" +strr+"\">" +
+       document.getElementById(ids[kk][ll]).innerHTML= 
+       "<button style=\"margin: 0px; \" " + 
+       " onclick=\"javascript:doit" +strr+";" + COMMND[Z] + "Tconf();\">" +
+       "<span style=\"font-family:monospace; font-size: 7pt;\">"+
+        numstr + "<br></span>" +
+        "<span style=\"font-family:monospace; font-size: 7pt;\">"
+        +SYMB[Z]+"</span></button>"; }            
+       if(Z>99){
+       document.getElementById(ids[kk][ll]).innerHTML= 
+       "<button style=\"margin: 0px;  \" " + 
+       " onclick=\"javascript:doit" +strr+";" + COMMND[Z]  +"Tconf();\">" +
+       "<span style=\"font-family:monospace; font-size: 5pt;\">"+
+        numstr + "<br></span>" +
+        "<span style=\"font-family:monospace; font-size: 7pt;\">"
+        +SYMB[Z]+"</span></button>"; }       
+   }
+}
+}
+wash(); 
+   document.getElementById("testresult").innerHTML="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+
+   "Z="+ selected + "            " + SYMB[selected] +" - element "+ NAME[selected];
+   Update_button(selected);eval( COMMND[28]); Tconf();
+  }                                       
+// -------------------------------------------------------------------------------------
+
+function Update_button(Zselected){
+       numstr=""+Zselected; 
+       Z=Zselected;
+       strr="("+ Zselected +")";
+       if((Z==1) || (Z>4 && Z<10 )  ) numstr="&nbsp;"+Z;      
+       // <button style=\"margin: 0px; background-color:rgb(255,100,100);" 
+       if(Z<100){
+        // " onclick=\"javascript:doit" +strr+"\">" +
+       document.getElementById(Z_ids[Z]).innerHTML= 
+       "<button style=\"margin: 0px; background-color:rgb(255,100,100);\" " + 
+       " onclick=\"javascript:doit" +strr+";" + COMMND[Z]  +"Tconf();\">" +
+       "<span style=\"font-family:monospace; font-size: 7pt;\">"+
+        numstr + "<br></span>" +
+        "<span style=\"font-family:monospace; font-size: 7pt;\">"
+        +SYMB[Z]+"</span></button>"; }            
+       if(Z>99){
+       document.getElementById(Z_ids[Z]).innerHTML= 
+       "<button style=\"margin: 0px; background-color:rgb(255,100,100);\" " + 
+       " onclick=\"javascript:doit" +strr+";" + COMMND[Z]  +"Tconf();\">" +
+       "<span style=\"font-family:monospace; font-size: 5pt;\">"+
+        numstr + "<br></span>" +
+        "<span style=\"font-family:monospace; font-size: 7pt;\">"
+        +SYMB[Z]+"</span></button>"; }      
+}
+function Restore_button(Zselected){
+       numstr=""+Zselected; 
+       Z=Zselected;
+       strr="("+ Zselected +")";
+       if((Z==1) || (Z>4 && Z<10 )  ) numstr="&nbsp;"+Z;      
+       // <button style=\"margin: 0px; background-color:rgb(255,100,100);" 
+       if(Z<100){
+        // " onclick=\"javascript:doit" +strr+"\">" +
+       document.getElementById(Z_ids[Z]).innerHTML= 
+       "<button style=\"margin: 0px;\" " + 
+       " onclick=\"javascript:doit" +strr+";" + COMMND[Z]  +"Tconf();\">" +
+       "<span style=\"font-family:monospace; font-size: 7pt;\">"+
+        numstr + "<br></span>" +
+        "<span style=\"font-family:monospace; font-size: 7pt;\">"
+        +SYMB[Z]+"</span></button>"; }            
+       if(Z>99){
+       document.getElementById(Z_ids[Z]).innerHTML= 
+       "<button style=\"margin: 0px;\" " + 
+       " onclick=\"javascript:doit" +strr+";" + COMMND[Z]  +"Tconf();\">" +
+       "<span style=\"font-family:monospace; font-size: 5pt;\">"+
+        numstr + "<br></span>" +
+        "<span style=\"font-family:monospace; font-size: 7pt;\">"
+        +SYMB[Z]+"</span></button>"; }      
+}
+
+function doit(k){  
+
+   document.getElementById("testresult").innerHTML="&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+
+   "Z="+ k + "            " + SYMB[k] +" - element "+ NAME[k];
+   messag="Z="+ k + "     " + SYMB[k]; 
+   selected=k;
+   Update_button(selected);
+   if(selected!=prevselec)
+   {Restore_button(prevselec);}
+   prevselec=selected;
+}
+function Tconf(){
+   document.getElementById("ConfView").innerHTML= 
+   "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+
+   orbstr;
+   document.getElementById("FullConfView").innerHTML= confstr;
+
+   var messag="";
+   messag="Z="+ selected + "     " + SYMB[selected]; 
+        
+          botctx.fillStyle = '#000000'; 
+          botctx.font = "32px Arial"; 
+          botctx.fillText(messag, 300 , 350 );
+
+
+}
+
+
+function darrow(posx, posy, klen, kwid){
+       Bline( posx, posy, posx, posy+klen);
+       Bline( posx+kwid, posy+klen*0.6, posx, posy+klen);   
+       Bline( posx-kwid, posy+klen*0.6, posx, posy+klen);    
+    }
+
+   function Bline( xms, yms, xme, yme)      //  Bottom Canvas Line drawing in the Math coordinates
+       {  var xs_canv; var xe_canv;
+        var ys_canv; var ye_canv; 
+         xs_canv = Math.ceil(   xms / Xscale +  OriginX );
+          ys_canv = Math.ceil( - yms / Yscale +  OriginY ); 
+          xe_canv = Math.ceil(   xme / Xscale +  OriginX );
+          ye_canv = Math.ceil( - yme / Yscale +  OriginY ); 
+
+        botctx.beginPath();  
+        botctx.moveTo( xs_canv, ys_canv );
+        botctx.lineTo( xe_canv, ye_canv );
+        botctx.stroke();                  
+        }
+
+function alt1(){ eval(COMMND[40]);         // TESTING, not used
+  // conf(36);
+  //wash(); botctx.strokeStyle = '#000000';
+ //  orb(1,0,2); orb(2,0,2);orb(2,1,6);
+}
+
+function alt2(){ eval(COMMND[41]); //conf(54);    // TESTING, not used
+ // wash();botctx.strokeStyle = '#000000';
+ //orb(1,0,2); orb(2,0,2);orb(2,1,6);
+ // orb(3,0,2);orb(4,0,2);
+ // orb(3,2,5); orb(4,2,10);
+ }
+function orb(Nn, Ll, numb){    //  DRAW ORBITAL
+  T_orb(Nn, Ll, numb);
+  xpp=(Ll+1)*separ; botctx.strokeStyle = '#000000';
+  for(ll=0;ll<Ll;ll++) {xpp=xpp+(2*ll+1)*wcell;}
+  for (kk=0; kk<numb;kk++){
+       if(kk<(2*Ll+1)) {darrow(xpp+wcell*(kk+1/3),epos[Nn][Ll],alen,awid); }
+       if(kk>(2*Ll)) {darrow(xpp+wcell*(kk-(2*Ll+1)+2/3),alen+epos[Nn][Ll],-alen,awid); }
+       }
+
+function T_orb(Nn, Ll, numb){      //  WRITE ORBITAL
+orbstr=orbstr   + "(" + Nn +spchsr[Ll]+")<sup>" + numb + "</sup>";
+confstr=confstr + "(" + Nn +spchsr[Ll]+")<sup>" + numb + "</sup>";
+}
+
+}
+function conf(Z){            //     handles the [He], [Ne], [Ar] strings
+  var symbstr="";  //  will get [Ne]  etc
+  wash();   
+  orbstr="";    //  will get [Ne]  etc
+  confstr="";
+
+  if(Z>0){ symbstr="[He]";
+    orb(1,0,2); //Z=2;
+  }
+  if(Z>2){ symbstr="[Ne]";
+    orb(2,0,2); orb(2,1,6);//Z=10;
+  }
+  if(Z>10){ symbstr="[Ar]";
+    orb(3,0,2); orb(3,1,6);//Z=18;
+  }
+  if(Z>18){ symbstr="[Kr]";
+    orb(3,2,10); orb(4,0,2); orb(4,1,6); //Z=36;
+  }
+  if(Z>36){ symbstr="[Xe]";
+    orb(4,2,10); orb(5,0,2); orb(5,1,6); //Z=54;
+  }
+  if(Z>54){ symbstr="[Rn]";
+    orb(4,3,14); orb(5,2,10); orb(6,0,2); orb(6,1,6); //Z=86;
+  }
+  confstr=orbstr;   //  contains all the orbitals in [Ne) etc...
+  orbstr=symbstr;   //  will contain only the orbitals outside [Ne] etc
+}
+
+</script>  
+
+
+
+
+</head>
+
+
+<body onload="init()"  bgcolor = "#cccccc" style="font-family:monospace; font-size: 7pt;color: rgb(10, 10, 10);">
+
+
+
+
+
+
+<script>
+function table_cells() {
+var k=0; var m=0;
+cells[1][1]=1;
+cells[1][18]=2;
+cells[2][1]=3;
+cells[2][2]=4;
+cells[2][2]=4;
+for( k=13;k<=18;k++) { cells[2][k]=k-8; }
+cells[3][1]=11;
+cells[3][2]=12;
+for( k=13;k<=18;k++)  { cells[3][k]=k; }
+for( k=1;k<=18;k++)   { cells[4][k]=k+18; }  
+for( k=1;k<=18;k++)   { cells[5][k]=k+36; }    
+cells[6][1]=55;
+cells[6][2]=56;
+for( k=4;k<=18;k++)   { cells[6][k]=k+68; }  
+cells[7][1]=87;
+cells[7][2]=88;
+for( k=4;k<=18;k++)   { cells[7][k]=k+100; }  
+
+for( k=4;k<=18;k++)   { cells[9][k]=k+53; }  
+for( k=4;k<=18;k++)   { cells[10][k]=k+85; }  
+
+}
+
+
+function elements_data() {
+//    Symbols 
+SYMB[1]="H";
+SYMB[2]="He";
+SYMB[3]="Li";
+SYMB[4]="Be";
+SYMB[5]="B";
+SYMB[6]="C";
+SYMB[7]="N";
+SYMB[8]="O";
+SYMB[9]="F";
+SYMB[10]="Ne";
+SYMB[11]="Na";
+SYMB[12]="Mg";
+SYMB[13]="Al";
+SYMB[14]="Si";
+SYMB[15]="P";
+SYMB[16]="S";
+SYMB[17]="Cl";
+SYMB[18]="Ar";
+SYMB[19]="K";
+SYMB[20]="Ca";
+SYMB[21]="Sc";
+SYMB[22]="Ti";
+SYMB[23]="V";
+SYMB[24]="Cr";
+SYMB[25]="Mn";
+SYMB[26]="Fe";
+SYMB[27]="Co";
+SYMB[28]="Ni";
+SYMB[29]="Cu";
+SYMB[30]="Zn";
+SYMB[31]="Ga";
+SYMB[32]="Ge";
+SYMB[33]="As";
+SYMB[34]="Se";
+SYMB[35]="Br";
+SYMB[36]="Kr";
+SYMB[37]="Rb";
+SYMB[38]="Sr";
+SYMB[39]="Y";
+SYMB[40]="Zr";
+SYMB[41]="Nb";
+SYMB[42]="Mo";
+SYMB[43]="Tc";
+SYMB[44]="Ru";
+SYMB[45]="Rh";
+SYMB[46]="Pd";
+SYMB[47]="Ag";
+SYMB[48]="Cd";
+SYMB[49]="In";
+SYMB[50]="Sn";
+SYMB[51]="Sb";
+SYMB[52]="Te";
+SYMB[53]="I";
+SYMB[54]="Xe";
+SYMB[55]="Cs";
+SYMB[56]="Ba";
+SYMB[57]="La";
+SYMB[58]="Ce";
+SYMB[59]="Pr";
+SYMB[60]="Nd";
+SYMB[61]="Pm";
+SYMB[62]="Sm";
+SYMB[63]="Eu";
+SYMB[64]="Gd";
+SYMB[65]="Tb";
+SYMB[66]="Dy";
+SYMB[67]="Ho";
+SYMB[68]="Er";
+SYMB[69]="Tm";
+SYMB[70]="Yb";
+SYMB[71]="Lu";
+SYMB[72]="Hf";
+SYMB[73]="Ta";
+SYMB[74]="W";
+SYMB[75]="Re";
+SYMB[76]="Os";
+SYMB[77]="Ir";
+SYMB[78]="Pt";
+SYMB[79]="Au";
+SYMB[80]="Hg";
+SYMB[81]="Tl";
+SYMB[82]="Pb";
+SYMB[83]="Bi";
+SYMB[84]="Po";
+SYMB[85]="At";
+SYMB[86]="Rn";
+SYMB[87]="Fr";
+SYMB[88]="Ra";
+SYMB[89]="Ac";
+SYMB[90]="Th";
+SYMB[91]="Pa";
+SYMB[92]="U";
+SYMB[93]="Np";
+SYMB[94]="Pu";
+SYMB[95]="Am";
+SYMB[96]="Cm";
+SYMB[97]="Bk";
+SYMB[98]="Cf";
+SYMB[99]="Es";
+SYMB[100]="Fm";
+SYMB[101]="Md";
+SYMB[102]="No";
+SYMB[103]="Lr";
+SYMB[104]="Rf";
+SYMB[105]="Db";
+SYMB[106]="Sg";
+SYMB[107]="Bh";
+SYMB[108]="Hs";
+SYMB[109]="Mt";
+SYMB[110]="Ds";
+SYMB[111]="Rg";
+SYMB[112]="Cn";
+SYMB[113]="Ut"; // "Uut";    "Uup";    "Uus";  "Uuo";
+SYMB[114]="Fl";
+SYMB[115]="Up"; //  "Uup";
+SYMB[116]="Lv";
+SYMB[117]="Us"; //  "Uus";
+SYMB[118]="Uo"; //  "Uuo";
+
+//    Names
+NAME[1]="Hydrogen";
+NAME[2]="Helium";
+NAME[3]="Lithium";
+NAME[4]="Beryllium";
+NAME[5]="Boron";
+NAME[6]="Carbon";
+NAME[7]="Nitrogen";
+NAME[8]="Oxygen";
+NAME[9]="Fluorine";
+NAME[10]="Neon";
+NAME[11]="Sodium";
+NAME[12]="Magnesium";
+NAME[13]="Aluminum";
+NAME[14]="Silicon";
+NAME[15]="Phosphorus";
+NAME[16]="Sulfur";
+NAME[17]="Chlorine";
+NAME[18]="Argon";
+NAME[19]="Potassium";
+NAME[20]="Calcium";
+NAME[21]="Scandium";
+NAME[22]="Titanium";
+NAME[23]="Vanadium";
+NAME[24]="Chromium";
+NAME[25]="Manganese";
+NAME[26]="Iron";
+NAME[27]="Cobalt";
+NAME[28]="Nickel";
+NAME[29]="Copper";
+NAME[30]="Zinc";
+NAME[31]="Gallium";
+NAME[32]="Germanium";
+NAME[33]="Arsenic";
+NAME[34]="Selenium";
+NAME[35]="Bromine";
+NAME[36]="Krypton";
+NAME[37]="Rubidium";
+NAME[38]="Strontium";
+NAME[39]="Yttrium";
+NAME[40]="Zirconium";
+NAME[41]="Niobium";
+NAME[42]="Molybdenum";
+NAME[43]="Technetium";
+NAME[44]="Ruthenium";
+NAME[45]="Rhodium";
+NAME[46]="Palladium";
+NAME[47]="Silver";
+NAME[48]="Cadmium";
+NAME[49]="Indium";
+NAME[50]="Tin";
+NAME[51]="Antimony";
+NAME[52]="Tellurium";
+NAME[53]="Iodine";
+NAME[54]="Xenon";
+NAME[55]="Cesium";
+NAME[56]="Barium";
+NAME[57]="Lanthanum";
+NAME[58]="Cerium";
+NAME[59]="Praseodymium";
+NAME[60]="Neodymium";
+NAME[61]="Promethium";
+NAME[62]="Samarium";
+NAME[63]="Europium";
+NAME[64]="Gadolinium";
+NAME[65]="Terbium";
+NAME[66]="Dysprosium";
+NAME[67]="Holmium";
+NAME[68]="Erbium";
+NAME[69]="Thulium";
+NAME[70]="Ytterbium";
+NAME[71]="Lutetium";
+NAME[72]="Hafnium";
+NAME[73]="Tantalum";
+NAME[74]="Tungsten";
+NAME[75]="Rhenium";
+NAME[76]="Osmium";
+NAME[77]="Iridium";
+NAME[78]="Platinum";
+NAME[79]="Gold";
+NAME[80]="Mercury";
+NAME[81]="Thallium";
+NAME[82]="Lead";
+NAME[83]="Bismuth";
+NAME[84]="Polonium";
+NAME[85]="Astatine";
+NAME[86]="Radon";
+NAME[87]="Francium";
+NAME[88]="Radium";
+NAME[89]="Actinium";
+NAME[90]="Thorium";
+NAME[91]="Protactinium";
+NAME[92]="Uranium";
+NAME[93]="Neptunium";
+NAME[94]="Plutonium";
+NAME[95]="Americium";
+NAME[96]="Curium";
+NAME[97]="Berkelium";
+NAME[98]="Californium";
+NAME[99]="Einsteinium";
+NAME[100]="Fermium";
+NAME[101]="Mendelevium";
+NAME[102]="Nobelium";
+NAME[103]="Lawrencium";
+NAME[104]="Rutherfordium";
+NAME[105]="Dubnium";
+NAME[106]="Seaborgium";
+NAME[107]="Bohrium";
+NAME[108]="Hassium";
+NAME[109]="Meitnerium";
+NAME[110]="Darmstadtium";
+NAME[111]="Roentgenium";
+NAME[112]="Copernicium";
+NAME[113]="Ununtrium";
+NAME[114]="Flerovium";
+NAME[115]="Ununpentium";
+NAME[116]="Livermorium";
+NAME[117]="Ununseptium";
+NAME[118]="Ununoctium";
+//
+//    Commands 
+//
+//      e.g. COMMND[22]="conf(18);orb(3,2,2);orb(4,0,2);";
+//           generated from  
+//                 22   [Ar]  3d^2 4s^2
+//      by various text editors commands 
+//
+COMMND[1]="conf(0);orb(1,0,1);";
+COMMND[2]="conf(0);orb(1,0,2);";
+COMMND[3]="conf(2);orb(2,0,1);";
+COMMND[4]="conf(2);orb(2,0,2);";
+COMMND[5]="conf(2);orb(2,0,2);orb(2,1,1);";
+COMMND[6]="conf(2);orb(2,0,2);orb(2,1,2);";
+COMMND[7]="conf(2);orb(2,0,2);orb(2,1,3);";
+COMMND[8]="conf(2);orb(2,0,2);orb(2,1,4);";
+COMMND[9]="conf(2);orb(2,0,2);orb(2,1,5);";
+COMMND[10]="conf(2);orb(2,0,2);orb(2,1,6);";
+COMMND[11]="conf(10);orb(3,0,1);";
+COMMND[12]="conf(10);orb(3,0,2);";
+COMMND[13]="conf(10);orb(3,0,2);orb(3,1,1);";
+COMMND[14]="conf(10);orb(3,0,2);orb(3,1,2);";
+COMMND[15]="conf(10);orb(3,0,2);orb(3,1,3);";
+COMMND[16]="conf(10);orb(3,0,2);orb(3,1,4);";
+COMMND[17]="conf(10);orb(3,0,2);orb(3,1,5);";
+COMMND[18]="conf(10);orb(3,0,2);orb(3,1,6);";
+COMMND[19]="conf(18);orb(4,0,1);";
+COMMND[20]="conf(18);orb(4,0,2);";
+COMMND[21]="conf(18);orb(3,2,1);orb(4,0,2);";
+COMMND[22]="conf(18);orb(3,2,2);orb(4,0,2);";
+COMMND[23]="conf(18);orb(3,2,3);orb(4,0,2);";
+COMMND[24]="conf(18);orb(3,2,5);orb(4,0,1);";
+COMMND[25]="conf(18);orb(3,2,5);orb(4,0,2);";
+COMMND[26]="conf(18);orb(3,2,6);orb(4,0,2);";
+COMMND[27]="conf(18);orb(3,2,7);orb(4,0,2);";
+COMMND[28]="conf(18);orb(3,2,8);orb(4,0,2);";
+COMMND[29]="conf(18);orb(3,2,10);orb(4,0,1);";
+COMMND[30]="conf(18);orb(3,2,10);orb(4,0,2);";
+COMMND[31]="conf(18);orb(3,2,10);orb(4,0,2);orb(4,1,1);";
+COMMND[32]="conf(18);orb(3,2,10);orb(4,0,2);orb(4,1,2);";
+COMMND[33]="conf(18);orb(3,2,10);orb(4,0,2);orb(4,1,3);";
+COMMND[34]="conf(18);orb(3,2,10);orb(4,0,2);orb(4,1,4);";
+COMMND[35]="conf(18);orb(3,2,10);orb(4,0,2);orb(4,1,5);";
+COMMND[36]="conf(18);orb(3,2,10);orb(4,0,2);orb(4,1,6);";
+COMMND[37]="conf(36);orb(5,0,1);";
+COMMND[38]="conf(36);orb(5,0,2);";
+COMMND[39]="conf(36);orb(4,2,1);orb(5,0,2);";
+COMMND[40]="conf(36);orb(4,2,2);orb(5,0,2);";
+COMMND[41]="conf(36);orb(4,2,4);orb(5,0,1);";
+COMMND[42]="conf(36);orb(4,2,5);orb(5,0,1);";
+COMMND[43]="conf(36);orb(4,2,5);orb(5,0,2);";
+COMMND[44]="conf(36);orb(4,2,7);orb(5,0,1);";
+COMMND[45]="conf(36);orb(4,2,8);orb(5,0,1);";
+COMMND[46]="conf(36);orb(4,2,10);";
+COMMND[47]="conf(36);orb(4,2,10);orb(5,0,1);";
+COMMND[48]="conf(36);orb(4,2,10);orb(5,0,2);";
+COMMND[49]="conf(36);orb(4,2,10);orb(5,0,2);orb(5,1,1);";
+COMMND[50]="conf(36);orb(4,2,10);orb(5,0,2);orb(5,1,2);";
+COMMND[51]="conf(36);orb(4,2,10);orb(5,0,2);orb(5,1,3);";
+COMMND[52]="conf(36);orb(4,2,10);orb(5,0,2);orb(5,1,4);";
+COMMND[53]="conf(36);orb(4,2,10);orb(5,0,2);orb(5,1,5);";
+COMMND[54]="conf(36);orb(4,2,10);orb(5,0,2);orb(5,1,6);";
+COMMND[55]="conf(54);orb(6,0,1);";
+COMMND[56]="conf(54);orb(6,0,2);";
+COMMND[57]="conf(54);orb(5,2,1);orb(6,0,2);";
+COMMND[58]="conf(54);orb(4,3,1);orb(5,2,1);orb(6,0,2);";
+COMMND[59]="conf(54);orb(4,3,3);orb(6,0,2);";
+COMMND[60]="conf(54);orb(4,3,4);orb(6,0,2);";
+COMMND[61]="conf(54);orb(4,3,5);orb(6,0,2);";
+COMMND[62]="conf(54);orb(4,3,6);orb(6,0,2);";
+COMMND[63]="conf(54);orb(4,3,7);orb(6,0,2);";
+COMMND[64]="conf(54);orb(4,3,7);orb(5,2,1);orb(6,0,2);";
+COMMND[65]="conf(54);orb(4,3,9);orb(6,0,2);";
+COMMND[66]="conf(54);orb(4,3,10);orb(6,0,2);";
+COMMND[67]="conf(54);orb(4,3,11);orb(6,0,2);";
+COMMND[68]="conf(54);orb(4,3,12);orb(6,0,2);";
+COMMND[69]="conf(54);orb(4,3,13);orb(6,0,2);";
+COMMND[70]="conf(54);orb(4,3,14);orb(6,0,2);";
+COMMND[71]="conf(54);orb(4,3,14);orb(5,2,1);orb(6,0,2);";
+COMMND[72]="conf(54);orb(4,3,14);orb(5,2,2);orb(6,0,2);";
+COMMND[73]="conf(54);orb(4,3,14);orb(5,2,3);orb(6,0,2);";
+COMMND[74]="conf(54);orb(4,3,14);orb(5,2,4);orb(6,0,2);";
+COMMND[75]="conf(54);orb(4,3,14);orb(5,2,5);orb(6,0,2);";
+COMMND[76]="conf(54);orb(4,3,14);orb(5,2,6);orb(6,0,2);";
+COMMND[77]="conf(54);orb(4,3,14);orb(5,2,7);orb(6,0,2);";
+COMMND[78]="conf(54);orb(4,3,14);orb(5,2,9);orb(6,0,1);";
+COMMND[79]="conf(54);orb(4,3,14);orb(5,2,10);orb(6,0,1);";
+COMMND[80]="conf(54);orb(4,3,14);orb(5,2,10);orb(6,0,2);";
+COMMND[81]="conf(54);orb(4,3,14);orb(5,2,10);orb(6,0,2);orb(6,1,1);";
+COMMND[82]="conf(54);orb(4,3,14);orb(5,2,10);orb(6,0,2);orb(6,1,2);";
+COMMND[83]="conf(54);orb(4,3,14);orb(5,2,10);orb(6,0,2);orb(6,1,3);";
+COMMND[84]="conf(54);orb(4,3,14);orb(5,2,10);orb(6,0,2);orb(6,1,4);";
+COMMND[85]="conf(54);orb(4,3,14);orb(5,2,10);orb(6,0,2);orb(6,1,5);";
+COMMND[86]="conf(54);orb(4,3,14);orb(5,2,10);orb(6,0,2);orb(6,1,6);";
+COMMND[87]="conf(86);orb(7,0,1);";
+COMMND[88]="conf(86);orb(7,0,2);";
+COMMND[89]="conf(86);orb(6,2,1);orb(7,0,2);";
+COMMND[90]="conf(86);orb(6,2,2);orb(7,0,2);";
+COMMND[91]="conf(86);orb(5,3,2);orb(6,2,1);orb(7,0,2);";
+COMMND[92]="conf(86);orb(5,3,3);orb(6,2,1);orb(7,0,2);";
+COMMND[93]="conf(86);orb(5,3,4);orb(6,2,1);orb(7,0,2);";
+COMMND[94]="conf(86);orb(5,3,6);orb(7,0,2);";
+COMMND[95]="conf(86);orb(5,3,7);orb(7,0,2);";
+COMMND[96]="conf(86);orb(5,3,7);orb(6,2,1);orb(7,0,2);";
+COMMND[97]="conf(86);orb(5,3,9);orb(7,0,2);";
+COMMND[98]="conf(86);orb(5,3,10);orb(7,0,2);";
+COMMND[99]="conf(86);orb(5,3,11);orb(7,0,2);";
+COMMND[100]="conf(86);orb(5,3,12);orb(7,0,2);";
+COMMND[101]="conf(86);orb(5,3,13);orb(7,0,2);";
+COMMND[102]="conf(86);orb(5,3,14);orb(7,0,2);";
+COMMND[103]="conf(86);orb(5,3,14);orb(7,0,2);orb(7,1,1);";
+COMMND[104]="conf(86);orb(5,3,14);orb(6,2,2);orb(7,0,2);";
+COMMND[105]="conf(86);orb(5,3,14);orb(6,2,3);orb(7,0,2);";
+COMMND[106]="conf(86);orb(5,3,14);orb(6,2,4);orb(7,0,2);";
+COMMND[107]="conf(86);orb(5,3,14);orb(6,2,5);orb(7,0,2);";
+COMMND[108]="conf(86);orb(5,3,14);orb(6,2,6);orb(7,0,2);";
+COMMND[109]="conf(86);orb(5,3,14);orb(6,2,7);orb(7,0,2);";
+COMMND[110]="conf(86);orb(5,3,14);orb(6,2,9);orb(7,0,1);";
+COMMND[111]="conf(86);orb(5,3,14);orb(6,2,10);orb(7,0,1);";
+COMMND[112]="conf(86);orb(5,3,14);orb(6,2,10);orb(7,0,2);";
+COMMND[113]="conf(86);orb(5,3,14);orb(6,2,10);orb(7,0,2);orb(7,1,1);";
+COMMND[114]="conf(86);orb(5,3,14);orb(6,2,10);orb(7,0,2);orb(7,1,2);";
+COMMND[115]="conf(86);orb(5,3,14);orb(6,2,10);orb(7,0,2);orb(7,1,3);";
+COMMND[116]="conf(86);orb(5,3,14);orb(6,2,10);orb(7,0,2);orb(7,1,4);";
+COMMND[117]="conf(86);orb(5,3,14);orb(6,2,10);orb(7,0,2);orb(7,1,5);";
+COMMND[118]="conf(86);orb(5,3,14);orb(6,2,10);orb(7,0,2);orb(7,1,6);";
+
+//   Energy positions for plotting
+for(kk=0;kk<8;kk++){epos[kk]=[];for(ll=0;ll<4;ll++){ epos[kk][ll]=(-2);} }
+ epos[7][0]=9.4;  epos[7][1]=10.4;
+ epos[6][0]=7.9;  epos[6][1]=8.7;  epos[6][2]=9.8;
+ epos[5][0]=6.4;  epos[5][1]=6.9;  epos[5][2]=8.0;  epos[5][3]=9.8;
+ epos[4][0]=5.0;  epos[4][1]=5.5;  epos[4][2]=6.5;  epos[4][3]=8.0;
+ epos[3][0]=4.0;  epos[3][1]=4.5;  epos[3][2]=5.1;
+ epos[2][0]=3.0;  epos[2][1]=3.2;
+ epos[1][0]=1.0;
+
+}
+
+function wash(){
+    botctx.fillStyle = '#FFFFFF';  
+    botctx.fillRect(0, 0, width, height); 
+   for (N=1;N<8;N++){
+    for (L=0;L<N;L++){
+      if(epos[N][L] > 0){
+          botctx.fillStyle =  Lcolor[L];                
+          botctx.font = "18px Arial"; 
+        strr=""+N+spchsr[L];
+        xpp=(L+1)*separ; 
+        for(ll=0;ll<L;ll++) {xpp=xpp+(2*ll+1)*wcell;}
+        botctx.strokeStyle = Lcolor[L];
+        Bline(xpp, epos[N][L], xpp+(2*L+1)*wcell , epos[N][L]);
+          xs_canv = Math.ceil(  (xpp-0.7*separ) / Xscale +  OriginX );
+          ys_canv = Math.ceil( - (epos[N][L]) / Yscale +  OriginY );   
+        botctx.fillText(strr,xs_canv , ys_canv+7 );
+      }
+    }
+}
+}
+
+
+</script>
+<!-- 
+                     6d   9.8
+7s   9.0                          5f  9.5
+           6p  8.5
+                     5d   8.2
+
+6s   7.8                          4f  8.0
+           5p  7.5
+                     4d    7.0
+5s   7.0
+           4p  6.5
+
+4s   6.0              3d   6.0
+           3p  4.5
+
+3s    4.0
+
+
+2s    3.0  2p  3.0
+
+
+ 1s    1.0
+ -->
+<center>
+<table width="1200" cellpadding="0" cellspacing="0" border="0">
+<tr><td>
+<div id="Title"  style="font-family:Arial; font-size: 24pt;color: rgb(0, 10, 10); background-color: rgb(255,255,255); ">
+<big<big>
+&nbsp;Electron Configurations in Elements
+</div>
+<br>
+<div id="shorthelp"  style="font-family:monospace; font-size: 10pt;color: rgb(0, 10, 10); background-color: rgb(255,255,225); ">
+&nbsp;&nbsp;Use mouse to select element - or use the arrows for watching the changes.<br> 
+&nbsp;&nbsp;<b>Right</b> arrow <b>Z+1</b>, <b>Left</b> arrow <b>Z-1</b> independent of the table. <br>
+&nbsp;&nbsp;<b>Up</b> and <b>Down</b> arrows - follow the columns, view the periodicity.
+</div>
+</td></tr>
+</table>
+
+<table>
+<tr>
+<td valign="top">
+  
+
+  
+
+<table cellpadding="0" cellspacing="0" border="0">
+<tr> <td id="r1c1"></td> <td id="r1c2"></td> <td id="r1c3"></td> <td id="r1c4"></td> <td id="r1c5"></td> <td id="r1c6"></td> <td id="r1c7"></td> <td id="r1c8"></td> <td id="r1c9"></td> <td id="r1c10"></td> <td id="r1c11"></td> <td id="r1c12"></td> <td id="r1c13"></td> <td id="r1c14"></td> <td id="r1c15"></td> <td id="r1c16"></td> <td id="r1c17"></td> <td id="r1c18"></td> </tr>
+<tr> <td id="r2c1"></td> <td id="r2c2"></td> <td id="r2c3"></td> <td id="r2c4"></td> <td id="r2c5"></td> <td id="r2c6"></td> <td id="r2c7"></td> <td id="r2c8"></td> <td id="r2c9"></td> <td id="r2c10"></td> <td id="r2c11"></td> <td id="r2c12"></td> <td id="r2c13"></td> <td id="r2c14"></td> <td id="r2c15"></td> <td id="r2c16"></td> <td id="r2c17"></td> <td id="r2c18"></td> </tr>
+<tr> <td id="r3c1"></td> <td id="r3c2"></td> <td id="r3c3"></td> <td id="r3c4"></td> <td id="r3c5"></td> <td id="r3c6"></td> <td id="r3c7"></td> <td id="r3c8"></td> <td id="r3c9"></td> <td id="r3c10"></td> <td id="r3c11"></td> <td id="r3c12"></td> <td id="r3c13"></td> <td id="r3c14"></td> <td id="r3c15"></td> <td id="r3c16"></td> <td id="r3c17"></td> <td id="r3c18"></td> </tr>
+<tr> <td id="r4c1"></td> <td id="r4c2"></td> <td id="r4c3"></td> <td id="r4c4"></td> <td id="r4c5"></td> <td id="r4c6"></td> <td id="r4c7"></td> <td id="r4c8"></td> <td id="r4c9"></td> <td id="r4c10"></td> <td id="r4c11"></td> <td id="r4c12"></td> <td id="r4c13"></td> <td id="r4c14"></td> <td id="r4c15"></td> <td id="r4c16"></td> <td id="r4c17"></td> <td id="r4c18"></td> </tr>
+<tr> <td id="r5c1"></td> <td id="r5c2"></td> <td id="r5c3"></td> <td id="r5c4"></td> <td id="r5c5"></td> <td id="r5c6"></td> <td id="r5c7"></td> <td id="r5c8"></td> <td id="r5c9"></td> <td id="r5c10"></td> <td id="r5c11"></td> <td id="r5c12"></td> <td id="r5c13"></td> <td id="r5c14"></td> <td id="r5c15"></td> <td id="r5c16"></td> <td id="r5c17"></td> <td id="r5c18"></td> </tr>
+<tr> <td id="r6c1"></td> <td id="r6c2"></td> <td id="r6c3">&nbsp;-|-</td> <td id="r6c4"></td> <td id="r6c5"></td> <td id="r6c6"></td> <td id="r6c7"></td> <td id="r6c8"></td> <td id="r6c9"></td> <td id="r6c10"></td> <td id="r6c11"></td> <td id="r6c12"></td> <td id="r6c13"></td> <td id="r6c14"></td> <td id="r6c15"></td> <td id="r6c16"></td> <td id="r6c17"></td> <td id="r6c18"></td> </tr>
+<tr> <td id="r7c1"></td> <td id="r7c2"></td> <td id="r7c3">&nbsp;-|-</td> <td id="r7c4"></td> <td id="r7c5"></td> <td id="r7c6"></td> <td id="r7c7"></td> <td id="r7c8"></td> <td id="r7c9"></td> <td id="r7c10"></td> <td id="r7c11"></td> <td id="r7c12"></td> <td id="r7c13"></td> <td id="r7c14"></td> <td id="r7c15"></td> <td id="r7c16"></td> <td id="r7c17"></td> <td id="r7c18"></td> </tr>
+<tr> <td id="r8c1"></td> <td id="r8c2"></td> <td id="r8c3"></td> <td id="r8c4"></td> <td id="r8c5"></td> <td id="r8c6"></td> <td id="r8c7"></td> <td id="r8c8"></td> <td id="r8c9"></td> <td id="r8c10"></td> <td id="r8c11"></td> <td id="r8c12"></td> <td id="r8c13"></td> <td id="r8c14"></td> <td id="r8c15"></td> <td id="r8c16"></td> <td id="r8c17"></td> <td id="r8c18"></td> </tr>
+<tr> <td id="extc1"></td> <td id="extc2"></td> <td id="extc3">&nbsp;&nbsp;|</td> <td id="extc4"></td> <td id="extc5"></td> <td id="extc6"></td> <td id="extc7"></td> <td id="extc8"></td> <td id="extc9"></td> <td id="extc10"></td> <td id="extc11"></td> <td id="extc12"></td> <td id="extc13"></td> <td id="extc14"></td> <td id="extc15"></td> <td id="extc16"></td> <td id="extc17"></td> <td id="extc18"></td> </tr>
+<tr> <td id="r9c1"></td> <td id="r9c2"></td> <td id="r9c3">&nbsp;&nbsp;|-</td> <td id="r9c4"></td> <td id="r9c5"></td> <td id="r9c6"></td> <td id="r9c7"></td> <td id="r9c8"></td> <td id="r9c9"></td> <td id="r9c10"></td> <td id="r9c11"></td> <td id="r9c12"></td> <td id="r9c13"></td> <td id="r9c14"></td> <td id="r9c15"></td> <td id="r9c16"></td> <td id="r9c17"></td> <td id="r9c18"></td> </tr>
+<tr> <td id="r10c1"></td> <td id="r10c2"></td> <td id="r10c3">&nbsp;&nbsp;|-</td> <td id="r10c4"></td> <td id="r10c5"></td> <td id="r10c6"></td> <td id="r10c7"></td> <td id="r10c8"></td> <td id="r10c9"></td> <td id="r10c10"></td> <td id="r10c11"></td> <td id="r10c12"></td> <td id="r10c13"></td> <td id="r10c14"></td> <td id="r10c15"></td> <td id="r10c16"></td> <td id="r10c17"></td> <td id="r10c18"></td> </tr>
+</table>
+<br>&nbsp;<br>
+<div id="testresult"  style="font-family:monospace; font-size: 14pt;color: rgb(255, 10, 10); background-color: rgb(255,255,255); ">Working</div>
+<div id="ConfView"  style="font-family:monospace; font-size: 14pt;color: rgb(0, 0, 0); 
+background-color: rgb(255,255,220); ">config</div>
+<!--  -->  
+
+<!--  TESTING
+<div id="EventView"  style="font-family:monospace; font-size: 12pt;color: rgb(255, 10, 10); background-color: rgb(255,255,128); ">Testing</div>
+<br>
+  <button style="margin: 0px;background-color:none;"    onclick="javascript:alt1();">
+        <big><big>ALT 1
+        </button>          
+  <button style="margin: 0px; background-color:rgb(255,100,100);"    onclick="javascript:alt2();">
+        <big><big>ALTERNATVE 2
+        </button>   
+-->
+
+</td>
+<td valign="top">
+<!--   -------------------------     THE CANVAS             ------------------  -->
+ <div id="container"   style="position: relative;">       
+<canvas id="BOTTOM" position: relative; left: 0px; top: 0px;"           width="600" height="400" border: 0px"></canvas>
+<!--   ----
+<canvas id="DRAW_AREA" style="position: relative; left: 0px; top: 0px;" width="600" height="400" border: 0px"></canvas>
+-->
+  
+
+
+</td>
+
+</tr>
+</table>
+
+<table width="1200" cellpadding="0" cellspacing="0" border="0">
+<tr><td>
+
+
+<div id="FullConfView"  style="font-family:monospace; font-size: 12pt;color: rgb(0, 10, 255); 
+background-color: rgb(255,255,229); ">config</div>
+<br>
+<div id="FullConfView"  style="font-family:monospace; font-size: 10pt;color: rgb(128,128,128); 
+background-color: rgb(220,220,220); ">
+Author: Ladislav.Kocbach@uib.no   &nbsp;&nbsp;&nbsp;
+Location: <a href="https://folk.uib.no/nfylk/CONF/">folk.uib.no/nfylk/CONF/</a>
+<br>
+Based on John Taylor's idea 
+<a href="http://fscj.me/e-1Spectroscopic/pc.html">
+fscj.me/e-1Spectroscopic/pc.html</a> using images.
+&nbsp;&nbsp;&nbsp;
+(see also a slightly modified copy at 
+<a href="https://folk.uib.no/nfylk/SPECT/">
+folk.uib.no/nfylk/SPECT/)</a>
+</div>
+
+<br>
+<div id="FullConfView"  style="font-family:monospace; font-size: 12pt;color: rgb(128,128,128); 
+background-color: rgb(220,220,220); ">
+An extended version is available: <a href="Atomic_Configurations_v2.html">
+Atomic_Configurations_v2.html</a>
+</div>
+</td></tr>
+</table>
+
+<!--    The table produced from the first row
+by using vi, using J to join into 1 line
+and then copied the line 9 times
+and using the vi commands:
+:s!r1!r2!g
+:s!r1!r3!g
+:s!r1!r4!g
+:s!r1!r5!g
+:s!r1!r6!g
+:s!r1!r7!g
+:s!r1!r8!g
+:s!r1!r9!g
+:s!r1!r10!g
+The design of the first row
+<tr>
+<td id="r1c1"></td>
+<td id="r1c2"></td>
+<td id="r1c3"></td>
+<td id="r1c4"></td>
+<td id="r1c5"></td>
+<td id="r1c6"></td>
+<td id="r1c7"></td>
+<td id="r1c8"></td>
+<td id="r1c9"></td>
+<td id="r1c10"></td>
+<td id="r1c11"></td>
+<td id="r1c12"></td>
+<td id="r1c13"></td>
+<td id="r1c14"></td>
+<td id="r1c15"></td>
+<td id="r1c16"></td>
+<td id="r1c17"></td>
+<td id="r1c18"></td>
+</tr>
+-->
+
+
+</body>
+</html>
+
+
